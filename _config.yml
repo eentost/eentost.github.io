@@ -100,9 +100,9 @@ analytics:
 
 # Site Author
 author:
-  name             : "Your Name"
+  name             : "Cybersecurity Researcher & Educator"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "I am an **amazing** person."
+  bio              : "Passionate about cybersecurity **amazing** person."
   location         : "Somewhere"
   email            :
   links:
