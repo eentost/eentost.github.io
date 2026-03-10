@@ -16,7 +16,7 @@ minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt"
 
 # Site Settings
 locale                   : "en-US"
-title                : "EENTOST - Cybersecurity & Technology Blog"s
+title                : "EENTOST - Cybersecurity & Technology Blog"
 subtitle             : # site tagline that appears below site title in masthead
 name                     : "eentost"
 description        : "Educational content on cybersecurity, malware analysis, ransomware defense, cloud security, and digital threats. Available in English and Korean."
