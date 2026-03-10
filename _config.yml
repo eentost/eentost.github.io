@@ -16,12 +16,10 @@ minimal_mistakes_skin    : "default" # "air", "aqua", "contrast", "dark", "dirt"
 
 # Site Settings
 locale                   : "en-US"
-"EENTOST - Cybersecurity & Technology Blog"title_separator          : "-"
-subtitle                 : # site tagline that appears below site title in masthead
+title                : "EENTOST - Cybersecurity & Technology Blog"subtitle                 : # site tagline that appears below site title in masthead
 name                     : "eentost"
-"Educational content on cybersecurity, malware analysis, ransomware defense, cloud security, and digital threats. Available in English and Korean."url                      : "https://eentost.github.io"
-baseurl                  : # the subpath of your site, e.g. "/blog"
-repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
+description        : "Educational content on cybersecurity, malware analysis, ransomware defense, cloud security, and digital threats. Available in English and Korean."
+url                : "https://eentost.github.io"repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
