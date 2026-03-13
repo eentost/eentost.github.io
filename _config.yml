@@ -151,7 +151,7 @@ footer:
 include:
   - .htaccess
   - _pages
-exclude:
+ - ads.txt
   - "*.sublime-project"
   - "*.sublime-workspace"
   - vendor
