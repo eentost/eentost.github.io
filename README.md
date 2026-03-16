@@ -1,6 +1,6 @@
 # EENTOST - Cybersecurity & Technology Blog
 
-## Welcome 👋
+## Welcome 
 
 Welcome to **EENTOST**, a comprehensive cybersecurity and technology blog dedicated to sharing knowledge, insights, and practical guidance on the latest security threats, defense strategies, and emerging technologies.
 
