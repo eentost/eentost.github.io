@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>Aim Rush - Shooting Practice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 45%, #000 100%);
+      color: #e5e7eb;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .game-container {
+      width: min(480px, 100vw);
+      height: min(720px, 100vh);
+      background: linear-gradient(145deg, rgba(15,23,42,0.95), rgba(2,6,23,0.98));
+      border-radius: 18px;
+      box-shadow:
+        0 20px 40px rgba(0,0,0,0.7),
+        0 0 40px rgba(56,189,248,0.35);
+      border: 1px solid rgba(148,163,184,0.35);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    .header {
+      padding: 12px 16px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(148,163,184,0.3);
+      background: linear-gradient(to bottom, rgba(15,23,42,0.95), rgba(15,23,42,0.75));
+      backdrop-filter: blur(10px);
+      z-index: 5;
+    }
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #f9fafb;
+    }
+    .title span {
+      color: #22d3ee;
+    }
+    .pill {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(94,234,212,0.4);
+      background: radial-gradient(circle at top left, rgba(45,212,191,0.15), transparent 60%);
+      color: #a5f3fc;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 6px rgba(34,197,94,0.9);
+    }
+
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 8px 10px 10px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.9), transparent 60%);
+      border-bottom: 1px solid rgba(51,65,85,0.9);
+      z-index: 4;
+    }
+    .hud-item {
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: radial-gradient(circle at top left, rgba(15,23,42,0.95), rgba(15,23,42,0.8));
+      border: 1px solid rgba(55,65,81,0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hud-label {
+      color: #9ca3af;
+      font-size: 10px;
+    }
+    .hud-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #e5e7eb;
+    }
+    .hud-item::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(56,189,248,0.16), transparent 70%);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .playfield {
+      position: relative;
+      flex: 1;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(59,130,246,0.12), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(236,72,153,0.12), transparent 55%),
+        radial-gradient(circle at 50% 100%, rgba(56,189,248,0.16), transparent 60%),
+        radial-gradient(circle at 50% 20%, rgba(15,23,42,0.9), rgba(15,23,42,1));
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    .crosshair {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.85);
+      box-shadow:
+        0 0 0 1px rgba(15,23,42,0.9),
+        0 0 12px rgba(56,189,248,0.6);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .crosshair::before,
+    .crosshair::after {
+      content: "";
+      position: absolute;
+      background: rgba(148,163,184,0.9);
+    }
+    .crosshair::before {
+      width: 14px;
+      height: 1px;
+    }
+    .crosshair::after {
+      width: 1px;
+      height: 14px;
+    }
+    .crosshair-center {
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: #f97316;
+      box-shadow: 0 0 8px rgba(249,115,22,0.8);
+    }
+
+    .target {
+      position: absolute;
+      border-radius: 999px;
+      width: 42px;
+      height: 42px;
+      background:
+        radial-gradient(circle at 30% 30%, #fefce8, #facc15 40%, transparent 70%),
+        conic-gradient(from 0deg, #22c55e, #22d3ee, #a855f7, #ec4899, #ef4444, #22c55e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 0 2px rgba(15,23,42,0.95),
+        0 0 18px rgba(56,189,248,0.9);
+      cursor: pointer;
+      animation: spawn 0.16s ease-out;
+    }
+    .target-inner {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #fefce8, #f97316 55%, #b91c1c 95%);
+      box-shadow: 0 0 10px rgba(249,115,22,0.8);
+    }
+
+    @keyframes spawn {
+      from {
+        transform: scale(0.4);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .shot {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      border: 2px solid rgba(248,250,252,0.9);
+      box-shadow: 0 0 12px rgba(248,250,252,0.9);
+      pointer-events: none;
+      animation: shot 0.2s ease-out forwards;
+    }
+    @keyframes shot {
+      from { transform: scale(0.3); opacity: 1; }
+      to   { transform: scale(1.5); opacity: 0; }
+    }
+
+    .floating-text {
+      position: absolute;
+      font-size: 13px;
+      font-weight: 700;
+      color: #bbf7d0;
+      text-shadow: 0 0 8px rgba(74,222,128,0.9);
+      pointer-events: none;
+      animation: floatUp 0.6s ease-out forwards;
+    }
+    @keyframes floatUp {
+      from { transform: translateY(0); opacity: 1; }
+      to   { transform: translateY(-20px); opacity: 0; }
+    }
+
+    .center-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      pointer-events: none;
+    }
+    .center-box {
+      width: 100%;
+      max-width: 280px;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.98), rgba(15,23,42,0.97));
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.5);
+      box-shadow:
+        0 18px 35px rgba(0,0,0,0.9),
+        0 0 22px rgba(129,140,248,0.6);
+      padding: 16px 18px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+      pointer-events: auto;
+      animation: fadeIn 0.25s ease-out;
+    }
+    .center-title {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+    .center-sub {
+      font-size: 12px;
+      color: #9ca3af;
+      line-height: 1.4;
+    }
+    .big-number {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fbbf24;
+      text-shadow: 0 0 16px rgba(245,158,11,0.9);
+    }
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: #e5e7eb;
+    }
+    .stats-row span {
+      color: #9ca3af;
+      font-size: 11px;
+    }
+
+    .btn {
+      margin-top: 4px;
+      padding: 9px 0;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow:
+        0 12px 22px rgba(34,197,94,0.45),
+        0 0 18px rgba(56,189,248,0.55);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
+    }
+    .btn:active {
+      transform: translateY(2px) scale(0.98);
+      box-shadow:
+        0 6px 12px rgba(22,163,74,0.45),
+        0 0 10px rgba(56,189,248,0.55);
+      filter: brightness(0.95);
+    }
+
+    .hint {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    @keyframes fadeIn {
+      from { transform: translateY(8px); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+
+    @media (max-width: 480px) {
+      .game-container {
+        border-radius: 0;
+        height: 100vh;
+        width: 100vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="header">
+      <div class="title"><span>AIM</span> RUSH</div>
+      <div class="pill">
+        <div class="pill-dot"></div>
+        REACTION TRAINER
+      </div>
+    </div>
+
+    <div class="hud">
+      <div class="hud-item">
+        <div class="hud-label">Time</div>
+        <div class="hud-value" id="time">30.0s</div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-label">Score</div>
+        <div class="hud-value" id="score">0</div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-label">Accuracy</div>
+        <div class="hud-value" id="accuracy">0%</div>
+      </div>
+    </div>
+
+    <div class="playfield" id="playfield">
+      <div class="crosshair" id="crosshair">
+        <div class="crosshair-center"></div>
+      </div>
+
+      <div class="center-overlay" id="startOverlay">
+        <div class="center-box">
+          <div class="center-title">AIM RUSH</div>
+          <div class="center-sub">
+            30초 동안 나타나는 타겟을 최대한 많이 맞춰서<br />
+            당신의 집중력과 에임을 시험해 보세요.
+          </div>
+          <button class="btn" id="startBtn">게임 시작</button>
+          <div class="hint">마우스 또는 손가락으로 조준 후 클릭 / 탭</div>
+        </div>
+      </div>
+
+      <div class="center-overlay" id="endOverlay" style="display:none;">
+        <div class="center-box">
+          <div class="center-title">라운드 종료</div>
+          <div class="big-number" id="finalScore">0</div>
+          <div class="center-sub" id="resultMessage">좋은 에임입니다!</div>
+          <div class="stats-row">
+            <div>
+              <span>정확도</span><br />
+              <strong id="finalAccuracy">0%</strong>
+            </div>
+            <div>
+              <span>하이스코어</span><br />
+              <strong id="highScore">0</strong>
+            </div>
+          </div>
+          <button class="btn" id="restartBtn">다시 도전</button>
+          <div class="hint">페이지를 새로고침해도 하이스코어는 저장됩니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const playfield = document.getElementById("playfield");
+    const crosshair = document.getElementById("crosshair");
+    const timeEl = document.getElementById("time");
+    const scoreEl = document.getElementById("score");
+    const accuracyEl = document.getElementById("accuracy");
+    const startOverlay = document.getElementById("startOverlay");
+    const endOverlay = document.getElementById("endOverlay");
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const finalScoreEl = document.getElementById("finalScore");
+    const finalAccuracyEl = document.getElementById("finalAccuracy");
+    const resultMessageEl = document.getElementById("resultMessage");
+    const highScoreEl = document.getElementById("highScore");
+
+    let gameActive = false;
+    let timeLeft = 30;
+    let timerId = null;
+    let score = 0;
+    let shots = 0;
+    let hits = 0;
+    let targetSpawnId = null;
+
+    function loadHighScore() {
+      try {
+        const v = localStorage.getItem("aim_rush_highscore");
+        if (v !== null) {
+          highScoreEl.textContent = v;
+        }
+      } catch (e) {}
+    }
+    loadHighScore();
+
+    function updateHUD() {
+      timeEl.textContent = timeLeft.toFixed(1) + "s";
+      scoreEl.textContent = score;
+      const acc = shots > 0 ? Math.round((hits / shots) * 100) : 0;
+      accuracyEl.textContent = acc + "%";
+    }
+
+    function moveCrosshair(x, y) {
+      const rect = playfield.getBoundingClientRect();
+      const cx = Math.max(rect.left, Math.min(rect.right, x)) - rect.left;
+      const cy = Math.max(rect.top, Math.min(rect.bottom, y)) - rect.top;
+      crosshair.style.left = cx + "px";
+      crosshair.style.top = cy + "px";
+    }
+
+    playfield.addEventListener("pointermove", (e) => {
+      moveCrosshair(e.clientX, e.clientY);
+    });
+
+    function spawnTarget() {
+      if (!gameActive) return;
+      const rect = playfield.getBoundingClientRect();
+      const size = 42;
+      const padding = 20;
+
+      const maxX = rect.width - size - padding;
+      const maxY = rect.height - size - padding;
+      const x = padding + Math.random() * maxX;
+      const y = padding + Math.random() * maxY;
+
+      const target = document.createElement("div");
+      target.className = "target";
+      target.style.left = x + "px";
+      target.style.top = y + "px";
+
+      const inner = document.createElement("div");
+      inner.className = "target-inner";
+      target.appendChild(inner);
+
+      const removeTimeout = setTimeout(() => {
+        if (target.parentNode) target.remove();
+      }, 1300);
+
+      target.addEventListener("pointerdown", (e) => {
+        if (!gameActive) return;
+        e.stopPropagation();
+        hits++;
+        score += 100;
+        shots++;
+        updateHUD();
+
+        const fx = document.createElement("div");
+        fx.className = "floating-text";
+        const rectPf = playfield.getBoundingClientRect();
+        fx.style.left = (e.clientX - rectPf.left + 6) + "px";
+        fx.style.top = (e.clientY - rectPf.top - 6) + "px";
+        fx.textContent = "+100";
+        playfield.appendChild(fx);
+        setTimeout(() => fx.remove(), 600);
+
+        target.remove();
+        clearTimeout(removeTimeout);
+      });
+
+      playfield.appendChild(target);
+    }
+
+    function startTargetLoop() {
+      if (targetSpawnId) clearInterval(targetSpawnId);
+      spawnTarget();
+      targetSpawnId = setInterval(() => {
+        if (!gameActive) return;
+        if (Math.random() < 0.85) spawnTarget();
+      }, 480);
+    }
+
+    function handleShotEffect(x, y) {
+      const rect = playfield.getBoundingClientRect();
+      const shot = document.createElement("div");
+      shot.className = "shot";
+      shot.style.left = (x - rect.left) + "px";
+      shot.style.top = (y - rect.top) + "px";
+      playfield.appendChild(shot);
+      setTimeout(() => shot.remove(), 200);
+    }
+
+    playfield.addEventListener("pointerdown", (e) => {
+      if (!gameActive) return;
+      shots++;
+      updateHUD();
+      handleShotEffect(e.clientX, e.clientY);
+    });
+
+    function startTimer() {
+      const start = performance.now();
+      let last = start;
+
+      function tick(now) {
+        if (!gameActive) return;
+        const dt = (now - last) / 1000;
+        last = now;
+        timeLeft = Math.max(0, timeLeft - dt);
+        updateHUD();
+        if (timeLeft <= 0) {
+          endGame();
+        } else {
+          timerId = requestAnimationFrame(tick);
+        }
+      }
+
+      timerId = requestAnimationFrame(tick);
+    }
+
+    function getResultMessage(acc, s) {
+      if (s === 0) return "첫 판은 워밍업입니다. 한 번 더 가죠.";
+      if (acc >= 80 && s >= 2000) return "에임 괴물 수준입니다. 프로 준비하세요.";
+      if (acc >= 65 && s >= 1500) return "상위권 에임입니다. 꿨 날카롭네요.";
+      if (acc >= 50) return "에임이 점점 살아나고 있습니다.";
+      return "연습할수록 더 빨라지고 정확해질 거예요.";
+    }
+
+    function endGame() {
+      gameActive = false;
+      if (timerId) cancelAnimationFrame(timerId);
+      if (targetSpawnId) clearInterval(targetSpawnId);
+
+      const acc = shots > 0 ? Math.round((hits / shots) * 100) : 0;
+      finalScoreEl.textContent = score;
+      finalAccuracyEl.textContent = acc + "%";
+      resultMessageEl.textContent = getResultMessage(acc, score);
+
+      try {
+        const prev = Number(localStorage.getItem("aim_rush_highscore") || "0");
+        if (score > prev) {
+          localStorage.setItem("aim_rush_highscore", String(score));
+          highScoreEl.textContent = score;
+        } else {
+          highScoreEl.textContent = prev;
+        }
+      } catch (e) {}
+
+      endOverlay.style.display = "flex";
+    }
+
+    function resetGameState() {
+      gameActive = false;
+      timeLeft = 30;
+      score = 0;
+      shots = 0;
+      hits = 0;
+      updateHUD();
+      Array.from(document.querySelectorAll(".target")).forEach(t => t.remove());
+      Array.from(document.querySelectorAll(".shot")).forEach(s => s.remove());
+      Array.from(document.querySelectorAll(".floating-text")).forEach(f => f.remove());
+    }
+
+    function startGame() {
+      resetGameState();
+      startOverlay.style.display = "none";
+      endOverlay.style.display = "none";
+      gameActive = true;
+      updateHUD();
+      startTargetLoop();
+      startTimer();
+    }
+
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+
+    window.addEventListener("resize", () => {
+      const rect = playfield.getBoundingClientRect();
+      moveCrosshair(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    });
+
+    window.addEventListener("load", () => {
+      const rect = playfield.getBoundingClientRect();
+      moveCrosshair(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    });
+  </script>
+</body>
+</html>
