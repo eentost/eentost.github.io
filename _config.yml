@@ -285,3 +285,7 @@ defaults:
       comments: # true
       share: true
       related: true
+
+# Exclude from Jekyll build
+exclude:
+  - aim-practice/
