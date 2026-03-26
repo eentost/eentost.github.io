@@ -1,0 +1,58 @@
+# EENTOST - Cybersecurity & Technology Blog
+# SEO-friendly robots.txt configuration
+
+User-agent: *
+Allow: /
+Allow: /posts/
+Allow: /categories/
+Allow: /tags/
+Allow: /assets/
+Allow: /about/
+Allow: /privacy-policy/
+Allow: /ads.txt
+
+# Disallow private or temporary paths
+Disallow: /admin/
+Disallow: /.git/
+Disallow: /node_modules/
+Disallow: /test/
+Disallow: /*.json$ 
+Disallow: /search/
+
+# Google specific
+User-agent: Googlebot
+Allow: /
+Allow: /posts/
+Allow: /categories/
+Allow: /tags/
+Crawl-delay: 0
+
+# Bing specific
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Other search engines
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+# Block bad bots
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+# Sitemap
+Sitemap: https://eentost.github.io/sitemap.xml
+Sitemap: https://eentost.github.io/feed.xml
