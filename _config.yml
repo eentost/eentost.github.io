@@ -14,6 +14,8 @@
 # remote_theme      : "mmistakes/minimal-mistakes"minimal_mistakes_skin  : "default" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 # 
 theme                : "jekyll-theme-minimal"
+keep_files            : ["toy"]
+includes             : ["toy"]
 # Site Settings
 locale                 : "en-US"
 title                  : "EENTOST - Cybersecurity & Technology Blog"
