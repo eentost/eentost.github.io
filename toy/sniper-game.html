@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sniper Elite: Toy City - EENTOST Toy Games</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #050816;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            cursor: none;
+        }
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            background: linear-gradient(to bottom, #1e3a8a, #0f172a);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+        #ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            pointer-events: none;
+        }
+        .stat-box {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            margin-bottom: 10px;
+        }
+        .stat-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #3b82f6; }
+        
+        #crosshair {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 2px solid rgba(59, 130, 246, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+        }
+        #crosshair::before, #crosshair::after {
+            content: '';
+            position: absolute;
+            background-color: rgba(59, 130, 246, 0.8);
+        }
+        #crosshair::before { width: 100%; height: 1px; top: 50%; left: 0; }
+        #crosshair::after { width: 1px; height: 100%; top: 0; left: 50%; }
+        #crosshair .dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #menu {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid #3b82f6;
+            z-index: 200;
+        }
+        h1 { margin-top: 0; color: #3b82f6; letter-spacing: 2px; }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 20px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        button:hover { background: #2563eb; transform: scale(1.05); }
+        .instructions { font-size: 14px; color: #94a3b8; margin: 20px 0; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="ui-layer">
+        <div class="stat-box">
+            <div class="stat-label">Score</div>
+            <div id="score-val" class="stat-value">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Time</div>
+            <div id="time-val" class="stat-value">60</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">Ammo</div>
+            <div id="ammo-val" class="stat-value">10</div>
+        </div>
+    </div>
+
+    <div id="crosshair"><div class="dot"></div></div>
+
+    <div id="menu">
+        <h1>SNIPER ELITE</h1>
+        <div class="instructions">
+            마우스 이동: 조준<br>
+            마우스 클릭: 발사<br>
+            R 키: 재장전 (Ammo 0일 때 자동)<br>
+            움직이는 타겟을 맞추어 점수를 획득하세요!
+        </div>
+        <button id="start-btn">Start Mission</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const crosshair = document.getElementById('crosshair');
+    const scoreEl = document.getElementById('score-val');
+    const timeEl = document.getElementById('time-val');
+    const ammoEl = document.getElementById('ammo-val');
+    const menu = document.getElementById('menu');
+    const startBtn = document.getElementById('start-btn');
+
+    let score = 0;
+    let time = 60;
+    let ammo = 10;
+    let isPlaying = false;
+    let targets = [];
+    let particles = [];
+    let mouseX = 0;
+    let mouseY = 0;
+    let lastTime = 0;
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        crosshair.style.left = mouseX + 'px';
+        crosshair.style.top = mouseY + 'px';
+    });
+
+    class Target {
+        constructor() {
+            this.radius = Math.random() * 20 + 15;
+            this.x = Math.random() * (canvas.width - this.radius * 2) + this.radius;
+            this.y = canvas.height + this.radius;
+            this.speed = Math.random() * 3 + 2;
+            this.angle = Math.random() * Math.PI * 2;
+            this.vx = Math.cos(this.angle) * 2;
+            this.vy = -this.speed;
+            this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
+            this.type = Math.random() > 0.8 ? 'gold' : 'normal';
+            if(this.type === 'gold') {
+                this.color = '#fbbf24';
+                this.radius = 12;
+            }
+        }
+
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if(this.x - this.radius < 0 || this.x + this.radius > canvas.width) this.vx *= -1;
+        }
+
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+            
+            // Outer ring
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Bullseye
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius * 0.4, 0, Math.PI * 2);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+        }
+    }
+
+    class Particle {
+        constructor(x, y, color) {
+            this.x = x;
+            this.y = y;
+            this.color = color;
+            this.size = Math.random() * 5 + 2;
+            this.vx = (Math.random() - 0.5) * 10;
+            this.vy = (Math.random() - 0.5) * 10;
+            this.life = 1;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.life -= 0.02;
+        }
+        draw() {
+            ctx.globalAlpha = this.life;
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    function shoot() {
+        if(!isPlaying || ammo <= 0) return;
+        
+        ammo--;
+        ammoEl.innerText = ammo;
+        
+        // Recoil effect
+        crosshair.style.transform = 'translate(-50%, -50%) scale(1.5)';
+        setTimeout(() => crosshair.style.transform = 'translate(-50%, -50%) scale(1)', 100);
+
+        for(let i = targets.length - 1; i >= 0; i--) {
+            const t = targets[i];
+            const dist = Math.hypot(mouseX - t.x, mouseY - t.y);
+            if(dist < t.radius) {
+                // Hit!
+                const points = t.type === 'gold' ? 50 : 10;
+                score += points;
+                scoreEl.innerText = score;
+                
+                // Explode
+                for(let p=0; p<15; p++) particles.push(new Particle(t.x, t.y, t.color));
+                
+                targets.splice(i, 1);
+                break;
+            }
+        }
+
+        if(ammo === 0) {
+            setTimeout(reload, 1000);
+        }
+    }
+
+    function reload() {
+        ammo = 10;
+        ammoEl.innerText = ammo;
+    }
+
+    window.addEventListener('click', shoot);
+    window.addEventListener('keydown', (e) => {
+        if(e.key.toLowerCase() === 'r') reload();
+    });
+
+    function spawnTarget() {
+        if(isPlaying && targets.length < 8) {
+            targets.push(new Target());
+        }
+        setTimeout(spawnTarget, Math.random() * 1000 + 500);
+    }
+
+    function gameLoop(timestamp) {
+        if(!isPlaying) return;
+
+        const deltaTime = timestamp - lastTime;
+        lastTime = timestamp;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw background detail
+        ctx.strokeStyle = 'rgba(59, 130, 246, 0.1)';
+        for(let i=0; i<canvas.width; i+=100) {
+            ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+        }
+        for(let i=0; i<canvas.height; i+=100) {
+            ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+        }
+
+        targets.forEach((t, index) => {
+            t.update();
+            t.draw();
+            if(t.y + t.radius < -10) targets.splice(index, 1);
+        });
+
+        particles.forEach((p, index) => {
+            p.update();
+            p.draw();
+            if(p.life <= 0) particles.splice(index, 1);
+        });
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    function startTimer() {
+        const timer = setInterval(() => {
+            if(!isPlaying) { clearInterval(timer); return; }
+            time--;
+            timeEl.innerText = time;
+            if(time <= 0) {
+                endGame();
+                clearInterval(timer);
+            }
+        }, 1000);
+    }
+
+    function endGame() {
+        isPlaying = false;
+        menu.style.display = 'block';
+        menu.innerHTML = `
+            <h1>MISSION OVER</h1>
+            <div class="stat-value" style="font-size: 48px; margin: 20px 0;">Score: ${score}</div>
+            <button onclick="location.reload()">Try Again</button>
+        `;
+        document.body.style.cursor = 'default';
+    }
+
+    startBtn.addEventListener('click', () => {
+        menu.style.display = 'none';
+        isPlaying = true;
+        score = 0;
+        time = 60;
+        ammo = 10;
+        targets = [];
+        scoreEl.innerText = '0';
+        timeEl.innerText = '60';
+        ammoEl.innerText = '10';
+        document.body.style.cursor = 'none';
+        lastTime = performance.now();
+        requestAnimationFrame(gameLoop);
+        startTimer();
+    });
+
+    spawnTarget();
+</script>
+</body>
+</html>
