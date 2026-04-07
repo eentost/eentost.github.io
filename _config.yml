@@ -1,127 +1,44 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your whole site, values
-# which you are expected to set up once and rarely need to edit after that.
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'jekyll serve'. If you change this file, please restart the server process.
-
 # Site Settings
 locale                   : "ko-KR"
 title                    : "EENTOST - Cybersecurity & Technology Blog"
-subtitle                 : "Educational content on cybersecurity, malware analysis, ransomware defense, cloud security, and digital threats. Available in Korean and English."
+subtitle                 : "Educational content on cybersecurity, malware analysis, ransomware defense, cloud security, and digital threats."
 name                     : "EENTOST"
-description              : "Educational content on cybersecurity, malware analysis, ransomware defense, cloud security, and digital threats. Available in Korean and English."
+description              : "Educational content on cybersecurity, malware analysis, ransomware defense, cloud security, and digital threats."
 url                      : "https://eentost.github.io"
-teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
-logo                     : # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
-masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
-breadcrumbs              : false # true, false (default)
+teaser                   :
+logo                     :
+masthead_title           :
+breadcrumbs              : false
 words_per_minute         : 200
 
-# Comments
-disqus:
-  shortname            : # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
-comments :
-  provider             : # false (default), "disqus", "discourse", "facebook", "staticman", "staticman_v2", "utterances", "giscus", "custom"
-  disqus :
-    shortname          : # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
-  discourse :
-    server             : # https://meta.discourse.org/t/embedding-discourse-comments-via-javascript/31963 , e.g.: meta.discourse.org
-  facebook :
-    appid              :
-    num_posts          : # 5 (default)
-    colorscheme        : # "light" (default), "dark"
-  utterances :
-    theme              : # "github-light" (default), "github-dark"
-    issue_term         : # "pathname" (default)
-  giscus :
-    repo_id            : # Shown during giscus setup at https://giscus.app
-    category_name      : # Full text name of the category
-  staticman :
-    branch             : # "master"
-    endpoint           : # "https://{your Staticman v3 API endpoint}/v1/entry/"
-  custom :
-    script             :
-atom_feed :
-  hide                 : false # true, false (default)
-  path                 : # blank (default) uses feed.xml
+# Author
+author :
+  name                   : "EENTOST"
+  avatar                 :
+  bio                    : "Cybersecurity & Technology researcher specializing in malware analysis, ransomware defense, cloud security, and digital threat detection. Sharing educational content to help professionals stay secure."
+  location               : "Seoul, South Korea"
+  email                  :
+  uri                    : https://eentost.github.io
+  github                 : eentost
+  twitter                : eentost
 
-  # Search
-search                   : true # true, false (default)
-search_full_content      : true # true, false (default)
-search_provider          : lunr # lunr (default), algolia, google
-algolia :
-  application_id         : # YOUR_APPLICATION_ID
-  index_name             : # YOUR_INDEX_NAME
-  search_only_api_key    : # YOUR_SEARCH_ONLY_API_KEY
-  powered_by             : # true (default), false
-google :
-  search_engine_id       : # YOUR_SEARCH_ENGINE_ID
-  instant_search         : # false (default), true
-
-  # Analytics
+# Analytics
 analytics :
-  provider               : google-gtag # false (default), "google", "google-universal", "google-gtag", "custom"
+  provider               : google-gtag
   google :
-    tracking_id          : "G-XXXXXXXXXX" # Replace with your GA4 Measurement ID
-    anonymize_ip         : # true, false (default)
-google_site_verification : # Replace with your Google Search Console verification code
-bing_site_verification   : # Replace with your Bing verification code
-yandex_site_verification : # Replace with Yandex verification code
-naver_site_verification  : # Replace with Naver verification code
+    tracking_id          : "G-XXXXXXXXXX"
+google_site_verification :
+bing_site_verification   :
 
 # SEO
 seo :
   type                   : Person
   name                   : EENTOST
-  links :
-    - type               : github
-      url                : https://github.com/eentost
-    - type               : twitter
-      url                : https://twitter.com/eentost
   twitter :
     username             : eentost
-  facebook :
-    username             :
-    app_id               :
-    publishers           :
   og_locale              : ko_KR
 
-  # Author
-author :
-  name                   : "EENTOST"
-  avatar                 : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio                    : "Cybersecurity & Technology researcher specializing in malware analysis, ransomware defense, cloud security, and digital threat detection. Sharing educational content to help professionals and enthusiasts stay secure."
-  location               : "Seoul, South Korea"
-  email                  : # Do not add email here - use contact page instead
-  uri                    : https://eentost.github.io
-  bitbucket              :
-  codepen                :
-  dribbble               :
-  flickr                 :
-  facebook               :
-  foursquare             :
-  github                 : eentost
-  gitlab                 :
-  google_plus            :
-  keybase                :
-  instagram              :
-  lastfm                 :
-  linkedin               : # eentost
-  mastodon               :
-  medium                 :
-  pinterest              :
-  soundcloud             :
-  stackoverflow          : # http://stackoverflow.com/users/123456/username
-  steam                  :
-  tumblr                 :
-  twitter                : eentost
-  vine                   :
-  weibo                  :
-  xing                   :
-  youtube                :
-
-  # Reading Files
+# Reading Files
 include :
   - .htaccess
   - _pages
@@ -151,131 +68,28 @@ exclude :
   - Rakefile
   - README
   - tmp
-  - /docs # ignore Minimal Mistakes docs
-  - /test # ignore test files
-
-  keep_files :
+  - /docs
+  - /test
+keep_files :
   - .git
   - .svn
-encoding : "utf-8"
-markdown_ext : "markdown,mkdown,mkdn,mkd,md"
+encoding                 : "utf-8"
+markdown_ext             : "markdown,mkdown,mkdn,mkd,md"
 
 # Conversion
-markdown : kramdown
-highlighter : rouge
-lsi : false
-excerpt_separator : "\n\n"
-incremental : false
+markdown                 : kramdown
+highlighter              : rouge
+lsi                      : false
+excerpt_separator        : "\n\n"
+incremental              : false
 
-# Markdown Processing
+# kramdown
 kramdown :
-  input : GFM
-  hard_wrap : false
-  auto_ids : true
-  footnote_nr : 1
-  entity_output : as_char
-  toc_levels : 1..6
-  smart_quotes : lsquo,rsquo,ldquo,rdquo
-  enable_coderay : false
-
-  # Theme Settings
-theme : jekyll-theme-minimal
-minimal_mistakes_skin : "default" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
-
-# Locale Text
-data_text :
-  home : "Home"
-  skip_primary_nav : "Skip to primary navigation"
-  skip_content : "Skip to content"
-  skip_footer : "Skip to footer"
-  results_found : "Result(s) found"
-  search_placeholder_text : "Enter your search term..."
-  powered_by : "Powered by"
-
-  # Footer
-footer :
-  links :
-    - label : "About"
-      icon : "fas fa-info-circle"
-      url : "/about"
-    - label : "Privacy Policy"
-      icon : "fas fa-shield-alt"
-      url : "/privacy-policy"
-    - label : "Terms of Service"
-      icon : "fas fa-file-contract"
-      url : "/terms"
-    - label : "Contact"
-      icon : "fas fa-envelope"
-      url : "/about/#contact"
-
-      # Sidebar
-sidebar :
-  title : "EENTOST"
-  name : "EENTOST"
-  bio : "Cybersecurity & Technology researcher specializing in malware analysis, ransomware defense, cloud security, and digital threat detection."
-  links :
-    - label : "GitHub"
-      icon : "fab fa-github"
-      url : "https://github.com/eentost"
-    - label : "Twitter"
-      icon : "fab fa-twitter"
-      url : "https://twitter.com/eentost"
-    - label : "Blog"
-      icon : "fas fa-rss"
-      url : "/"
-
-# Masthead
-masthead :
-  title : "EENTOST"
-  subtitle : "Cybersecurity & Technology Blog"
-  links :
-    - label : "About"
-      url : "/about"
-    - label : "Blog"
-      url : "/"
-    - label : "Categories"
-      url : "/categories/"
-
-      # Collections
-collections :
-  docs :
-    output : true
-    permalink : /docs/:path/
-
-# Defaults
-defaults :
-  # _posts
-  - scope :
-      path : "_posts"
-      type : posts
-    values :
-      layout : single
-      author_profile : true
-      read_time : true
-      comments : # true
-      share : true
-      related : true
-  # _pages
-  - scope :
-      path : ""
-      type : pages
-    values :
-      layout : single
-      author_profile : true
-
-      # Pagination
-paginate : 10
-paginate_path : "/page:num/"
-
-# Category Archive
-category_archive :
-  type : liquid
-  path : /categories/
-
-# Tag Archive
-tag_archive :
-  type : liquid
-  path : /tags/
-
-# Archive Settings
-archive_layout : grid
+  input                  : GFM
+  hard_wrap              : false
+  auto_ids               : true
+  footnote_nr            : 1
+  entity_output          : as_char
+  toc_levels             : 1..6
+  smart_quotes           : lsquo,rsquo,ldquo,rdquo
+  enable_coderay         : false
