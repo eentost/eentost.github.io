@@ -1,139 +1,132 @@
 # Welcome to Jekyll!
 #
-# This config file is meant for settings that affect your entire site, values
+# This config file is meant for settings that affect your whole site, values
 # which you are expected to set up once and rarely need to edit after that.
 # For technical reasons, this file is *NOT* reloaded automatically when you use
-# `jekyll serve`. If you change this file, please restart the server process.
+# 'jekyll serve'. If you change this file, please restart the server process.
 
-# Theme Settings
-#
-# Review documentation to determine if you should use `theme` or `remote_theme`
-# https://mmistakes.github.io/minimal-mistakes/docs/quick-start-guide/#installing-the-theme
-
-# theme                  : "minimal-mistakes-jekyll"
-# remote_theme      : "mmistakes/minimal-mistakes"minimal_mistakes_skin  : "default" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
-# 
-theme                : "jekyll-theme-minimal"
-keep_files            : ["toy"]
-includes             : ["toy"]
 # Site Settings
-locale                 : "en-US"
-title                  : "EENTOST - Cybersecurity & Technology Blog"
-subtitle               : # site tagline that appears below site title in masthead
-name                   : "eentost"
-description            : "Educational content on cybersecurity, malware analysis, ransomware defense, cloud security, and digital threats. Available in Korean and English."
-url                    : "https://eentost.github.io"
-teaser                 : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
-logo                   : # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
-masthead_title         : # overrides the website title displayed in the masthead, use " " for no title
-# breadcrumbs          : false # true, false (default)
-words_per_minute       : 200
-comments:
+locale                   : "ko-KR"
+title                    : "EENTOST - Cybersecurity & Technology Blog"
+subtitle                 : "Educational content on cybersecurity, malware analysis, ransomware defense, cloud security, and digital threats. Available in Korean and English."
+name                     : "EENTOST"
+description              : "Educational content on cybersecurity, malware analysis, ransomware defense, cloud security, and digital threats. Available in Korean and English."
+url                      : "https://eentost.github.io"
+teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
+logo                     : # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
+masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
+breadcrumbs              : false # true, false (default)
+words_per_minute         : 200
+
+# Comments
+disqus:
+  shortname            : # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
+comments :
   provider             : # false (default), "disqus", "discourse", "facebook", "staticman", "staticman_v2", "utterances", "giscus", "custom"
-  disqus:
+  disqus :
     shortname          : # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
-  discourse:
+  discourse :
     server             : # https://meta.discourse.org/t/embedding-discourse-comments-via-javascript/31963 , e.g.: meta.discourse.org
-  utterances:
+  facebook :
+    appid              :
+    num_posts          : # 5 (default)
+    colorscheme        : # "light" (default), "dark"
+  utterances :
     theme              : # "github-light" (default), "github-dark"
     issue_term         : # "pathname" (default)
-  giscus:
+  giscus :
     repo_id            : # Shown during giscus setup at https://giscus.app
     category_name      : # Full text name of the category
-    category_id        : # Shown during giscus setup at https://giscus.app
-    discussion_term    : # "pathname" (default), "url", "title", "og:title"
-    reactions_enabled  : # '1' for enabled (default), '0' for disabled
-    theme              : # "light" (default), "dark", "dark_dimmed", "transparent_dark", "preferred_color_scheme"
-staticman:
-  allowedOrigins       : ["https://eentost.github.io"]
-  branch               : "master"
-  endpoint             : # "https://{your Staticman v3 API}/v3/entry/github/"
-reCaptcha:
-  siteKey              :
-  secret               :
-atom_feed:
+  staticman :
+    branch             : # "master"
+    endpoint           : # "https://{your Staticman v3 API endpoint}/v1/entry/"
+  custom :
+    script             :
+atom_feed :
+  hide                 : false # true, false (default)
   path                 : # blank (default) uses feed.xml
-  hide                 : # true, false (default)
-search                 : # true, false (default)
-search_full_content    : # true, false (default)
-search_provider        : # lunr (default), algolia, google
-algolia:
-  application_id       : # YOUR_APPLICATION_ID
-  index_name           : # YOUR_INDEX_NAME
-  search_only_api_key  : # YOUR_SEARCH_ONLY_API_KEY
-  powered_by           : # true (default), false
-google:
-  search_engine_id     : # YOUR_SEARCH_ENGINE_ID
-  instant_search       : # false (default), true
-# SEO Related
-google_site_verification :
-bing_site_verification   :
-yandex_site_verification :
-naver_site_verification  :
 
-# Social Sharing
-twitter:
-  username             :
-facebook:
-  username             :
-  app_id               :
-  publisher            :
-og_image               : # Open Graph/Twitter default site image
-# For specifying social profiles
-# - https://developers.google.com/structured-data/customize/social-profiles
-social:
-  type                 : # Person or Organization (defaults to Person)
-  name                 : # If the user or organization name differs from the site's name
-  links: # An array of links to social media profiles
+  # Search
+search                   : true # true, false (default)
+search_full_content      : true # true, false (default)
+search_provider          : lunr # lunr (default), algolia, google
+algolia :
+  application_id         : # YOUR_APPLICATION_ID
+  index_name             : # YOUR_INDEX_NAME
+  search_only_api_key    : # YOUR_SEARCH_ONLY_API_KEY
+  powered_by             : # true (default), false
+google :
+  search_engine_id       : # YOUR_SEARCH_ENGINE_ID
+  instant_search         : # false (default), true
 
-# Analytics
-analytics:
-  provider             : false # false (default), "google", "google-universal", "google-gtag", "custom"
-  google:
-    tracking_id        :
-    anonymize_ip       : # true, false (default)
+  # Analytics
+analytics :
+  provider               : google-gtag # false (default), "google", "google-universal", "google-gtag", "custom"
+  google :
+    tracking_id          : "G-XXXXXXXXXX" # Replace with your GA4 Measurement ID
+    anonymize_ip         : # true, false (default)
+google_site_verification : # Replace with your Google Search Console verification code
+bing_site_verification   : # Replace with your Bing verification code
+yandex_site_verification : # Replace with Yandex verification code
+naver_site_verification  : # Replace with Naver verification code
 
+# SEO
+seo :
+  type                   : Person
+  name                   : EENTOST
+  links :
+    - type               : github
+      url                : https://github.com/eentost
+    - type               : twitter
+      url                : https://twitter.com/eentost
+  twitter :
+    username             : eentost
+  facebook :
+    username             :
+    app_id               :
+    publishers           :
+  og_locale              : ko_KR
 
-# Site Author
-author:
-  name             : "komonana"
-  avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "Passionate about cybersecurity **amazing** person."
-  location         : "Seoul, KR"
-  email            : "eentost@gmail.com"
-  links:
-    - label: "Email"
-      icon: "fas fa-fw fa-envelope-square"
-      url: "mailto:eentost@gmail.com"
+  # Author
+author :
+  name                   : "EENTOST"
+  avatar                 : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
+  bio                    : "Cybersecurity & Technology researcher specializing in malware analysis, ransomware defense, cloud security, and digital threat detection. Sharing educational content to help professionals and enthusiasts stay secure."
+  location               : "Seoul, South Korea"
+  email                  : # Do not add email here - use contact page instead
+  uri                    : https://eentost.github.io
+  bitbucket              :
+  codepen                :
+  dribbble               :
+  flickr                 :
+  facebook               :
+  foursquare             :
+  github                 : eentost
+  gitlab                 :
+  google_plus            :
+  keybase                :
+  instagram              :
+  lastfm                 :
+  linkedin               : # eentost
+  mastodon               :
+  medium                 :
+  pinterest              :
+  soundcloud             :
+  stackoverflow          : # http://stackoverflow.com/users/123456/username
+  steam                  :
+  tumblr                 :
+  twitter                : eentost
+  vine                   :
+  weibo                  :
+  xing                   :
+  youtube                :
 
-# Site Footer
-footer:
-  links:
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      url:
-    - label: "Facebook"
-      icon: "fab fa-fw fa-facebook-square"
-      url:
-    - label: "GitHub"
-      icon: "fab fa-fw fa-github"
-      url:
-    - label: "GitLab"
-      icon: "fab fa-fw fa-gitlab"
-      url:
-    - label: "Bitbucket"
-      icon: "fab fa-fw fa-bitbucket"
-      url:
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      url:
-
-
-# Reading Files
-include:
+  # Reading Files
+include :
   - .htaccess
   - _pages
-exclude:
+  - files
+exclude :
   - "*.sublime-project"
   - "*.sublime-workspace"
   - vendor
@@ -145,94 +138,144 @@ exclude:
   - assets/js/_main.js
   - assets/js/vendor
   - Capfile
+  - CHANGELOG
   - config
   - Gemfile
-  - Gemfile.lock
-  - Gemfile.lock
+  - Gruntfile.js
+  - gulpfile.js
   - LICENSE
-  - node_modules
-  - package-json.lock
-  - package.json
-  - Rakefile
-  - README.md
-  - screenshot-layouts.png
-  - screenshot.png
   - log
+  - node_modules
+  - package.json
+  - package-lock.json
+  - Rakefile
+  - README
   - tmp
-  - aim-practice
-keep_files:
+  - /docs # ignore Minimal Mistakes docs
+  - /test # ignore test files
+
+  keep_files :
   - .git
   - .svn
-encoding: "utf-8"
-markdown_ext: "markdown,mkdown,mkd,mw,md"
-
+encoding : "utf-8"
+markdown_ext : "markdown,mkdown,mkdn,mkd,md"
 
 # Conversion
-markdown: kramdown
-highlighter: rouge
-lsi: false
-excerpt_separator: "
-
-"
-incremental: false
-
+markdown : kramdown
+highlighter : rouge
+lsi : false
+excerpt_separator : "\n\n"
+incremental : false
 
 # Markdown Processing
-kramdown:
-  input: GFM
-  hard_wrap: false
-  auto_ids: true
-  footnote_nr: 1
-  entity_output: as_char
-  toc_levels: 1..6
-  smart_quotes: lsquo,rsquo,ldquo,rdquo
-  enable_coderay: false
+kramdown :
+  input : GFM
+  hard_wrap : false
+  auto_ids : true
+  footnote_nr : 1
+  entity_output : as_char
+  toc_levels : 1..6
+  smart_quotes : lsquo,rsquo,ldquo,rdquo
+  enable_coderay : false
 
+  # Theme Settings
+theme : jekyll-theme-minimal
+minimal_mistakes_skin : "default" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
-# Outputting
-permalink: /:categories/:title/
-paginate: 5 # amount of posts to show per page
-paginate_path: /page:num/
-timezone: # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+# Locale Text
+data_text :
+  home : "Home"
+  skip_primary_nav : "Skip to primary navigation"
+  skip_content : "Skip to content"
+  skip_footer : "Skip to footer"
+  results_found : "Result(s) found"
+  search_placeholder_text : "Enter your search term..."
+  powered_by : "Powered by"
 
+  # Footer
+footer :
+  links :
+    - label : "About"
+      icon : "fas fa-info-circle"
+      url : "/about"
+    - label : "Privacy Policy"
+      icon : "fas fa-shield-alt"
+      url : "/privacy-policy"
+    - label : "Terms of Service"
+      icon : "fas fa-file-contract"
+      url : "/terms"
+    - label : "Contact"
+      icon : "fas fa-envelope"
+      url : "/about/#contact"
 
-# Plugins (formerly gems)
-plugins:
-  - jekyll-paginate
-  - jekyll-sitemap
-  - jekyll-gist
-  - jekyll-feed
-  - jemoji
-  - jekyll-include-cache
+      # Sidebar
+sidebar :
+  title : "EENTOST"
+  name : "EENTOST"
+  bio : "Cybersecurity & Technology researcher specializing in malware analysis, ransomware defense, cloud security, and digital threat detection."
+  links :
+    - label : "GitHub"
+      icon : "fab fa-github"
+      url : "https://github.com/eentost"
+    - label : "Twitter"
+      icon : "fab fa-twitter"
+      url : "https://twitter.com/eentost"
+    - label : "Blog"
+      icon : "fas fa-rss"
+      url : "/"
 
-# mimic GitHub Pages with jekyll-github-metadata
-repository: "eentost/eentost.github.io"
+# Masthead
+masthead :
+  title : "EENTOST"
+  subtitle : "Cybersecurity & Technology Blog"
+  links :
+    - label : "About"
+      url : "/about"
+    - label : "Blog"
+      url : "/"
+    - label : "Categories"
+      url : "/categories/"
 
-
-# Collections
-collections:
-  posts:
-    output: true
-    permalink: /:categories/:title/
-
+      # Collections
+collections :
+  docs :
+    output : true
+    permalink : /docs/:path/
 
 # Defaults
-defaults:
+defaults :
   # _posts
-  - scope:
-      path: ""
-      type: posts
-    values:
-      layout: single
-      author_profile: true
-      read_time: true
-      comments: # true
-      share: true
-      related: true
+  - scope :
+      path : "_posts"
+      type : posts
+    values :
+      layout : single
+      author_profile : true
+      read_time : true
+      comments : # true
+      share : true
+      related : true
   # _pages
-  - scope:
-      path: "_pages"
-      type: pages
-    values:
-      layout: single
-      author_profile: true
+  - scope :
+      path : ""
+      type : pages
+    values :
+      layout : single
+      author_profile : true
+
+      # Pagination
+paginate : 10
+paginate_path : "/page:num/"
+
+# Category Archive
+category_archive :
+  type : liquid
+  path : /categories/
+
+# Tag Archive
+tag_archive :
+  type : liquid
+  path : /tags/
+
+# Archive Settings
+archive_layout : grid
