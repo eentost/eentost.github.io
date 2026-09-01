@@ -1,12 +1,12 @@
 ---
-layout: post
+layout: single
 title: "Cloud Security Best Practices for AWS, Azure, and GCP"
 date: 2026-03-07
 categories: cloud-security cybersecurity
 tags: aws azure gcp cloud-infrastructure
 ---
 
-# Cloud Security Guide
+## Cloud Security Guide
 
 Cloud computing has transformed how organizations deploy and manage IT infrastructure. However, it brings unique security challenges that must be addressed.
 

@@ -1,12 +1,12 @@
 ---
-layout: post
+layout: single
 title: "Password Security Game: Test Your Hacking Defense Skills"
 date: 2026-02-28
 categories: cybersecurity-game interactive
 tags: game password-strength hacking-defense ctf
 ---
 
-# 🎮 Cybersecurity Password Strength Game
+## 🎮 Cybersecurity Password Strength Game
 
 ## English Version
 

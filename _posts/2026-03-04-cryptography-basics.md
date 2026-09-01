@@ -1,12 +1,12 @@
 ---
-layout: post
+layout: single
 title: "Cryptography and Encryption Fundamentals"
 date: 2026-03-04
 categories: cryptography cybersecurity
 tags: encryption aes rsa https
 ---
 
-# Cryptography Guide
+## Cryptography Guide
 
 Cryptography is essential for protecting data confidentiality, integrity, and authenticity.
 

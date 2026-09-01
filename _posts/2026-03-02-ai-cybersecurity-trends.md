@@ -1,12 +1,12 @@
 ---
-layout: post
+layout: single
 title: "AI-Powered Cybersecurity: 2026 Trends and Future"
 date: 2026-03-02
 categories: ai-security cybersecurity future-trends
 tags: artificial-intelligence machine-learning security-automation
 ---
 
-# AI in Cybersecurity: The Future is Now
+## AI in Cybersecurity: The Future is Now
 
 ## English Version
 

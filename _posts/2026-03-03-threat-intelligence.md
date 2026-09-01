@@ -1,12 +1,12 @@
 ---
-layout: post
+layout: single
 title: "Threat Intelligence in Modern Cybersecurity"
 date: 2026-03-03
 categories: threat-intelligence cybersecurity
 tags: threat-intel ioc indicators adversary
 ---
 
-# Threat Intelligence
+## Threat Intelligence
 
 Threat intelligence enables organizations to understand, prevent, and respond to cyber threats effectively.
 

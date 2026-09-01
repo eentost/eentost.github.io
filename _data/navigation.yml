@@ -1,9 +1,13 @@
-# main links
 main:
-        url: https://mmistakes.github.io/minimal-mistakes/about/
-  # - title: "Sample Posts"
-  #   url: /year-archive/
-  # - title: "Sample Collections"
-  #   url: /collection-archive/
-  # - title: "Sitemap"
-  #   url: /sitemap/
+  - title: "홈"
+    url: /
+  - title: "연구 노트"
+    url: /posts/
+  - title: "분야별 보기"
+    url: /categories/
+  - title: "편집 원칙"
+    url: /editorial-policy/
+  - title: "소개"
+    url: /about/
+  - title: "문의"
+    url: /contact/

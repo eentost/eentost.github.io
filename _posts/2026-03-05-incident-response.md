@@ -1,12 +1,12 @@
 ---
-layout: post
+layout: single
 title: "Incident Response Planning and Execution"
 date: 2026-03-05
 categories: incident-response cybersecurity
 tags: incident-handling forensics breach-response
 ---
 
-# Incident Response Guide
+## Incident Response Guide
 
 A well-planned incident response program can minimize damage from security breaches and reduce recovery time.
 

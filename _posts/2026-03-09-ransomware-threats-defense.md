@@ -1,12 +1,12 @@
 ---
-layout: post
+layout: single
 title: "Ransomware Threats and Defense Strategies in 2026"
 date: 2026-03-09
 categories: cybersecurity ransomware threat-intelligence
 tags: ransomware encryption defense incident-response
 ---
 
-# Ransomware: The Modern Cybersecurity Threat
+## Ransomware: The Modern Cybersecurity Threat
 
 Ransomware has evolved into one of the most dangerous and costly cybersecurity threats facing organizations worldwide. In 2026, the threat landscape continues to shift with increasingly sophisticated attack vectors and tactics.
 

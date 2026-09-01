@@ -1,12 +1,12 @@
 ---
-layout: post
+layout: single
 title: "Network Security Fundamentals"
 date: 2026-03-06
 categories: network-security cybersecurity
 tags: firewall ids ips network-monitoring
 ---
 
-# Network Security Guide
+## Network Security Guide
 
 Network security is the foundation of any cybersecurity strategy. Protecting your network infrastructure from unauthorized access and attacks is critical.
 

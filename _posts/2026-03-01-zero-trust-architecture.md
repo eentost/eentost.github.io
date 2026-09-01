@@ -1,12 +1,12 @@
 ---
-layout: post
+layout: single
 title: "Zero Trust Architecture: The New Security Paradigm"
 date: 2026-03-01
 categories: zero-trust security-architecture
 tags: zero-trust never-trust-verify security-framework
 ---
 
-# Zero Trust Architecture: The New Security Standard
+## Zero Trust Architecture: The New Security Standard
 
 ## English Version
 

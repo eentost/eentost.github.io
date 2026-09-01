@@ -1,21 +1,21 @@
 # Site Settings
 locale                   : "ko-KR"
-title                    : "EENTOST - Cybersecurity & Technology Blog"
-subtitle                 : "Educational content on cybersecurity, malware analysis, ransomware defense, cloud security, and digital threats."
+title                    : "EENTOST"
+subtitle                 : "AI Cybersecurity Research Notes"
 name                     : "EENTOST"
-description              : "Educational content on cybersecurity, malware analysis, ransomware defense, cloud security, and digital threats."
+description              : "AI 기반 사이버보안, 악성코드 분석, 웹·클라우드 보안을 실무 관점에서 설명하는 독립 기술 블로그입니다."
 url                      : "https://eentost.github.io"
 teaser                   :
-logo                     :
-masthead_title           :
-breadcrumbs              : false
+logo                     : "/assets/images/eentost-mark.svg"
+masthead_title           : "EENTOST"
+breadcrumbs              : true
 words_per_minute         : 200
 
 # Author
 author :
   name                   : "EENTOST"
   avatar                 :
-  bio                    : "Cybersecurity & Technology researcher specializing in malware analysis, ransomware defense, cloud security, and digital threat detection. Sharing educational content to help professionals stay secure."
+  bio                    : "AI 기반 사이버보안, 악성코드 분석, 침해 탐지 기술을 연구하고 기록합니다."
   location               : "Seoul, South Korea"
   email                  :
   uri                    : https://eentost.github.io
@@ -24,9 +24,7 @@ author :
 
 # Analytics
 analytics :
-  provider               : google-gtag
-  google :
-    tracking_id          : "G-XXXXXXXXXX"
+  provider               : false
 google_site_verification :
 bing_site_verification   :
 
@@ -37,6 +35,32 @@ seo :
   twitter :
     username             : eentost
   og_locale              : ko_KR
+
+# Publishing
+timezone                 : Asia/Seoul
+search                   : true
+search_full_content      : true
+minimal_mistakes_skin    : default
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: single
+      author_profile: true
+      read_time: true
+      show_date: true
+      share: true
+      related: true
+      toc: true
+      toc_sticky: true
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: single
+      author_profile: false
 
 # Reading Files
 include :

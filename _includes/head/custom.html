@@ -1,9 +1,28 @@
 <!-- start custom head snippets -->
 
 <!-- insert favicons. use https://realfavicongenerator.net/ -->
+<link rel="icon" href="{{ '/assets/images/eentost-mark.svg' | relative_url }}" type="image/svg+xml">
+<meta name="theme-color" content="#071323">
+<meta name="color-scheme" content="light">
+{% if page.robots %}<meta name="robots" content="{{ page.robots }}">{% endif %}
+<link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>
 
 <!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3747775874469912"
      crossorigin="anonymous"></script>
+
+{% if page.url == '/' %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "EENTOST",
+  "alternateName": "EENTOST AI Cybersecurity Research Notes",
+  "url": "{{ site.url }}/",
+  "description": {{ site.description | jsonify }},
+  "inLanguage": ["ko-KR", "en"]
+}
+</script>
+{% endif %}
 
 <!-- end custom head snippets -->

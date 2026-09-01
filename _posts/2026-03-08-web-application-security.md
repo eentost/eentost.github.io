@@ -1,12 +1,12 @@
 ---
-layout: post
+layout: single
 title: "Web Application Security: OWASP Top 10 and Beyond"
 date: 2026-03-08
 categories: cybersecurity web-security
 tags: owasp sql-injection xss csrf
 ---
 
-# Web Application Security Guide
+## Web Application Security Guide
 
 Web applications are critical targets for cybercriminals. Understanding common vulnerabilities and how to defend against them is essential for developers and security professionals.
 

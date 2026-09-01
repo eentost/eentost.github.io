@@ -1,173 +1,44 @@
 ---
-layout: page
-title: Privacy Policy
+layout: single
+title: "개인정보처리방침"
 permalink: /privacy-policy/
+description: "EENTOST의 쿠키, 광고 및 제3자 서비스 사용에 관한 개인정보처리방침입니다."
+author_profile: false
+last_modified_at: 2026-09-01
 ---
 
-# Privacy Policy
+**시행일: 2026년 9월 1일**
 
-**Last Updated: March 10, 2026**
+EENTOST(이하 “사이트”)는 `eentost.github.io`에서 독립 기술 블로그를 운영합니다. 이 문서는 방문 과정에서 처리될 수 있는 정보와 이용자의 선택권을 설명합니다.
 
-## 1. Introduction
+## 사이트가 직접 수집하는 정보
 
-EENTOST ("we," "us," or "our") operates the blog at eentost.github.io (the "Site"). This Privacy Policy explains how we collect, use, and protect your personal information.
+사이트는 회원가입, 결제, 뉴스레터 신청 또는 자체 문의 양식을 운영하지 않습니다. GitHub를 통해 문의하는 경우 해당 서비스가 이용자가 제공한 계정 정보와 메시지를 처리하며, 사이트는 문의 대응에 필요한 범위에서만 내용을 확인합니다.
 
-## 2. Information We Collect
+## 자동으로 처리될 수 있는 정보
 
-We may collect information about you in the following ways:
+호스팅, 보안, 광고 제공 과정에서 IP 주소, 브라우저·기기 정보, 방문 URL, 접속 시간, 참조 URL과 쿠키 또는 유사 식별자가 처리될 수 있습니다.
 
-### A. Information You Provide
-- Contact information (name, email) if you choose to contact us
-- Comments on blog posts
-- Survey responses
-- Any other information you voluntarily submit
+## Google AdSense
 
-### B. Information Collected Automatically
-- Browser type and version
-- IP address
-- Pages visited
-- Time and date of visits
-- Referrer information
+사이트에는 Google AdSense 코드가 포함되어 있습니다. 광고가 활성화되면 Google과 광고 파트너가 쿠키를 사용하여 광고를 제공·측정하고 부정 이용을 방지할 수 있습니다. 맞춤 광고 설정과 선택권은 [Google 광고 설정](https://adssettings.google.com/)에서 관리할 수 있습니다. 자세한 내용은 [Google이 파트너 사이트의 정보를 사용하는 방법](https://policies.google.com/technologies/partner-sites)을 확인하세요.
 
-### C. Cookies and Tracking
-We use Google Analytics to understand site usage. Google may use cookies to track your visit.
+## 분석 도구
 
-## 3. How We Use Your Information
+현재 사이트 설정에는 Google Analytics 측정 ID가 활성화되어 있지 않습니다. 향후 분석 도구를 활성화하는 경우 이 방침을 먼저 갱신하고 실제 사용 서비스와 목적을 명시합니다.
 
-We use collected information to:
-- Improve our blog and content
-- Respond to your inquiries
-- Analyze site traffic and user behavior
-- Send newsletters (if you subscribe)
-- Comply with legal obligations
+## GitHub Pages와 외부 링크
 
-## 4. Third-Party Services
+사이트는 GitHub Pages에서 호스팅됩니다. GitHub의 데이터 처리 방식은 [GitHub 개인정보처리방침](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)을 따릅니다. 외부 링크로 이동한 뒤의 정보 처리는 해당 사이트의 정책이 적용됩니다.
 
-### Google Analytics
-We use Google Analytics to track website usage. Visit [Google's Privacy Policy](https://policies.google.com/privacy) for more information.
+## 쿠키 관리와 이용자 선택권
 
-### Google AdSense
-Google AdSense displays personalized ads based on your browsing history. Visit [Google AdSense Privacy Policy](https://policies.google.com/privacy) for details.
+브라우저 설정에서 쿠키를 삭제하거나 차단할 수 있습니다. 쿠키를 제한하면 일부 광고 기능이나 외부 서비스가 정상적으로 동작하지 않을 수 있습니다. 관련 법령이 요구하는 지역에서는 Google의 동의 관리 기능을 통해 광고 목적의 선택권이 제공될 수 있습니다.
 
-### GitHub Pages
-Our blog is hosted on GitHub Pages. See [GitHub's Privacy Statement](https://docs.github.com/en/github/site-policy/github-privacy-statement).
+## 아동의 개인정보
 
-## 5. Data Security
+이 사이트는 아동을 대상으로 개인정보를 의도적으로 수집하지 않습니다.
 
-We implement security measures to protect your information, including:
-- HTTPS encryption
-- Secure data storage
-- Regular security updates
-- Restricted access to personal data
+## 방침 변경 및 문의
 
-However, no method is 100% secure. We cannot guarantee absolute security.
-
-## 6. Your Rights
-
-You have the right to:
-- Access your personal data
-- Request deletion of your information
-- Opt-out of analytics tracking
-- Withdraw consent for data collection
-
-To exercise these rights, contact us at our GitHub profile.
-
-## 7. Children's Privacy
-
-Our Site is not targeted at children under 13. We do not knowingly collect personal information from children under 13. If we learn we've collected such information, we'll delete it promptly.
-
-## 8. External Links
-
-Our blog may contain links to external websites. We are not responsible for their privacy practices. Please review their privacy policies before providing personal information.
-
-## 9. Changes to This Policy
-
-We may update this Privacy Policy periodically. The "Last Updated" date indicates the most recent revision. Your continued use of the Site after changes constitutes acceptance of the new policy.
-
-## 10. Contact Us
-
-If you have questions about this Privacy Policy, please contact us:
-- **GitHub**: [eentost](https://github.com/eentost)
-- **Blog**: Comments section on this website
-
----
-
-## 개인정보 보호정책
-
-**마지막 업데이트: 2026년 3월 10일**
-
-## 1. 소개
-
-EENTOST ("우리", "당사")는 eentost.github.io 블로그 ("사이트")를 운영합니다. 본 개인정보 보호정책은 개인 정보를 수집, 사용, 보호하는 방식을 설명합니다.
-
-## 2. 수집하는 정보
-
-### A. 귀하가 제공하는 정보
-- 연락처 정보 (이름, 이메일)
-- 블로그 게시물 댓글
-- 설문 응답
-- 자발적으로 제출하는 기타 정보
-
-### B. 자동으로 수집되는 정보
-- 브라우저 종류 및 버전
-- IP 주소
-- 방문한 페이지
-- 방문 날짜 및 시간
-- 참조 정보
-
-### C. 쿠키 및 추적
-당사는 Google Analytics를 사용하여 사이트 사용을 파악합니다.
-
-## 3. 정보 사용 방식
-
-당사는 수집한 정보를 다음 목적으로 사용합니다:
-- 블로그 및 콘텐츠 개선
-- 문의 사항 응답
-- 사이트 트래픽 및 사용자 행동 분석
-- 뉴스레터 발송 (구독자)
-- 법적 의무 준수
-
-## 4. 제3자 서비스
-
-### Google Analytics
-당사는 Google Analytics를 사용하여 웹사이트 사용을 추적합니다.
-
-### Google AdSense
-Google AdSense는 귀하의 검색 기록을 기반으로 맞춤형 광고를 표시합니다.
-
-### GitHub Pages
-당사의 블로그는 GitHub Pages에서 호스팅됩니다.
-
-## 5. 데이터 보안
-
-당사는 정보를 보호하기 위해 다음 조치를 취합니다:
-- HTTPS 암호화
-- 안전한 데이터 저장소
-- 정기적인 보안 업데이트
-- 개인 데이터에 대한 제한된 액세스
-
-## 6. 귀하의 권리
-
-귀하는 다음 권리를 가집니다:
-- 개인 데이터 접근
-- 정보 삭제 요청
-- 분석 추적 거부
-- 데이터 수집 동의 철회
-
-## 7. 아동 개인정보
-
-당사의 사이트는 13세 미만의 어린이를 대상으로 하지 않습니다.
-
-## 8. 외부 링크
-
-당사의 블로그에는 외부 웹사이트 링크가 포함될 수 있습니다. 당사는 그들의 개인정보 보호 정책에 책임을 지지 않습니다.
-
-## 9. 정책 변경
-
-당사는 본 개인정보 보호정책을 주기적으로 업데이트할 수 있습니다.
-
-## 10. 문의
-
-본 개인정보 보호정책에 대한 질문이 있으시면 다음으로 연락하시기 바랍니다:
-- **GitHub**: [eentost](https://github.com/eentost)
-- **블로그**: 이 웹사이트의 댓글 섹션
+서비스 구성이나 법적 요구사항이 변경되면 이 문서의 내용과 시행일을 갱신합니다. 개인정보 관련 문의 또는 삭제 요청은 [문의 페이지](/contact/)를 이용해 주세요.
