@@ -1,46 +1,76 @@
 ---
 layout: single
-title: "Network Security Fundamentals"
+title: '접속 실패가 많으면 공격일까: 네트워크 로그 집계의 함정'
 date: 2026-03-06
 categories: network-security cybersecurity
 tags: firewall ids ips network-monitoring
+excerpt: 합성 접속 로그에서 중복 이벤트와 출발지별 고유 대상 수를 구분하고, 임계값 경보가 놓치는 맥락을 살펴봅니다.
+lang: ko
+last_modified_at: '2026-09-23'
 ---
 
-## Network Security Guide
+> 2026-09-23 전면 개정. 기존 게시 주소와 최초 게시일은 유지했습니다. 사례·수치는 교육용 합성 데이터이며 실제 운영 환경의 측정 결과가 아닙니다.
 
-Network security is the foundation of any cybersecurity strategy. Protecting your network infrastructure from unauthorized access and attacks is critical.
+같은 출발지에서 접속 실패가 100건 발생했다는 경보를 받았다고 가정해 봅시다. 한 서버에 대한 잘못된 서비스 설정일 수도 있고 여러 서버를 향한 탐색일 수도 있습니다. 수집기가 같은 이벤트를 여러 번 전달했을 가능성도 있습니다. 총 건수 하나만 보면 서로 다른 상황이 같은 경보가 됩니다. 이 글은 **집계 단위가 분석 결론을 어떻게 바꾸는지**를 다룹니다.
 
-## Key Network Security Components
+## 먼저 로그 한 줄의 의미를 확인하기
 
-### Firewalls
-Firewalls control traffic flow between trusted and untrusted networks. Modern firewalls provide:
-- Stateful inspection
-- Application layer filtering
-- Threat prevention
+방화벽의 `deny`는 해당 규칙·지점에서 트래픽을 거부했다는 뜻입니다. 호스트가 침해되었다는 뜻도, 다른 경로의 모든 접속이 차단되었다는 뜻도 아닙니다. 연결 시도와 패킷, 세션 종료 기록은 서로 다른 단위입니다. [NIST SP 800-41 Rev. 1](https://csrc.nist.gov/pubs/sp/800/41/r1/final)은 방화벽 정책과 운영을 다루는 지침으로, 이 글에서는 정책 결정과 관측 지점을 구분하는 참고 자료로 사용합니다. 오래된 지침의 제품별 예시를 현재 환경에 그대로 적용하지 않습니다.
 
-### IDS/IPS Systems
-- **IDS (Intrusion Detection System)**: Detects attacks
-- **IPS (Intrusion Prevention System)**: Detects and blocks attacks
+## 중복과 고유 대상을 분리하는 코드
 
-### VPNs
-Virtual Private Networks encrypt traffic and provide secure remote access.
+문서용 주소로 만든 6개 합성 행을 사용합니다. 모두 동일한 5분 구간에 속한다고 가정했으므로 실제 시각 파싱은 생략합니다. Python 3 표준 라이브러리만 필요하고 네트워크에 접속하지 않습니다.
 
-### Network Segmentation
-Dividing networks into segments limits lateral movement and contains breaches.
+```python
+from collections import defaultdict
 
-## Security Best Practices
+rows = [
+    ("fw-a", "1", "192.0.2.10", "198.51.100.1", "deny"),
+    ("fw-a", "1", "192.0.2.10", "198.51.100.1", "deny"),
+    ("fw-a", "2", "192.0.2.10", "198.51.100.2", "deny"),
+    ("fw-a", "3", "192.0.2.10", "198.51.100.3", "deny"),
+    ("fw-a", "4", "192.0.2.20", "198.51.100.1", "deny"),
+    ("fw-a", "5", "192.0.2.20", "198.51.100.1", "deny"),
+]
+seen = set()
+counts = defaultdict(int)
+targets = defaultdict(set)
+for sensor, event_id, source, destination, action in rows:
+    key = (sensor, event_id)
+    if key in seen:
+        continue
+    seen.add(key)
+    if action == "deny":
+        counts[source] += 1
+        targets[source].add(destination)
+for source in sorted(counts):
+    print(source, "events=", counts[source], "targets=", len(targets[source]),
+          "review=", len(targets[source]) >= 3)
+print("raw=", len(rows), "unique=", len(seen))
+```
 
-- Regular vulnerability assessments
-- Network monitoring and logging
-- Patch management
-- Access control lists (ACLs)
-- Encryption for sensitive data
-- Regular security audits
+```text
+192.0.2.10 events= 3 targets= 3 review= True
+192.0.2.20 events= 2 targets= 1 review= False
+raw= 6 unique= 5
+```
 
-## Conclusion
+원시 행은 6개지만 사건 식별자로 중복 제거하면 5개입니다. 첫 출발지는 서로 다른 3개 대상에, 둘째는 한 대상에 반복 시도했습니다. 고유 대상 3개라는 조건은 비교용 임의 규칙입니다. 정상 자산 검색 작업도 이 조건에 해당할 수 있으며, 한 대상에 대한 심각한 공격은 오히려 조건에서 빠질 수 있습니다. 출력 이름을 `attack` 대신 `review`로 둔 이유입니다.
 
-Network security requires a multi-layered approach with proper tools and continuous monitoring.
+## 이 중복 제거가 안전하려면
 
----
+`event_id`가 장비 내에서 고유하다는 가정이 필요합니다. 장비 재시작 후 번호가 반복되거나 여러 장비가 같은 번호를 쓴다면 실제 사건을 지울 수 있습니다. 여기서는 장비 이름과 ID를 묶었지만 운영에서는 장비 부팅 구간이나 생성 시각까지 필요할 수 있습니다. 반대로 로그 본문 전체를 키로 쓰면 전송 시각만 다른 중복을 잡지 못할 수 있습니다.
 
-*Build a strong network security foundation for your organization.*
+집계 전에 원시 건수와 정규화 후 건수를 모두 기록합니다. 수집 실패를 조용히 버리면 경보량이 줄어 탐지가 좋아진 것처럼 보입니다. 파싱 오류, 시간대 미확인, 필드 누락은 별도 지표로 남겨야 합니다. 시간대 변환은 [UTC 타임라인 실습]({% post_url 2026-03-05-incident-response %})을 참고할 수 있습니다.
+
+## 경보를 조사로 연결하는 추가 필드
+
+출발지 IP만으로 사용자를 확정하지 않습니다. NAT나 프록시를 공유하는 여러 기기의 트래픽이 합쳐질 수 있습니다. 자산 식별자, 프로세스, 대상 포트, 승인된 점검 일정, 성공 접속 기록을 같은 구간에서 확인합니다. 규칙 변경 직후라면 이전에는 허용되던 정상 연결이 거부되기 시작했는지도 살펴봅니다.
+
+시간 창의 경계 역시 결과를 바꿉니다. 12:04:59와 12:05:01의 두 사건은 고정 5분 구간에서 갈라지지만 실제로는 2초 차이입니다. 필요하면 이동 창으로 비교하되 계산량과 중복 경보 처리 방식을 정해야 합니다. 전체 건수만 유지한 채 이런 정보를 나중에 복원할 수는 없습니다.
+
+## 직접 바꿔 볼 조건과 한계
+
+첫 행의 복사본을 열 개 더 넣어도 `unique`와 출발지별 결과는 같아야 합니다. 셋째 대상 주소를 첫째와 같게 바꾸면 고유 대상 수가 줄어 검토 조건이 꺼져야 합니다. 둘째 출발지에 새로운 대상 하나를 추가해도 아직 3개 미만이므로 꺼진 상태여야 합니다. 이는 코드 검증이며 실제 공격 탐지 성능 평가가 아닙니다.
+
+이 예제는 IPv4의 정확 문자열 일치와 완전한 로그만 가정합니다. 실제 주소 정규화에는 [Python ipaddress](https://docs.python.org/3/library/ipaddress.html) 같은 도구를 검토하고, 문서용 주소 범위는 [RFC 5737](https://www.rfc-editor.org/rfc/rfc5737)을 참조하세요. 실제 대상에 대한 스캔이나 접속 시도는 이 실습에 필요하지 않습니다.

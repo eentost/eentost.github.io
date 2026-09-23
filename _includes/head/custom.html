@@ -5,11 +5,13 @@
 <meta name="theme-color" content="#071323">
 <meta name="color-scheme" content="light">
 {% if page.robots %}<meta name="robots" content="{{ page.robots }}">{% endif %}
+{% unless page.ads == false %}
 <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin>
 
 <!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5703399779433493"
      crossorigin="anonymous"></script>
+{% endunless %}
 
 {% if page.url == '/' %}
 <script type="application/ld+json">
@@ -20,7 +22,7 @@
   "alternateName": "EENTOST AI Cybersecurity Research Notes",
   "url": "{{ site.url }}/",
   "description": {{ site.description | jsonify }},
-  "inLanguage": ["ko-KR", "en"]
+  "inLanguage": "ko-KR"
 }
 </script>
 {% endif %}

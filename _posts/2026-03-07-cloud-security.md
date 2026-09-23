@@ -1,72 +1,70 @@
 ---
 layout: single
-title: "Cloud Security Best Practices for AWS, Azure, and GCP"
+title: 'S3 읽기 역할의 최소 권한 검토: 버킷 목록과 객체 읽기를 분리하기'
 date: 2026-03-07
 categories: cloud-security cybersecurity
 tags: aws azure gcp cloud-infrastructure
+excerpt: 합성 보고서 서비스의 IAM 정책에서 행위·자원·접두사를 구분하고, 허용뿐 아니라 거부돼야 할 요청을 설계합니다.
+lang: ko
+last_modified_at: '2026-09-23'
 ---
 
-## Cloud Security Guide
+> 2026-09-23 전면 개정. 기존 게시 주소와 최초 게시일은 유지했습니다. 사례·수치는 교육용 합성 데이터이며 실제 운영 환경의 측정 결과가 아닙니다.
 
-Cloud computing has transformed how organizations deploy and manage IT infrastructure. However, it brings unique security challenges that must be addressed.
+보고서 조회 서비스에 저장소 전체 관리자 권한을 주면 구현은 쉬워집니다. 하지만 서비스가 탈취되었을 때 읽기 기능 하나의 사고가 다른 폴더의 삭제로 확대될 수 있습니다. 이 글에서는 **보고서 디렉터리의 목록 조회와 읽기만 필요한 역할**의 정책을 종이 위에서 검토합니다. AWS 계정을 만들거나 실제 정책을 적용하지 않으므로 비용과 권한 변경이 발생하지 않습니다.
 
-## Common Cloud Security Risks
+## 권한을 쓰기 전에 업무 문장부터 고정하기
 
-### Misconfiguration
-Incorrectly configured cloud resources are the leading cause of data breaches. Public S3 buckets, exposed databases, and overly permissive IAM roles are common issues.
+합성 서비스는 `example-report-bucket` 버킷의 `reports/` 아래 파일을 목록으로 보고 다운로드합니다. 업로드, 삭제, 다른 경로 열람, 버킷 설정 변경은 요구사항에 없습니다. 버킷 이름은 설명용이므로 실제 존재 여부를 확인하거나 요청을 보내지 않습니다. [AWS IAM 모범 사례](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html)는 필요한 행위·자원·조건만 부여하고 역할과 임시 자격 증명을 사용하는 접근을 설명합니다.
 
-### Insufficient Access Control
-Cloud platforms require granular identity and access management to prevent unauthorized access.
+정책 리뷰에서는 “S3에 접근 가능”처럼 넓게 쓰지 않습니다. 목록 조회는 버킷에 대한 행위이고 파일 내용 읽기는 객체에 대한 행위입니다. 같은 `Resource` 문자열 하나로 생각하면 기능 오류를 해결하려다가 와일드카드를 넓히기 쉽습니다. 자원 구분은 [S3 정책과 권한 문서](https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-policy-language-overview.html)에서 확인할 수 있습니다.
 
-### Insecure APIs
-Cloud services rely on APIs that must be properly secured and authenticated.
+## 검토용 정책 예시
 
-### Data Exposure
-Data loss due to improper encryption, replication, or backup procedures.
+아래는 IAM 역할에 연결하는 **자격 증명 기반 정책 예시**입니다. 완전한 클라우드 보안 구성이나 모든 계정의 유효 권한을 나타내지 않습니다. 버킷 정책, 조직 정책, 암호화 키, 역할을 맡을 수 있는 주체 등은 별도로 검토해야 합니다.
 
-### Compliance Violations
-Failing to meet regulatory requirements like GDPR, HIPAA, or PCI-DSS.
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListReportPrefix",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::example-report-bucket",
+      "Condition": {"StringLike": {"s3:prefix": ["reports/", "reports/*"]}}
+    },
+    {
+      "Sid": "ReadReportObjects",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::example-report-bucket/reports/*"
+    }
+  ]
+}
+```
 
-## AWS Security Best Practices
+클라이언트는 목록 요청에 `reports/` 또는 그 아래 접두사를 명시해야 합니다. 접두사 없는 전체 목록은 이 예시의 허용 범위에 없습니다. `reports-old/`는 `reports/`와 다른 경로입니다. 객체 이름의 슬래시는 운영체제 디렉터리 권한을 뜻하지 않으므로 문자열 범위를 직접 확인해야 합니다.
 
-- Enable MFA for all users
-- Use IAM roles instead of access keys
-- Enable CloudTrail for audit logging
-- Apply least privilege principle
-- Encrypt data in transit and at rest
-- Regular security assessments
-- VPC and Security Group configuration
+## 허용 테스트만으로는 부족한 이유
 
-## Azure Security Best Practices
+| 검토 요청 | 이 정책만 있다고 가정한 기대 | 검토 포인트 |
+|---|---|---|
+| `reports/` 접두사 목록 | 허용 | 버킷 ARN과 prefix 조건 |
+| `reports/2026/summary.csv` 읽기 | 허용 | 객체 ARN 범위 |
+| `private/payroll.csv` 읽기 | 허용 근거 없음 | 다른 접두사 접근 차단 |
+| `reports/summary.csv` 삭제 | 허용 근거 없음 | 읽기와 삭제 행위 분리 |
+| 접두사 없이 버킷 전체 목록 | 허용 근거 없음 | 클라이언트 목록 방식 확인 |
+| 다른 버킷의 보고서 읽기 | 허용 근거 없음 | 자원 와일드카드 없음 |
 
-- Implement Azure Policy
-- Use managed identities
-- Enable Azure Defender
-- Configure Network Security Groups
-- Regular compliance assessments
-- Disk encryption
+‘허용 근거 없음’이라고 쓴 이유는 이 문서 하나만으로 최종 권한을 확정할 수 없기 때문입니다. 다른 정책이 권한을 더할 수 있고 명시적 거부가 허용을 막을 수도 있습니다. 최종 평가는 [IAM 정책 평가 논리](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html)를 따라 관련 정책을 함께 확인해야 합니다. 예시를 복사한 뒤 접근이 안 된다고 `s3:*`와 `Resource: "*"`로 바꾸면 문제 원인을 지워 버립니다.
 
-## GCP Security Best Practices
+## 운영 환경에서 검증하는 순서
 
-- Use Cloud IAM roles
-- Enable Binary Authorization
-- Configure VPC Service Controls
-- Enable Cloud Audit Logs
-- Regular security scanning
-- Secret management
+먼저 검증 대상 역할, 연결된 정책, 버킷 정책과 암호화 방식을 기록합니다. KMS 암호화 객체는 키 권한 때문에 읽기가 실패할 수 있으며 이를 S3 전체 권한으로 해결하려 해서는 안 됩니다. 별도의 비운영 자료와 최소 권한 테스트 주체로 위 표의 허용·거부 사례를 확인합니다. IAM Access Analyzer 정책 검증은 구문과 위험한 구성을 찾는 데 도움이 되지만 애플리케이션의 모든 업무 경로를 실행해 주지는 않습니다.
 
-## Zero Trust Architecture
+목록 API 호출이 필요 없는 서비스라면 첫 문장을 제거할 수 있는지도 검토합니다. 알고 있는 객체 키만 읽는 서비스와 사용자가 폴더를 탐색하는 서비스는 필요한 권한이 다릅니다. ‘언젠가 필요할지도 모르는 권한’보다 실제 업무 경로를 기준으로 시작하고 변경 사유를 기록합니다.
 
-Implementing zero trust in cloud environments means:
-- Verify every user and device
-- Encrypt all data
-- Assume breach mentality
-- Monitor continuously
+## 배포 후에도 남는 책임
 
-## Conclusion
-
-Cloud security requires continuous vigilance and proper configuration of security controls across your cloud infrastructure.
-
----
-
-*Keep your cloud infrastructure secure with proper security practices.*
+역할을 맡는 신뢰 정책이 지나치게 넓으면 권한 자체가 작아도 의도하지 않은 주체가 읽을 수 있습니다. 공개 접근 설정, 로그 보관, 자격 증명 노출, 데이터 분류도 별도 영역입니다. 이 글의 범위는 한 역할의 권한 검토이며 전체 클라우드가 안전하다는 판정이 아닙니다. 권한 변경 전후의 성공·실패 요청과 담당자, 되돌릴 조건을 남기면 이후 업무 장애와 보안 변경을 함께 설명할 수 있습니다.

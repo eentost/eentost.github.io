@@ -1,4 +1,5 @@
 ---
+ads: false
 layout: single
 title: "이용약관 및 콘텐츠 고지"
 permalink: /terms/

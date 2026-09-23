@@ -1,4 +1,5 @@
 ---
+ads: false
 layout: single
 title: "문의"
 permalink: /contact/

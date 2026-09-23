@@ -1,54 +1,66 @@
 ---
 layout: single
-title: "Threat Intelligence in Modern Cybersecurity"
+title: '위협 IP 목록을 바로 차단하기 전에: 출처·만료·관찰을 분리한 검토'
 date: 2026-03-03
 categories: threat-intelligence cybersecurity
 tags: threat-intel ioc indicators adversary
+excerpt: 문서용 IP 주소로 만료된 지표와 최근 관측을 구분하고, 차단 대신 검토 대상을 고르는 로컬 규칙을 작성합니다.
+lang: ko
+last_modified_at: '2026-09-23'
 ---
 
-## Threat Intelligence
+> 2026-09-23 전면 개정. 기존 게시 주소와 최초 게시일은 유지했습니다. 아래 사례와 수치는 교육용 합성 예제이며 실제 침해 사고나 운영 성과가 아닙니다.
 
-Threat intelligence enables organizations to understand, prevent, and respond to cyber threats effectively.
+위협 피드에 등장한 IP와 내부 접속 로그의 IP가 일치하면 즉시 차단해야 할까요? 호스팅 주소는 공유되거나 재할당될 수 있고, 오래된 지표는 현재 상황을 설명하지 못할 수 있습니다. 일치는 조사 시작점이지 침해 확정 판정이 아닙니다. 이 글은 피드를 자동 차단 목록으로 바꾸기 전 필요한 **검토 기록**을 설계합니다.
 
-## Types of Threat Intelligence
+## 지표가 주장하는 것과 우리가 본 것을 나누기
 
-### Strategic Intelligence
-High-level threat analysis for executives and decision makers.
+피드의 발행 시각, 실제 악성 행위 관측 시각, 유효 기간은 서로 다릅니다. 오늘 내려받은 목록에 1년 전 관측이 들어 있을 수도 있습니다. 출처의 신뢰도와 지표 자체에 대한 확신도도 별개입니다. 신뢰할 만한 기관이 낮은 확신도의 조사 대상을 공유할 수 있기 때문입니다. [STIX 2.1 표준](https://docs.oasis-open.org/cti/stix/v2.1/os/stix-v2.1-os.html)은 지표의 유효 시간과 신뢰도 같은 표현을 정의하지만, 특정 점수를 자동 차단 임계값으로 지정하지는 않습니다.
 
-### Tactical Intelligence  
-Technical details about specific threats and attack methods.
+작은 검토 표에는 지표 값·유형, 원문 출처, 관측 시각, 유효 종료 시각, 내부 일치 시각, 관련 자산, 판단 담당자를 둡니다. 원문에 시각이 없다면 현재 시각으로 채워 최신 정보처럼 만들지 않습니다. ‘알 수 없음’ 자체가 중요한 품질 정보입니다.
 
-### Operational Intelligence
-Information about ongoing attacks and campaigns.
+## 만료와 내부 일치를 따로 검사하는 실습
 
-## Key Components
+다음 IP는 문서 예시용 주소이며 접속하거나 스캔하지 않습니다. `confidence >= 80`은 이 실습에서 검토 순서를 정하는 임의 기준으로, 위험 확률 80%라는 뜻이 아닙니다. Python 3으로 실행하며 네트워크 접근이 없습니다.
 
-- **Indicators of Compromise (IOCs)**: IP addresses, file hashes, domains
-- **Threat Actors**: Identify who is behind attacks
-- **Attack Patterns**: Understand TTPs (Tactics, Techniques, Procedures)
-- **Vulnerabilities**: Zero-days and known exploits
+```python
+from datetime import datetime, timezone
 
-## Sources of Threat Intelligence
+now = datetime(2026, 9, 23, tzinfo=timezone.utc)
+indicators = [
+    ("192.0.2.10", 90, "2026-09-25T00:00:00+00:00"),
+    ("198.51.100.20", 95, "2026-09-20T00:00:00+00:00"),
+    ("203.0.113.30", 40, "2026-09-25T00:00:00+00:00"),
+]
+observed = {"192.0.2.10", "198.51.100.20"}
+for address, confidence, until in indicators:
+    if datetime.fromisoformat(until) <= now:
+        decision = "expired:revalidate"
+    elif address not in observed:
+        decision = "no_local_match"
+    elif confidence >= 80:
+        decision = "review:correlate_evidence"
+    else:
+        decision = "review:low_confidence"
+    print(address, decision)
+```
 
-- Open source intelligence (OSINT)
-- Commercial threat feeds
-- Dark web monitoring
-- Government alerts (CISA, NSA)
-- Industry ISACs
-- Internal logs and telemetry
+```text
+192.0.2.10 review:correlate_evidence
+198.51.100.20 expired:revalidate
+203.0.113.30 no_local_match
+```
 
-## Implementation
+첫 주소만 우선 검토 대상입니다. 둘째는 높은 점수와 일치 기록이 있어도 만료되어 재확인이 필요합니다. 셋째의 `no_local_match`는 안전하다는 뜻이 아닙니다. 현재 입력 집합에 일치가 없다는 뜻입니다. 수집 누락이나 다른 관측 기간은 이 코드에서 다루지 않습니다.
 
-- Integrate with SIEM systems
-- Use threat intel platforms
-- Automate threat data correlation
-- Share intelligence with peers
-- Establish TLP guidelines
+## 여기서 바로 차단하지 않는 이유
 
-## Conclusion
+실제 판단에는 통신 방향·포트·시각·프로세스·사용자·전송량이 필요합니다. 외부에서 차단된 접속 시도와 내부 서버가 시작한 성공 연결은 의미가 다릅니다. 같은 IP에서 여러 도메인을 제공하는 서비스라면 정상 업무의 영향도 평가해야 합니다. 예를 들어 피드 원문이 특정 URL 경로에 한정된 관측인데 IP 전체를 차단하면 근거보다 넓은 조치가 됩니다.
 
-Effective threat intelligence enables proactive defense and faster incident response.
+검토자는 피드 원문, 내부 이벤트 ID, 추가 증거, 예외 사유를 연결합니다. 차단한다면 만료 또는 재검토 시점과 되돌릴 담당자를 함께 남깁니다. ‘언젠가 악성으로 알려짐’이라는 이유로 영구 차단을 유지하면 정상 서비스로 재할당된 뒤에도 장애를 만들 수 있습니다.
 
----
+## 테스트와 운영 확장의 경계
 
-*Leverage threat intelligence to strengthen your security posture.*
+첫 주소의 유효 종료를 `now`와 같게 바꾸면 실습 정책상 만료됩니다. `observed`를 빈 집합으로 바꾸면 활성 지표가 모두 일치 없음으로 나와야 합니다. `confidence`를 79로 낮추면 낮은 신뢰도 검토로 바뀝니다. 이런 경계 확인은 조건문이 생각대로 작동하는지 보여 줄 뿐 임계값의 타당성을 증명하지 않습니다.
+
+이 예제는 IP 정확 일치만 다룹니다. IPv6 정규화, CIDR 범위, 도메인의 대소문자와 국제화, URL 인코딩은 유형별 별도 규칙이 필요합니다. 문자열을 무작정 소문자로 만들거나 공백을 제거하는 공통 처리로 대체하지 않습니다. 지표 공유 전에 공개 가능 범위를 점검하는 데에는 [FIRST TLP 2.0](https://www.first.org/tlp/) 같은 정보 공유 표기가 도움이 됩니다. TLP 표시는 악성 판정의 확신도를 나타내는 점수가 아닙니다. 문서용 주소의 근거는 [RFC 5737](https://www.rfc-editor.org/rfc/rfc5737)에서 확인할 수 있습니다.

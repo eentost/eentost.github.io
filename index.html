@@ -51,12 +51,12 @@ permalink: /
       {% for post in site.posts limit:6 %}
       <article class="post-card">
         <div class="post-card__meta">
-          <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+          <time datetime="{{ post.last_modified_at | default: post.date | date_to_xmlschema }}">개정 {{ post.last_modified_at | default: post.date | date: "%Y.%m.%d" }}</time>
           {% if post.categories.first %}<span>{{ post.categories.first | replace: '-', ' ' }}</span>{% endif %}
         </div>
         <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
         <p>{{ post.excerpt | strip_html | normalize_whitespace | truncate: 150 }}</p>
-        <a class="text-link" href="{{ post.url | relative_url }}" aria-label="{{ post.title }} 읽기">Read note →</a>
+        <a class="text-link" href="{{ post.url | relative_url }}" aria-label="{{ post.title }} 읽기">연구 노트 읽기 →</a>
       </article>
       {% endfor %}
     </div>

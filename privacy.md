@@ -1,4 +1,5 @@
 ---
+ads: false
 layout: single
 title: "개인정보처리방침 안내"
 permalink: /privacy/
