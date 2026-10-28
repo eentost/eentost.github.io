@@ -1,9 +1,0 @@
-<nav class="breadcrumbs" aria-label="현재 위치">
-  <ol>
-    <li><a href="{{ '/' | relative_url }}">홈</a></li>
-    {% if page.collection == 'posts' %}
-    <li><span aria-hidden="true"> / </span><a href="{{ '/posts/' | relative_url }}">전체 연구 노트</a></li>
-    {% endif %}
-    <li class="current" aria-current="page"><span aria-hidden="true"> / </span>{{ page.title | escape }}</li>
-  </ol>
-</nav>
