@@ -1,7 +1,7 @@
-# EENTOST Lab (replacement site)
+# 하루도구
 
-Static HTML/CSS/JS site. No build step. This branch deliberately replaces the previous Jekyll tree. Review all content and policy text before publishing. No AdSense approval or production test is claimed.
+Daily useful calculators: shopping, price comparison, time, dates, percentage, split expenses.
 
-Local preview: `python3 -m http.server 8000`, then open http://localhost:8000/.
+Static site with browser-only calculations; no build step or dependency. Run `python3 -m http.server 8000` locally. This branch replaces the previous security site after merge. Old commits remain in Git history.
 
-Check navigation, mobile layout, calculator edge cases, privacy disclosures and Google Search Console before reapplying. Prior site preserved in master branch until PR merge and in Git history afterward.
+Before AdSense review, check live deployment, calculator edge cases, Search Console and site navigation. AdSense approval is never guaranteed.
