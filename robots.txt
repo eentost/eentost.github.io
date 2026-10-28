@@ -1,7 +1,3 @@
 User-agent: *
 Allow: /
-Disallow: /.git/
-Disallow: /node_modules/
-Disallow: /test/
-
 Sitemap: https://eentost.github.io/sitemap.xml
