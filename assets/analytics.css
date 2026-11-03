@@ -1,0 +1,10 @@
+.haru-consent-banner{position:fixed;left:16px;right:16px;bottom:16px;z-index:9999;max-width:790px;margin:auto;padding:18px 22px;border:1px solid #a5c8b7;border-radius:14px;background:#fff;color:#162a36;box-shadow:0 10px 35px #102e2a30;font:inherit}
+.haru-consent-banner p{font-size:.92rem;line-height:1.65;margin:0 0 12px}
+.haru-consent-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.haru-consent-actions button{font:inherit;font-size:.88rem;font-weight:700;border-radius:9px;padding:9px 16px;cursor:pointer}
+.haru-consent-accept{background:#166d5d;color:#fff;border:1px solid #166d5d}
+.haru-consent-reject{background:white;color:#166d5d;border:1px solid #91b8a9}
+.haru-consent-actions a{font-size:.84rem}
+.haru-consent-settings{font:inherit;font-size:.9rem;background:none;border:none;color:#167864;text-decoration:underline;cursor:pointer;padding:0 4px}
+.haru-consent-settings:focus-visible,.haru-consent-actions button:focus-visible{outline:3px solid #de9a3d;outline-offset:3px}
+@media(max-width:600px){.haru-consent-banner{left:9px;right:9px;bottom:9px;padding:14px}.haru-consent-actions button{flex:1}}
