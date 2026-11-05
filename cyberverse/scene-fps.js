@@ -5,6 +5,7 @@ import * as THREE from "three";
 import {createFpsEffects} from "./fps-effects.js";
 import {createFpsOnline} from "./fps-online.js";
 import {createFpsTactics} from "./fps-tactics.js";
+import {buildWeaponModel} from "./fps-weapon-models.js";
 export function createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat,cinematic}) {
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const rng=(()=>{let a=31415;return ()=>{a=(Math.imul(a,1664525)+1013904223)>>>0;return a/4294967296;};})();
@@ -102,27 +103,8 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   const view=new THREE.Group();if(camera.parent!==scene)scene.add(camera);camera.add(view);
   const gunModels={};const casings=[];
   function makeViewGun(kind){
-    const sniper=kind==="sniper"||kind==="dmr",short=kind==="pistol"||kind==="smg"||kind==="shotgun",body=paint(0x263746,.36,.65),accent=paint(sniper?0xc5a77e:kind==="smg"?0x4f9ba1:0x4a9290,.42,.5);
-    const group=new THREE.Group(),gbox=(x,y,z,w,h,d,m)=>{
-      const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);group.add(o);return o;
-    };
-    gbox(0,0,-.34,.17,.18,sniper?1.08:short?.49:.7,body);
-    gbox(0,-.16,-.12,.16,.39,.18,body);gbox(0,.09,-.35,.2,.12,.5,accent);
-    gbox(0,.21,-.36,.12,.12,sniper?.52:short?.17:.29,body);
-    gbox(.15,-.07,.11,.19,.17,.3,body);
-    const magazine=gbox(0,-.24,-.34,.13,kind==="lmg"?.36:.27,.16,accent);
-    const grip=paint(0x26313b,.78,.1),hand=new THREE.Group();
-    const palm=new THREE.Mesh(new THREE.BoxGeometry(.21,.18,.23),grip);
-    palm.position.set(.14,-.18,-.24);hand.add(palm);
-    for(let finger=0;finger<4;finger++){
-      const fingerMesh=new THREE.Mesh(new THREE.BoxGeometry(.04,.11,.11),grip);
-      fingerMesh.position.set(.065+finger*.038,-.265,-.27);hand.add(fingerMesh);
-    }
-    group.add(hand);
-    group.userData.magazine=magazine;group.userData.hand=hand;
-    const barrel=new THREE.Mesh(new THREE.CylinderGeometry(kind==="shotgun"?.075:.04,kind==="shotgun"?.075:.04,sniper?.95:short?.34:.58,12),body);
-    barrel.rotation.x=Math.PI/2;barrel.position.set(0,.018,sniper?-1.19:short?-.63:-.85);group.add(barrel);
-    group.position.set(.33,-.30,-.63);view.add(group);gunModels[kind]=group;
+    const group=buildWeaponModel(kind);
+    view.add(group);gunModels[kind]=group;
   }
   for(const kind of Object.keys(specs))makeViewGun(kind);
   view.visible=false; // FPS-only first-person models must not render in CyberVerse city.
@@ -475,10 +457,10 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       if(id===gun){
         const phase=loading>0&&reloadGun===id?1-loading/specs[id].reload:0;
         const dip=Math.sin(phase*Math.PI),mag=model.userData.magazine;
-        model.position.y=-.29-recoil*.3-dip*.28;
-        model.position.z=-.63+recoil*.2;
+        model.position.y=-.36-recoil*.3-dip*.28;
+        model.position.z=-.58+recoil*.2;
         model.rotation.z=-dip*.18;
-        if(mag)mag.position.y=-.24-Math.sin(Math.PI*phase)*.24;
+        if(mag)mag.position.y=-.18-Math.sin(Math.PI*phase)*.26;
       }
     }
     recoil=Math.max(0,recoil-dt*4);muzzle.intensity=recoil>.2?3.2:0;
