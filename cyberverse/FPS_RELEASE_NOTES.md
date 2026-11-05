@@ -101,3 +101,25 @@ Verify manually with two independently launched browsers: room join/leave, cross
 - Audio uses generated WebAudio, not recorded professional weapon/environment assets.
 - No audited externally licensed high-fidelity weapon art assets. Procedural models and an externally fetched Three.js sample soldier are not photorealism.
 - Large-scale load tests and platform/browser security reviews are outstanding. Do not market this as a commercial-ready competitive shooter yet.
+
+## FPS v3 — grenade, melee, rewards and variety (2026-11-05)
+
+### Changes applied
+- New `fps-gameplay.js`: opt-in **offline AI mode** grenades (G), knife strike (V), dropped-weapon pickup (Alt+E), upgrade (H), visual headshots, persistent XP/rank/credits (localStorage).
+- New `fps-scenery.js`: theme-specific industrial stacks, night high-rises/cranes, storm port structures, desert rocks/dunes. These are **visual backdrops**, not four unique collidable maps.
+- `scene-fps.js`: minimum-diff integration and independent damage/rank callbacks, 2x/4x/8x sniper scope (Z), simple raycast range label.
+- `fps.css`: rank/XP/grenade/loot HUD.
+- Existing E-key tactical decoy remains unchanged; use Alt+E for weapon pickups.
+- Scoring: headshot elimination awards 150 XP and 60 credits, regular elimination 100 XP and 35 credits. Credits may upgrade each offline weapon to level +5, at a 4% per-level game damage boost.
+- Rank and upgrade data is local to the browser. **Not cross-device, account-backed or synchronized.**
+
+### Important limitations
+- New grenade and knife combat, loot and upgraded damage work **against local AI bots only**; public multiplayer authoritative backend does **not** support these mechanics. Disabling them online prevents client-side spoofing.
+- Headshot visual effects use stylized short-lived red particle bursts, not cinematic fluid/blood-splat simulation. The source explicitly separates visual effects from server hit confirmation.
+- Grenade bounce and explosion use lightweight approximations; there is no rigid-body physics engine or advanced destructible cover.
+- Rank does not persist through cleared browser data or across devices. Competitive online rank is not deployed.
+- Source syntax and static integration checks performed; browser GPU rendering and CI execution still unverified. Do not mark release production-ready.
+
+### Offline controls
+`WASD` movement; `1–8` firearm; `R` reload; `G` grenade; `V` melee; `Alt+E` pickup; `H` upgrade; `Z` sniper scope 2x/4x/8x; `Q` EMP and `E` decoy in tactical mode.
+
