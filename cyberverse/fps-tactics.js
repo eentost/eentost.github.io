@@ -14,10 +14,10 @@ export function createFpsTactics({world,root,units,data,notify}) {
   hud.className="cv-tactical-status";hud.style.cssText="position:absolute;top:104px;left:50%;transform:translateX(-50%);z-index:20;min-width:235px;max-width:calc(100vw - 32px);padding:10px 14px;border:1px solid #54ddcc;border-radius:10px;background:#071724e8;color:#e9ffff;text-align:center;font:700 12px system-ui,sans-serif;pointer-events:none;text-shadow:0 1px 4px #000";
   hud.hidden=true;root.append(hud);
   const touch=document.createElement("div");
-  touch.style.cssText="position:absolute;right:20px;bottom:165px;z-index:24;display:flex;gap:8px";
+  touch.className="cv-tactical-touch";touch.style.cssText="position:absolute;right:20px;bottom:165px;z-index:24;display:flex;gap:8px";
   touch.innerHTML='<button type="button" data-tactic="emp" style="padding:10px;background:#143b4b;color:white;border:1px solid #5bbcbf;border-radius:8px">Q EMP</button><button type="button" data-tactic="decoy" style="padding:10px;background:#143b4b;color:white;border:1px solid #5bbcbf;border-radius:8px">E 분신</button>';
   touch.hidden=true;root.append(touch);
-  const hiddenRule=document.createElement("style");hiddenRule.textContent=".cv-tactical-status[hidden], .cv3-full div[hidden]:has(> [data-tactic]){display:none!important;}";root.append(hiddenRule);
+  const hiddenRule=document.createElement("style");hiddenRule.textContent=".cv-tactical-status[hidden], .cv-tactical-touch[hidden]{display:none!important;}";root.append(hiddenRule);
   const inRange=(x,z)=>Math.hypot(x-node.position.x,z-node.position.z)<3.3;
   function reset(on){
     enabled=!!on;owner=null;progress=0;emp=0;empCooldown=0;decoyCooldown=0;decoyLife=0;scoreClock=0;
