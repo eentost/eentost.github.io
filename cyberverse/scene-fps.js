@@ -2,7 +2,7 @@
  * Dedicated scene, pointer-lock look, cover collision, bot teams, respawn, score.
  */
 import * as THREE from "three";
-export function createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat}) {
+export function createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat,cinematic}) {
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const rng=(()=>{let a=31415;return ()=>{a=(Math.imul(a,1664525)+1013904223)>>>0;return a/4294967296;};})();
   const specs={rifle:{name:"CV-47 돌격소총",mag:30,stock:150,damage:30,cool:.11,reload:1.8,spread:.018,recoil:.026,auto:true},sniper:{name:"SV-8 저격소총",mag:5,stock:35,damage:100,cool:1.1,reload:2.6,spread:.002,recoil:.095,auto:false}};
@@ -247,7 +247,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     combat?.stop?.();
     lastCity=city.visible;lastInterior=interior.visible;lastFull=root.classList.contains("cv3-full");
     lastBackground=scene.background;lastFog=scene.fog;lastFov=camera.fov;lastOverflow=document.body.style.overflow;
-    city.visible=false;interior.visible=false;local.visible=false;world.visible=true;
+    city.visible=false;interior.visible=false;local.visible=false;world.visible=true;cinematic?.setArenaActive?.(true);
     scene.background=new THREE.Color(0x97aab7);scene.fog=new THREE.Fog(0x9caab5,35,110);
     document.body.style.overflow="hidden";root.classList.add("cv3-full","cv-fps-active");
     Object.assign(data,{active:true,running:false,finished:false,paused:false,time:300,blue:0,red:0,kills:0,deaths:0});
@@ -261,7 +261,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     if(!data.active)return;
     data.active=false;data.running=false;fireHeld=false;aim=false;
     if(document.pointerLockElement===renderer.domElement)document.exitPointerLock?.();
-    world.visible=false;city.visible=lastCity;interior.visible=lastInterior;local.visible=true;
+    world.visible=false;city.visible=lastCity;interior.visible=lastInterior;local.visible=true;cinematic?.setArenaActive?.(false);
     scene.background=lastBackground;scene.fog=lastFog;camera.fov=lastFov;camera.updateProjectionMatrix();camera.rotation.set(0,0,0);
     if(!lastFull)root.classList.remove("cv3-full");root.classList.remove("cv-fps-active");document.body.style.overflow=lastOverflow;
     ui.querySelector("#cv-fps-entry").hidden=false;menu.hidden=true;hud.hidden=true;view.visible=false;
