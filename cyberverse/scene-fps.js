@@ -125,6 +125,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     group.position.set(.33,-.30,-.63);view.add(group);gunModels[kind]=group;
   }
   for(const kind of Object.keys(specs))makeViewGun(kind);
+  view.visible=false; // FPS-only first-person models must not render in CyberVerse city.
   const muzzle=new THREE.PointLight(0xffc78d,0,2.6);muzzle.position.set(.2,-.15,-1.2);camera.add(muzzle);
   const muzzleFlash=new THREE.Mesh(new THREE.ConeGeometry(.14,.34,8,1),new THREE.MeshBasicMaterial({color:0xffdaa4,transparent:true,opacity:.95,depthWrite:false,side:THREE.DoubleSide}));
   muzzleFlash.rotation.x=-Math.PI/2;muzzleFlash.position.set(.32,-.28,-1.62);camera.add(muzzleFlash);muzzleFlash.visible=false;
