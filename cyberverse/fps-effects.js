@@ -3,7 +3,7 @@
  */
 import * as THREE from "three";
 export function createFpsEffects({scene,world,camera,root}) {
-  let ctx=null,master=null,enabled=true,theme="industrial",time=0,footstepTimer=0;
+  let ctx=null,master=null,enabled=true,theme="industrial",time=0,footstepTimer=0,active=false,ambience=null,ambientGain=null;
   const presets={
     industrial:{name:"물류 터미널 · 황혼",sky:0x9dabb1,fog:0xa4afb5,near:34,far:115,ambient:.75,lighting:0xffe1b0,wet:false},
     night:{name:"도심 항만 · 야간",sky:0x0d2134,fog:0x142a3e,near:18,far:88,ambient:.32,lighting:0xa1d7ff,wet:false},
@@ -44,6 +44,22 @@ export function createFpsEffects({scene,world,camera,root}) {
       return true;
     }catch{return false;}
   }
+  function updateAmbience(){
+    if(!active||!enabled){if(ambientGain&&ctx)ambientGain.gain.setTargetAtTime(0,ctx.currentTime,.18);return;}
+    if(!initAudio())return;
+    if(!ambience){
+      const seconds=2,samples=Math.floor(ctx.sampleRate*seconds),buf=ctx.createBuffer(1,samples,ctx.sampleRate),data=buf.getChannelData(0);
+      let low=0;
+      for(let i=0;i<samples;i++){const n=(Math.random()*2-1);low=low*.985+n*.015;data[i]=n*.57+low*.43;}
+      ambience=ctx.createBufferSource();ambience.buffer=buf;ambience.loop=true;
+      const filter=ctx.createBiquadFilter();filter.type="lowpass";filter.frequency.value=1350;
+      ambientGain=ctx.createGain();ambientGain.gain.value=0;
+      ambience.connect(filter).connect(ambientGain).connect(master);
+      ambience.start();
+    }
+    ambientGain.gain.setTargetAtTime(theme==="rain"?.11:theme==="night"?.022:.04,ctx.currentTime,.3);
+  }
+  function setActive(value){active=!!value;updateAmbience();}
   function tone(freq,end,duration,type="sine",gain=.15,pan=0){
     if(!initAudio())return;
     const now=ctx.currentTime,osc=ctx.createOscillator(),vol=ctx.createGain();
@@ -87,6 +103,7 @@ export function createFpsEffects({scene,world,camera,root}) {
     puddles.visible=p.wet;rain.visible=p.wet;
     lampGroup.visible=(theme==="night"||theme==="rain");
     root.classList.toggle("cv-fps-wet",p.wet);
+    updateAmbience();
     return p;
   }
   function apply(){
@@ -116,7 +133,7 @@ export function createFpsEffects({scene,world,camera,root}) {
     if(!ctx)initAudio();
     if(master)master.gain.value=value*.5;
   }
-  function mute(v){enabled=!v;if(master)master.gain.value=enabled?.28:0;}
+  function mute(v){enabled=!v;if(master)master.gain.value=enabled?.28:0;updateAmbience();}
   setTheme("industrial");
-  return {presets,setTheme,apply,play,update,footsteps,setVolume,mute,getTheme:()=>theme};
+  return {presets,setTheme,setActive,apply,play,update,footsteps,setVolume,mute,getTheme:()=>theme};
 }
