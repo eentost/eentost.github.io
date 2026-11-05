@@ -100,22 +100,42 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   const data={active:false,running:false,finished:false,paused:false,hp:100,ap:100,deathDelay:0,spawnShield:0,x:0,z:28,height:0,vy:0,yaw:0,pitch:0,time:300,blue:0,red:0,kills:0,deaths:0};
   let gun="rifle",ammo=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.mag])),stock=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.stock])),cool=0,loading=0,reloadGun="",aim=false,fireHeld=false,bob=0,recoil=0,flash=0,hit=0,frame=0,lastFull=false,lastOverflow="",lastFog=null,lastBackground=null,lastFov=56,lastCity=true,lastInterior=false;
   const view=new THREE.Group();if(camera.parent!==scene)scene.add(camera);camera.add(view);
-  const gunModels={};
+  const gunModels={};const casings=[];
   function makeViewGun(kind){
     const sniper=kind==="sniper"||kind==="dmr",short=kind==="pistol"||kind==="smg"||kind==="shotgun",body=paint(0x263746,.36,.65),accent=paint(sniper?0xc5a77e:kind==="smg"?0x4f9ba1:0x4a9290,.42,.5);
     const group=new THREE.Group(),gbox=(x,y,z,w,h,d,m)=>{
-      const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);group.add(o);
+      const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);group.add(o);return o;
     };
     gbox(0,0,-.34,.17,.18,sniper?1.08:short?.49:.7,body);
     gbox(0,-.16,-.12,.16,.39,.18,body);gbox(0,.09,-.35,.2,.12,.5,accent);
     gbox(0,.21,-.36,.12,.12,sniper?.52:short?.17:.29,body);
     gbox(.15,-.07,.11,.19,.17,.3,body);
+    const magazine=gbox(0,-.24,-.34,.13,kind==="lmg"?.36:.27,.16,accent);
+    const grip=paint(0x26313b,.78,.1),hand=new THREE.Group();
+    const palm=new THREE.Mesh(new THREE.BoxGeometry(.21,.18,.23),grip);
+    palm.position.set(.14,-.18,-.24);hand.add(palm);
+    for(let finger=0;finger<4;finger++){
+      const fingerMesh=new THREE.Mesh(new THREE.BoxGeometry(.04,.11,.11),grip);
+      fingerMesh.position.set(.065+finger*.038,-.265,-.27);hand.add(fingerMesh);
+    }
+    group.add(hand);
+    group.userData.magazine=magazine;group.userData.hand=hand;
     const barrel=new THREE.Mesh(new THREE.CylinderGeometry(kind==="shotgun"?.075:.04,kind==="shotgun"?.075:.04,sniper?.95:short?.34:.58,12),body);
     barrel.rotation.x=Math.PI/2;barrel.position.set(0,.018,sniper?-1.19:short?-.63:-.85);group.add(barrel);
     group.position.set(.33,-.30,-.63);view.add(group);gunModels[kind]=group;
   }
   for(const kind of Object.keys(specs))makeViewGun(kind);
   const muzzle=new THREE.PointLight(0xffc78d,0,2.6);muzzle.position.set(.2,-.15,-1.2);camera.add(muzzle);
+  const muzzleFlash=new THREE.Mesh(new THREE.ConeGeometry(.14,.34,8,1),new THREE.MeshBasicMaterial({color:0xffdaa4,transparent:true,opacity:.95,depthWrite:false,side:THREE.DoubleSide}));
+  muzzleFlash.rotation.x=-Math.PI/2;muzzleFlash.position.set(.32,-.28,-1.62);camera.add(muzzleFlash);muzzleFlash.visible=false;
+  function ejectCase(){
+    if(casings.length>36)return;
+    const mesh=new THREE.Mesh(new THREE.CylinderGeometry(.024,.024,.105,8),new THREE.MeshStandardMaterial({color:0xc8a866,metalness:.82,roughness:.27}));
+    const position=new THREE.Vector3(.40,-.27,-.7).applyMatrix4(camera.matrixWorld);
+    mesh.position.copy(position);scene.add(mesh);
+    const direction=new THREE.Vector3(.9,.3,0).applyQuaternion(camera.quaternion);
+    casings.push({mesh,velocity:direction.multiplyScalar(2.3),ttl:1.8});
+  }
   function buildUnit(team,n){
     const group=new THREE.Group();world.add(group);
     const shell=paint(team==="blue"?0x46718a:0x915450,.59,.3),armor=paint(team==="blue"?0x273d51:0x593a38,.51,.4),skin=paint(0xbac0bc),visor=new THREE.MeshBasicMaterial({color:team==="blue"?0x78e6ff:0xff9c83});
@@ -250,7 +270,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     if(!data.running||data.finished||data.deathDelay>0||loading>0||cool>0)return;
     const w=specs[gun];if(ammo[gun]<=0){reload();return;}
     ammo[gun]--;cool=w.cool;recoil=.3;data.pitch=clamp(data.pitch+w.recoil,-1.2,1.2);
-    effects.play("shot",gun);
+    effects.play("shot",gun);ejectCase();
     if(online){network?.send({type:"shoot"});refresh();return;}
     const dir=new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
     const pellets=w.pellets||1,targets=hitParts.filter(m=>m.userData.unit?.team==="red"&&!m.userData.unit.dead);
@@ -364,6 +384,8 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     ui.querySelector("#cv-fps-entry").hidden=false;menu.hidden=true;hud.hidden=true;view.visible=false;
     units.forEach(u=>u.group.visible=false);keys.clear();lookTouch=null;touchMove={x:0,z:0};
     for(const v of traces){scene.remove(v.mesh);v.mesh.geometry.dispose();v.mesh.material.dispose();}traces.length=0;
+    for(const v of casings){scene.remove(v.mesh);v.mesh.geometry.dispose();v.mesh.material.dispose();}casings.length=0;
+    muzzleFlash.visible=false;
   }
   function refresh(){
     $("cv-fps-blue").textContent=data.blue;$("cv-fps-red").textContent=data.red;
@@ -417,8 +439,27 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     const fov=aim?(gun==="sniper"?25:53):78;
     camera.fov+=(fov-camera.fov)*Math.min(1,dt*17);camera.updateProjectionMatrix();
     view.visible=data.deathDelay===0&&!aim;
-    for(const [id,model]of Object.entries(gunModels)){model.visible=id===gun;if(id===gun){model.position.y=-.29-recoil*.3;model.position.z=-.63+recoil*.2;}}
+    for(const [id,model]of Object.entries(gunModels)){
+      model.visible=id===gun;
+      if(id===gun){
+        const phase=loading>0&&reloadGun===id?1-loading/specs[id].reload:0;
+        const dip=Math.sin(phase*Math.PI),mag=model.userData.magazine;
+        model.position.y=-.29-recoil*.3-dip*.28;
+        model.position.z=-.63+recoil*.2;
+        model.rotation.z=-dip*.18;
+        if(mag)mag.position.y=-.24-Math.sin(Math.PI*phase)*.24;
+      }
+    }
     recoil=Math.max(0,recoil-dt*4);muzzle.intensity=recoil>.2?3.2:0;
+    muzzleFlash.visible=recoil>.24;
+    if(muzzleFlash.visible)muzzleFlash.scale.setScalar(.78+rng()*.35);
+    for(let i=casings.length-1;i>=0;i--){
+      const casing=casings[i];casing.ttl-=dt;
+      casing.velocity.y-=8.5*dt;casing.mesh.position.addScaledVector(casing.velocity,dt);
+      casing.mesh.rotation.x+=dt*12;casing.mesh.rotation.z+=dt*9;
+      if(casing.mesh.position.y<.07){casing.mesh.position.y=.07;casing.velocity.multiplyScalar(.35);}
+      if(casing.ttl<=0){scene.remove(casing.mesh);casing.mesh.geometry.dispose();casing.mesh.material.dispose();casings.splice(i,1);}
+    }
     flash=Math.max(0,flash-dt*2);hit=Math.max(0,hit-dt);
     for(let i=traces.length-1;i>=0;i--){const v=traces[i];v.ttl-=dt;v.mesh.material.opacity=clamp(v.ttl/.16,0,1);if(v.ttl<=0){scene.remove(v.mesh);v.mesh.geometry.dispose();v.mesh.material.dispose();traces.splice(i,1);}}
     effects.update(dt);
