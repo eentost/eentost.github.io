@@ -46,6 +46,25 @@ function playerMarker(x,z){
  for(const side of [-1,1]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.8,10),navy);leg.position.set(side*.2,.53,0);g.add(leg)}
  return g;
 }
+
+// Home-plate broadcast backdrop: protective net and spectator stands behind the catcher.
+// These props sit beyond the playing field, so they do not obstruct the pitch lane.
+const backWall=mesh(new THREE.BoxGeometry(75,7,1.2),mat(0x203247,.92),0,3.6,28,false);
+const redRail=mesh(new THREE.BoxGeometry(75,.7,1.5),mat(0x963f38,.65),0,7.15,27.6,false);
+for(let row=0;row<7;row++){
+  const c=[0x738e95,0xd8ba9a,0x325e72,0xb76061,0xc5cbca,0x698e58];
+  const count=58;
+  for(let i=0;i<count;i++){
+    const x=(i-(count-1)/2)*1.18, z=29+row*1.3,y=7.5+row*.82;
+    const shirt=mat(c[(i*7+row*3)%c.length],.93);
+    const torso=new THREE.Mesh(new THREE.CylinderGeometry(.26,.31,.58,6),shirt);torso.position.set(x,y,z);scene.add(torso);
+    const head=new THREE.Mesh(new THREE.SphereGeometry(.205,8,6),skin);head.position.set(x,y+.48,z);scene.add(head);
+  }
+}
+for(let j=0;j<=42;j++)line([-37+j*1.76,0.6,25.7],[-37+j*1.76,13,25.7],0x6f8992,.012);
+for(let j=0;j<=16;j++)line([-37,.6+j*.75,25.7],[37,.6+j*.75,25.7],0x6f8992,.012);
+for(const x of [-2.2,2.2]){line([x,.045,3.1],[x,.045,6.6],0xf4f6ed,.043);line([x,.045,3.1],[x+(x<0?-1.9:1.9),.045,3.1],0xf4f6ed,.043)}
+const plate=mesh(new THREE.CylinderGeometry(.54,.54,.055,5),mat(0xf2efe7,.55),0,.03,5.05);plate.rotation.y=Math.PI/2;
 const board=mesh(new THREE.BoxGeometry(21,7,1),navy,0,12,-95,false);const boardCanvas=document.createElement('canvas');boardCanvas.width=800;boardCanvas.height=260;const bc=boardCanvas.getContext('2d');bc.fillStyle='#102438';bc.fillRect(0,0,800,260);bc.fillStyle='#52eaf6';bc.font='bold 72px sans-serif';bc.textAlign='center';bc.fillText('NEO BASEBALL',400,110);bc.font='32px sans-serif';bc.fillStyle='#ffffff';bc.fillText('HOMERUN CHALLENGE',400,175);const screen=mesh(new THREE.PlaneGeometry(20,6.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(boardCanvas)}),0,12,-94.43,false);
 function player(x,z,color,batting=false){
  const group=new THREE.Group();group.position.set(x,0,z);scene.add(group);
@@ -157,7 +176,7 @@ function sound(freq=230,duration=.12,type='sine',gain=.09){try{audio=audio||new 
 function message(s,t=950){const m=$('message');m.textContent=s;m.classList.add('show');clearTimeout(msgTimer);msgTimer=setTimeout(()=>m.classList.remove('show'),t)}
 function update(){$('count').textContent=balls+' / '+strikes;for(const [id,val] of [['remaining',remaining],['score',score],['hits',hits],['homers',homers],['best',best]])$(id).textContent=val;$('pitch').disabled=state!=='idle'||remaining===0}
 function result(t,points=0){state='result';score+=points;$('log').textContent=t;message(t,1400);update();setTimeout(()=>{if(state==='result'){state='idle';ball.visible=false;trail.forEach(v=>v.visible=false);if(remaining===0)message('챌린지 종료 · '+score+'점',5000);update()}},1550)}
-function throwBall(){if(state!=='idle'||remaining<=0)return;remaining--;state='windup';windupStart=performance.now()/1000;pitchStart=windupStart+1.0;flight=1.55*(145/speed);swingActive=false;swingAt=-10;ball.visible=false;ball.position.set(0,2.04,-13.7);ball.material.color.setHex(pitches[pick].color);ball.material.emissive=new THREE.Color(pick>=4?pitches[pick].color:0x000000);ball.material.emissiveIntensity=pick>=4?.9:0;$('liveSpeed').textContent=speed+' km/h';$('log').textContent=pitches[pick].name+' '+speed+' km/h · 투수 와인드업 중…';sound(240,.12,'sawtooth',.035);update()}
+function throwBall(){if(state!=='idle'||remaining<=0)return;remaining--;state='windup';windupStart=performance.now()/1000;pitchStart=windupStart+1.0;flight=1.55*(145/speed);swingActive=false;swingAt=-10;ball.visible=false;ball.position.set(-1.9,2.04,-13.7);ball.material.color.setHex(pitches[pick].color);ball.material.emissive=new THREE.Color(pick>=4?pitches[pick].color:0x000000);ball.material.emissiveIntensity=pick>=4?.9:0;$('liveSpeed').textContent=speed+' km/h';$('log').textContent=pitches[pick].name+' '+speed+' km/h · 투수 와인드업 중…';sound(240,.12,'sawtooth',.035);update()}
 function swing(){if(state!=='pitch'){if(state==='idle')throwBall();return}if(swingActive)return;swingActive=true;swingAt=performance.now()/1000;const progress=(swingAt-pitchStart)/flight;const delta=Math.abs(1-progress);sound(140,.11,'triangle',.065);if(delta<.155){const quality=1-delta/.155,center=Math.abs(ball.position.x);const contact=quality*(1-Math.min(.65,center*.15));hitDistance=Math.round(40+contact*100+Math.random()*30);hitType=hitDistance>=112?'home':hitDistance>=75?'hit':'out';hits+=hitType==='out'?0:1;homers+=hitType==='home'?1:0;best=Math.max(best,hitDistance);hitStart=swingAt;state='hit';balls=0;strikes=0;ballStart.copy(ball.position);ballVel.set((Math.random()-.5)*13,hitType==='home'?16:9,-(25+quality*25));shake=hitType==='home'?.45:.12;message(hitType==='home'?'HOME RUN!':hitType==='hit'?'NICE HIT!':'타구 비행!',1100);sound(420,.24,'square',.09);update()}else{message(progress<.85?'너무 빠른 스윙!':'스윙 타이밍 미스!',900);$('log').textContent='헛스윙! 공이 홈플레이트에 도착할 때를 노려보세요.'}}
 function resize(){const w=arena.clientWidth,h=arena.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}new ResizeObserver(resize).observe(arena);resize();
 function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.05),now=performance.now()/1000;
@@ -177,7 +196,7 @@ const target=mitt.getWorldPosition(new THREE.Vector3());ball.position.lerp(targe
 if(now-catchStart>.42){ball.visible=false;result(catchText,0)}
 }
 animateBatter(now);
-if(state==='pitch'){const t=(now-pitchStart)/flight,u=Math.max(0,Math.min(1,t));const p=pitches[pick];ball.position.set(p.bend*u*u + (pick===5?Math.sin(u*18)*.22*u:0),2.05-.68*u-p.drop*u*u+Math.sin(Math.PI*u)*.55,-13.7+18.4*u);ball.rotation.z+=dt*12;
+if(state==='pitch'){const t=(now-pitchStart)/flight,u=Math.max(0,Math.min(1,t));const p=pitches[pick];ball.position.set(-1.9*(1-u)+p.bend*u*u + (pick===5?Math.sin(u*18)*.22*u:0),2.05-.68*u-p.drop*u*u+Math.sin(Math.PI*u)*.55,-13.7+18.4*u);ball.rotation.z+=dt*12;
 if(t>=1.10){
 state='catch';catchStart=now;ball.visible=true;
 const isStrike=swingAt>0||(ball.position.y>.65&&ball.position.y<2.1&&Math.abs(ball.position.x)<.95);
