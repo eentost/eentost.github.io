@@ -8,6 +8,7 @@ import {createFpsTactics} from "./fps-tactics.js";
 import {buildWeaponModel} from "./fps-weapon-models.js";
 import {createFpsImageAssets} from "./fps-image-assets.js";
 import {createFpsGameplay} from "./fps-gameplay.js";
+import {createFpsScenery} from "./fps-scenery.js";
 export function createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat,cinematic}) {
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const rng=(()=>{let a=31415;return ()=>{a=(Math.imul(a,1664525)+1013904223)>>>0;return a/4294967296;};})();
@@ -99,6 +100,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     const light=new THREE.DirectionalLight(0xffe6c9,2.3);light.position.set(-21,44,8);world.add(light);
   }
   buildMap();
+  const scenery=createFpsScenery({world});
   let tacticalMode=false;
   const data={active:false,running:false,finished:false,paused:false,hp:100,ap:100,deathDelay:0,spawnShield:0,x:0,z:28,height:0,vy:0,yaw:0,pitch:0,time:300,blue:0,red:0,kills:0,deaths:0};
   let gun="rifle",ammo=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.mag])),stock=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.stock])),cool=0,loading=0,reloadGun="",aim=false,fireHeld=false,bob=0,recoil=0,flash=0,hit=0,frame=0,lastFull=false,lastOverflow="",lastFog=null,lastBackground=null,lastEnvironment=null,lastEnvIntensity=1,lastFov=56,lastCity=true,lastInterior=false;
@@ -230,7 +232,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   }
   const loadout=$("cv-fps-loadout");
   for(const [id,w]of Object.entries(specs)){const option=document.createElement("option");option.value=id;option.textContent=w.name;loadout.append(option);}
-  $("cv-fps-theme").addEventListener("change",e=>{chosenTheme=e.target.value;if(data.active){effects.setTheme(chosenTheme);effects.apply();imageAssets.applyTheme(chosenTheme);}});
+  $("cv-fps-theme").addEventListener("change",e=>{chosenTheme=e.target.value;if(data.active){effects.setTheme(chosenTheme);effects.apply();imageAssets.applyTheme(chosenTheme);scenery.setTheme(chosenTheme);}});
   $("cv-fps-volume").addEventListener("input",e=>effects.setVolume(Number(e.target.value)/100));
   function isBlocked(x,z,r=.5){return Math.abs(x)>30.8||Math.abs(z)>34||obstacles.some(v=>Math.abs(x-v.x)<v.w/2+r&&Math.abs(z-v.z)<v.d/2+r);}
   function slide(obj,dx,dz){if(!isBlocked(obj.x+dx,obj.z))obj.x+=dx;if(!isBlocked(obj.x,obj.z+dz))obj.z+=dz;}
@@ -382,7 +384,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     lastBackground=scene.background;lastFog=scene.fog;lastEnvironment=scene.environment;lastEnvIntensity=scene.environmentIntensity;lastFov=camera.fov;lastOverflow=document.body.style.overflow;
     city.visible=false;interior.visible=false;local.visible=false;world.visible=true;cinematic?.setArenaActive?.(true);
     view.visible=true;
-    effects.setTheme(chosenTheme);effects.apply();effects.setActive(true);imageAssets.activate(true,chosenTheme);
+    effects.setTheme(chosenTheme);effects.apply();effects.setActive(true);imageAssets.activate(true,chosenTheme);scenery.setTheme(chosenTheme);
     document.body.style.overflow="hidden";root.classList.add("cv3-full","cv-fps-active");
     Object.assign(data,{active:true,running:false,finished:false,paused:false,time:300,blue:0,red:0,kills:0,deaths:0});
     gun=specs[loadout.value]?loadout.value:"rifle";
