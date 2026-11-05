@@ -561,6 +561,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       if(specs[p.gun])gun=p.gun;
       if(Number.isFinite(p.ammo))ammo[gun]=p.ammo;
       if(Number.isFinite(p.reserve))stock[gun]=p.reserve;
+      loading=Number.isFinite(p.reloadIn)?Math.max(0,p.reloadIn):0;reloadGun=loading>0?gun:"";
     },
     onEvent:(m)=>{
       if(m.type==="damage"){effects.play("hurt");flash=.4;}
