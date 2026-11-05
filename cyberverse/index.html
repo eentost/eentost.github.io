@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08172a">
+<meta name="description" content="CyberVerse 체험판 — 아바타로 사이버 공간을 탐험하며 피싱·랜섬웨어·DDoS 사고에서 직접 방어 결정을 내려보세요.">
+<link rel="canonical" href="https://eentost.github.io/cyberverse/">
+<title>CyberVerse | 사이버보안 가상 체험관</title>
+<style>
+:root{color-scheme:dark;--bg:#071322;--surface:#0b2031;--surface2:#102b40;--stroke:#28485b;--muted:#9db6c5;--txt:#e8f6ff;--teal:#67eee0;--orange:#ffb88b;--blue:#a8a0ff}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;font-size:14px}button,input,textarea{font:inherit}button{cursor:pointer}a{color:#9af7ef}button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible,canvas:focus-visible{outline:3px solid #9af7ef;outline-offset:2px}
+.header{min-height:73px;padding:12px 24px;border-bottom:1px solid #244053;background:#0a1d2e;display:flex;align-items:center;gap:18px;justify-content:space-between}
+.logo{font-size:20px;font-weight:900;letter-spacing:.08em;white-space:nowrap;color:#eaffff;text-decoration:none}.logo span{color:#52dccb}.logo small{display:block;color:#91adbb;font-size:9px;letter-spacing:.18em;margin-top:3px}
+.header-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.tag{font-size:11px;color:#b0dfdb;border:1px solid #397671;border-radius:6px;padding:7px 9px;background:#0d342f}.back{font-size:12px;text-decoration:none;border:1px solid #46677b;border-radius:8px;padding:9px 12px;background:#133248;color:#e6f4fc}
+.notice{padding:11px 20px;text-align:center;background:#182b3e;color:#c7d9e4;font-size:12px;border-bottom:1px solid #314e62}.notice strong{color:#f3d4a0}
+.shell{display:grid;grid-template-columns:226px minmax(300px,1fr) 358px;min-height:calc(100vh - 121px)}
+.sidebar{background:#081a2b;padding:23px 13px;border-right:1px solid #1e3a4c}
+.kicker{font-weight:800;letter-spacing:.16em;color:#64d7e2;font-size:10px}
+.sidebar h2{font-size:17px;margin:10px 7px 7px}.help{color:var(--muted);font-size:12px;line-height:1.75;margin:0 7px 19px}
+.zones{display:grid;gap:7px}.zone{background:transparent;border:1px solid transparent;color:#d0e4ef;display:flex;align-items:center;gap:11px;text-align:left;padding:11px 9px;border-radius:11px;width:100%}.zone:hover,.zone.active{background:#153247;border-color:#3b7581}.zone .orb{font-size:21px;width:36px;height:36px;border-radius:10px;background:#153b4d;display:grid;place-items:center;color:var(--teal);flex-shrink:0}.zone strong{display:block;font-size:12px}.zone small{color:#9db6c5;font-size:10px;display:block;margin-top:3px}.profile{border:1px solid #325467;border-radius:13px;background:#122c40;margin-top:24px;padding:13px;color:#cce5ee}.profile strong{color:var(--teal)}.profile small{display:block;color:#92aebc;margin-top:7px}
+.center{display:grid;grid-template-rows:minmax(460px,1fr) auto;min-width:0}
+.world-wrap{min-height:460px;position:relative;background:radial-gradient(ellipse at 45% 35%,#19435c,#071b2d 55%,#06111f 100%);overflow:hidden}
+#world{width:100%;height:100%;display:block;cursor:crosshair}
+.world-top{pointer-events:none;position:absolute;left:25px;top:25px;max-width:calc(100% - 50px)}.world-top h1{margin:10px 0 6px;font-size:26px;letter-spacing:-.04em;text-shadow:0 2px 12px #071322}.world-top p{font-size:12px;color:#c5dce5;line-height:1.6;margin:0}.world-caption{position:absolute;left:15px;bottom:15px;right:15px;padding:11px 15px;border-radius:9px;background:#0a2539cc;border:1px solid #386b7e;color:#c6dfed;display:flex;flex-wrap:wrap;gap:14px;align-items:center;font-size:11px}
+.mini{display:inline-block;border:1px solid #4f8a90;padding:5px 8px;color:#99f4e6;border-radius:6px;background:#17434b}
+.feed-section{padding:18px 23px;border-top:1px solid #244155;background:#091d2c}
+.feed-section h2{font-size:13px;margin:0 0 12px}.feed{display:grid;gap:8px;max-height:145px;overflow:auto}.feed-item{font-size:12px;color:#c5dce6;background:#122e42;border:1px solid #26475a;border-radius:8px;padding:9px 11px}.feed-item b{color:#7bf0e5}
+.panel{background:#0a2032;border-left:1px solid #2a4558;padding:24px 19px;min-width:0}.panel h2{font-size:20px;margin:8px 0}.panel p{line-height:1.75;color:#b1c9d5}.panel .intro{font-size:12px}.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:17px 0}.stat{border:1px solid #31546a;background:#123249;border-radius:10px;padding:11px}.stat small{display:block;color:#a4becd;font-size:10px;margin-bottom:6px}.stat strong{font-size:20px;color:#7ff2df}
+.cards{display:grid;gap:10px}.scenario{padding:15px;text-align:left;border-radius:12px;background:#142f44;border:1px solid #315669;color:#e6f7ff;transition:background .15s}.scenario:hover{background:#1b4056;border-color:#59cfc4}.scenario strong{font-size:14px;display:block}.scenario small{display:block;color:#a6bdc9;line-height:1.7;margin-top:5px}.scenario .type{color:#72e2da;font-size:10px;font-weight:800;display:block;margin-bottom:6px}
+.hidden{display:none!important}.step-count{color:#87e6df;font-size:11px;font-weight:800;letter-spacing:.1em}.progress{height:7px;background:#234253;border-radius:10px;overflow:hidden;margin:14px 0 20px}.progress>div{height:100%;background:linear-gradient(90deg,#43baaa,#9ff2bd);width:0;transition:width .25s}
+#stage-title{font-size:18px;margin:8px 0}.situation{background:#143245;border:1px solid #3a677c;padding:14px;border-radius:11px;color:#e0eff6!important}.path{font-size:12px;color:#ffc3a2;background:#442d34;border:1px solid #8c5760;border-radius:9px;padding:12px;line-height:1.5;margin:12px 0}.choices{display:grid;gap:10px;margin-top:13px}.choice{width:100%;text-align:left;background:#153348;color:#eaf5ff;border:1px solid #3b6379;border-radius:10px;padding:13px;line-height:1.6}.choice:hover:not(:disabled){background:#204a60;border-color:#74dbc8}.choice:disabled{opacity:.55;cursor:default}
+.feedback{margin-top:15px;border:1px solid #488a7c;background:#123d3d;padding:15px;border-radius:10px}.feedback.bad{border-color:#ad6f68;background:#4a2d35}.feedback strong{color:#b5ffe7}.feedback.bad strong{color:#ffd6bd}.feedback p{color:#e0e9ed;margin:9px 0 13px}.btn{display:inline-block;border:1px solid #56bbac;background:#116c71;color:#f4ffff;padding:12px 16px;border-radius:9px;font-weight:800;text-align:center}.btn.secondary{background:#183a4e;border-color:#426b7e}.btn:hover{filter:brightness(1.12)}.end{border:1px solid #3c857a;background:#113b40;border-radius:12px;padding:19px;margin-top:19px}.end strong{font-size:24px;color:#9bffe0}
+.community{background:#0d2537;border:1px solid #2e5264;border-radius:12px;margin-top:20px;padding:15px}.community h3{margin:0 0 8px;font-size:14px}.community label{font-size:11px;color:#b8d3dc;display:block;margin:12px 0 6px}.community textarea,.community input{width:100%;border:1px solid #41687a;background:#091f30;color:#eefaff;border-radius:8px;padding:10px;resize:vertical}.community button{margin-top:9px}.note{font-size:11px;color:#aac7d2;line-height:1.7}.notes{display:grid;gap:9px;margin-top:12px}.personal-note{border:1px solid #345669;border-radius:8px;padding:11px;background:#153549}.personal-note strong{font-size:12px;color:#8ff4e4}.personal-note p{margin:6px 0 0;color:#c4dce5;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}
+.footer{font-size:11px;color:#9fb8c6;padding:15px;text-align:center;background:#081928;border-top:1px solid #28465a}
+@media(max-width:1180px){.shell{grid-template-columns:190px minmax(300px,1fr) 325px}.sidebar{padding:18px 7px}.panel{padding:18px 13px}}
+@media(max-width:970px){.shell{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid #27465a}.zones{grid-template-columns:repeat(3,1fr)}.center{grid-template-rows:470px auto}.panel{border-left:0;border-top:1px solid #34546c}.profile{display:none}}
+@media(max-width:540px){.header{padding:11px;align-items:flex-start;flex-wrap:wrap}.zones{grid-template-columns:repeat(2,1fr)}.world-wrap{min-height:400px}.center{grid-template-rows:400px auto}.world-top h1{font-size:20px}.world-top{top:12px;left:14px}.world-top p{font-size:11px}.world-caption{font-size:10px;bottom:10px}.stat-row{margin-top:13px}}
+@media(prefers-reduced-motion:reduce){.progress>div{transition:none}}
+</style>
+</head>
+<body>
+<header class="header">
+  <a class="logo" href="/cyberverse/">CYBER<span>VERSE</span><small>VIRTUAL INCIDENT EXPERIENCE</small></a>
+  <div class="header-actions"><span class="tag">SINGLE PLAYER DEMO · BROWSER ONLY</span><a class="back" href="/">하루도구 홈으로 돌아가기</a></div>
+</header>
+<div class="notice"><strong>체험판 안내:</strong> 현재 GitHub Pages에서는 개인 훈련과 개인 메모만 동작합니다. 방문자 간 실시간 아바타·채팅·공동 대응은 별도 서버 배포 전까지 제공하지 않습니다.</div>
+<main class="shell">
+<aside class="sidebar">
+  <div class="kicker">WORLD DIRECTORY</div><h2>사이버보안 도시</h2>
+  <p class="help">가상 공간을 탐험해 보세요. 구역 선택, WASD 키 또는 지도 클릭으로 이동할 수 있습니다.</p>
+  <nav class="zones" aria-label="가상 공간">
+    <button class="zone active" data-zone="plaza"><span class="orb">⌘</span><span><strong>중앙 광장</strong><small>가상 세계 입장</small></span></button>
+    <button class="zone" data-zone="community"><span class="orb">☷</span><span><strong>커뮤니티</strong><small>개인 기록 체험</small></span></button>
+    <button class="zone" data-zone="soc"><span class="orb">◈</span><span><strong>SOC 관제실</strong><small>이상 징후 관찰</small></span></button>
+    <button class="zone" data-zone="incident"><span class="orb">⚡</span><span><strong>사고 체험관</strong><small>방어 결정을 내려보세요</small></span></button>
+    <button class="zone" data-zone="forensics"><span class="orb">◇</span><span><strong>디지털 포렌식</strong><small>증거 보존 이해</small></span></button>
+    <button class="zone" data-zone="academy"><span class="orb">✳</span><span><strong>보안 아카데미</strong><small>보안 지식 학습</small></span></button>
+  </nav>
+  <div class="profile">현재 훈련 <strong id="profile-name">게스트 탐험가</strong><small id="profile-state">준비 완료 · 로컬 시뮬레이션</small></div>
+</aside>
+<section class="center" aria-label="가상 도시와 상황 기록">
+  <div class="world-wrap">
+    <canvas id="world" tabindex="0" aria-label="클릭 또는 WASD 키로 이동하는 가상 공간 지도"></canvas>
+    <div class="world-top"><span class="kicker">VIRTUAL CYBER CITY / OFFLINE DEMO</span><h1 id="zone-title">중앙 광장</h1><p id="zone-description">환영합니다. 원하는 보안 체험을 선택해 보세요.</p></div>
+    <div class="world-caption"><span class="mini">◉ 로컬 체험</span><span>WASD / 방향키: 이동</span><span>지도 클릭: 이동</span><span>사고 진행에 따라 위협 표시가 변화합니다.</span></div>
+  </div>
+  <section class="feed-section" aria-label="사고 기록"><h2>ACTIVITY · 대응 타임라인</h2><div id="feed" class="feed" aria-live="polite"></div></section>
+</section>
+<aside class="panel" aria-label="보안사고 체험 및 기록">
+  <div class="kicker">CYBER INCIDENT LAB</div><h2>보안사고 체험관</h2>
+  <p class="intro">위협이 발견됐을 때 어떻게 대응하시겠습니까? 선택에 따라 방어 점수와 피해가 달라집니다.</p>
+  <div class="stat-row"><div class="stat"><small>방어 무결성</small><strong id="integrity">100%</strong></div><div class="stat"><small>올바른 대응</small><strong id="score">0 / 0</strong></div></div>
+  <section id="catalog"><div class="kicker" style="margin:19px 0 13px">CHOOSE AN INCIDENT</div>
+    <div class="cards">
+    <button class="scenario" data-scenario="phishing"><span class="type">IDENTITY / PHISHING</span><strong>01 · 피싱과 계정 탈취</strong><small>의심 메일 → 세션 침해 → 대응 및 복구 · 4단계</small></button>
+    <button class="scenario" data-scenario="ransomware"><span class="type">ENDPOINT / RANSOMWARE</span><strong>02 · 랜섬웨어 확산</strong><small>암호화 탐지 → 격리 → 백업 검증 · 4단계</small></button>
+    <button class="scenario" data-scenario="ddos"><span class="type">NETWORK / DDOS</span><strong>03 · 대규모 DDoS 방어</strong><small>이상 트래픽 → 완화 → 정상 사용자 보호 · 4단계</small></button>
+    </div>
+  </section>
+  <section id="exercise" class="hidden"><span id="step-count" class="step-count"></span><div class="progress"><div id="progress-fill"></div></div><h3 id="stage-title"></h3><p id="situation" class="situation"></p><div id="attack-path" class="path"></div><div id="choices" class="choices"></div><div id="feedback" class="feedback hidden" role="status"><strong id="feedback-title"></strong><p id="feedback-text"></p><button id="next-step" class="btn">다음 단계 →</button></div></section>
+  <section id="result" class="hidden end" aria-live="polite"><h3>사고 대응 훈련 완료</h3><strong id="result-score"></strong><p id="result-explain"></p><button class="btn" id="again">다른 사고 체험하기</button></section>
+  <section class="community" id="community"><h3>나의 보안 경험 기록</h3><p class="note">커뮤니티 게시판의 화면·작성 흐름을 개인 메모로 체험할 수 있습니다. 기록은 오직 이 브라우저의 저장소에 보관되며 다른 방문자에게 공유되지 않습니다.</p><form id="note-form"><label for="note-title">기록 제목</label><input id="note-title" maxlength="70" required placeholder="예: 피싱 메일을 발견했을 때"><label for="note-body">대응 경험 또는 질문</label><textarea id="note-body" rows="3" maxlength="800" required placeholder="무엇이 의심스러웠고 어떻게 대응했나요?"></textarea><button class="btn secondary" type="submit">나의 기록 저장</button></form><div class="notes" id="notes"></div></section>
+</aside>
+</main>
+<footer class="footer">CyberVerse 교육용 가상 체험판 · 공격 코드나 실제 네트워크 침해를 수행하지 않습니다. · <a href="/">하루도구 홈페이지</a></footer>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const zones=[
+{id:"plaza",x:0,z:0,name:"중앙 광장",desc:"환영합니다. 원하는 보안 체험을 선택해 보세요.",col:"#5ae6ee"},
+{id:"community",x:-11,z:-10,name:"커뮤니티 라운지",desc:"보안 경험을 기록하고 공유하는 공간입니다. 현재는 개인 메모만 가능합니다.",col:"#57d9b3"},
+{id:"soc",x:11,z:-10,name:"SOC 관제실",desc:"탐지 경보를 관찰하고 이상 징후를 확인하는 관제 공간입니다.",col:"#a49bff"},
+{id:"incident",x:0,z:-15,name:"사고 체험관",desc:"피싱·랜섬웨어·DDoS 대응 절차를 직접 선택해 보세요.",col:"#ffa979"},
+{id:"forensics",x:-12,z:10,name:"디지털 포렌식",desc:"증거 보존과 조사 절차의 중요성을 알아보세요.",col:"#80baff"},
+{id:"academy",x:12,z:10,name:"보안 아카데미",desc:"사고를 예방하는 기본 방어 원칙을 익히는 곳입니다.",col:"#b4e08c"}];
+const scenarios={
+phishing:{title:"피싱과 계정 탈취",stages:[
+["의심스러운 메일","택배 업체를 사칭한 메일이 도착했습니다. 발신자 도메인이 공식 주소와 한 글자 다릅니다.","외부 메일 → 직원 메일함",[["링크를 눌러 로그인한다",false,28,"가짜 사이트에서 계정정보가 탈취될 수 있습니다."],["공식 채널에서 링크와 발신자를 확인한다",true,0,"피싱 링크 접근을 막고 신고 근거를 확보했습니다."],["동료들에게 의심 메일을 그대로 전달한다",false,18,"의심 메일이 조직 내부로 확산될 수 있습니다."]]],
+["비정상 로그인","평소와 다른 지역에서 로그인 성공 경보와 반복적인 MFA 요청이 발생했습니다.","의심 세션 → 인증 시스템",[["반복되는 MFA 요청을 승인한다",false,35,"공격자의 로그인 시도를 승인할 수 있습니다."],["정상 출장일 수 있으므로 무시한다",false,25,"침해된 세션의 활동이 계속될 수 있습니다."],["비밀번호를 재설정하고 활성 세션을 점검한다",true,0,"계정 보호와 의심 세션 조사에 착수했습니다."]]],
+["내부 문서 접근","메일 전달 규칙이 변경됐고 내부 파일에 대한 비정상 접근이 확인됐습니다.","의심 세션 → 내부 문서",[["세션을 폐기하고 규칙·접근권한을 조사한다",true,0,"의심 세션을 제한하고 관련 기록을 보존했습니다."],["접속 기록을 모두 삭제한다",false,30,"조사에 필요한 증거가 손실됩니다."],["담당자가 출근할 때까지 기다린다",false,22,"추가 데이터 접근 가능성이 커집니다."]]],
+["사고 복구","계정 침해 범위를 확인하고 보고 및 재발 방지 대책을 마련해야 합니다.","탐지 → 격리 → 조사 → 복구",[["사건을 기록하지 않고 종료한다",false,35,"유사 사고 재발과 미처리 피해 위험이 남습니다."],["로그와 증거를 보존하고 대응 절차를 개시한다",true,0,"영향 범위와 원인을 추적할 수 있게 됐습니다."],["관련 데이터를 무조건 삭제한다",false,27,"필수 조사·복구 자료가 사라질 수 있습니다."]]]]},
+ransomware:{title:"랜섬웨어 확산",stages:[
+["대량 파일 변경","공유 서버에서 수백 개 파일의 확장자가 급격하게 변경되고 있습니다.","의심 단말 → 파일 서버",[["의심 단말을 네트워크에서 격리한다",true,0,"확산 가능성을 제한하고 조사 시간을 확보했습니다."],["정기 백신 검사만 기다린다",false,35,"암호화와 확산이 계속될 수 있습니다."],["서버만 재부팅한다",false,22,"증거가 손실되고 원인이 제거되지 않을 수 있습니다."]]],
+["횡적 이동 조사","관리 계정과 공유 폴더에서 다수의 인증 요청이 관찰됩니다.","단말 → 계정 → 공유 폴더",[["호스트 한 대만 검사한다",false,20,"추가 침해된 시스템을 놓칠 수 있습니다."],["계정·세션·파일 공유 접근을 조사한다",true,0,"침해 범위를 확인하고 확산 경로를 제한했습니다."],["모든 공유 권한을 개방한다",false,30,"공격 범위가 더 확대될 수 있습니다."]]],
+["백업 무결성","오프라인 백업이 있지만 정상적으로 복원되는지 아직 검증되지 않았습니다.","격리 환경 ↔ 백업",[["감염망에 백업을 바로 연결한다",false,35,"백업 자체가 침해될 수 있습니다."],["몸값을 지불하고 복구를 기대한다",false,30,"안전한 복구가 보장되지 않습니다."],["격리된 환경에서 백업 무결성을 검증한다",true,0,"신뢰 가능한 복구 지점을 확인했습니다."]]],
+["서비스 재개","방어 정책과 시스템 복구 우선순위를 결정해야 합니다.","원인 제거 → 검증 → 복귀",[["원인 확인 없이 전면 재가동한다",false,32,"복구 직후 재감염될 수 있습니다."],["침입 경로를 제거하고 단계적으로 서비스를 재개한다",true,0,"재발 방지와 복구를 순서대로 수행했습니다."],["사후 기록과 개선 절차를 생략한다",false,17,"같은 문제가 반복될 위험이 있습니다."]]]]},
+ddos:{title:"대규모 DDoS 방어",stages:[
+["트래픽 폭증","여러 IP에서 대량 요청이 들어오며 정상 사용자의 응답 시간이 급증합니다.","다수 클라이언트 → 웹 서버",[["평시 지표와 비교해 공격 유형과 영향을 분류한다",true,0,"공격과 정상 이용자 패턴을 구분했습니다."],["모든 외부 IP를 영구 차단한다",false,33,"정상 이용자도 서비스에 접속할 수 없게 됩니다."],["서비스가 멈출 때까지 기다린다",false,28,"가용성 저하가 계속될 수 있습니다."]]],
+["긴급 완화","네트워크 계층과 애플리케이션 계층의 이상 트래픽이 동시에 나타납니다.","스크러빙 → WAF → 서비스",[["모든 보호 정책을 해제한다",false,32,"과부하가 심해질 수 있습니다."],["DDoS 완화·WAF·속도 제한을 단계적으로 적용한다",true,0,"비정상 요청을 줄이면서 서비스 접근성을 보호했습니다."],["서버 한 대만 재시작한다",false,25,"트래픽 유입 원인이 그대로 남습니다."]]],
+["정상 사용자 영향","보호 정책 이후 일부 정상 이용자가 차단됐다는 신고가 접수됐습니다.","정상 사용자 → 검증 → 서비스",[["오탐을 확인하고 차단 조건을 미세 조정한다",true,0,"정상 이용자 불편을 줄이며 보호 수준을 유지했습니다."],["불편 신고를 무시한다",false,25,"정상 이용자 피해가 지속됩니다."],["모든 차단 규칙을 즉시 해제한다",false,28,"공격 트래픽이 다시 유입될 수 있습니다."]]],
+["사후 개선","공격량이 줄었습니다. 다음 발생에 대비한 운영 절차를 마련해야 합니다.","분석 → 개선 → 재훈련",[["트래픽 기록을 삭제한다",false,20,"분석 근거와 추적성이 손실됩니다."],["탐지 지표와 대응 절차를 복기한다",true,0,"향후 대응의 속도와 일관성을 높일 수 있습니다."],["재발 가능성을 무시한다",false,25,"다음 공격에 취약해질 수 있습니다."]]]]}};
+let active=null,step=0,damage=0,correct=0,selected=false;
+let player={x:0,z:1.5},target=null,keys={},angle=0,nowZone="plaza";
+const canvas=$("world"),ctx=canvas.getContext("2d"),feed=$("feed");
+function log(label,msg){const el=document.createElement("div");el.className="feed-item";const b=document.createElement("b");b.textContent=label+" · ";el.append(b,document.createTextNode(msg));feed.prepend(el);while(feed.children.length>12)feed.lastElementChild.remove();}
+function setZone(id,move){const z=zones.find(v=>v.id===id)||zones[0];nowZone=z.id;$("zone-title").textContent=z.name;$("zone-description").textContent=z.desc;document.querySelectorAll(".zone").forEach(b=>b.classList.toggle("active",b.dataset.zone===z.id));if(move)target={x:z.x,z:z.z};if(z.id==="community")$("community").scrollIntoView({behavior:"smooth",block:"nearest"});}
+function stats(){const total=active?scenarios[active].stages.length:0;$("integrity").textContent=Math.max(0,100-damage)+"%";$("score").textContent=correct+" / "+total;}
+function showCatalog(){$("catalog").classList.remove("hidden");$("exercise").classList.add("hidden");$("result").classList.add("hidden");active=null;damage=0;correct=0;step=0;selected=false;stats();}
+function start(id){if(!scenarios[id])return;active=id;step=0;damage=0;correct=0;selected=false;stats();$("catalog").classList.add("hidden");$("result").classList.add("hidden");$("exercise").classList.remove("hidden");setZone("incident",true);log("ALERT",scenarios[id].title+" 대응 훈련이 시작됐습니다.");showStep();}
+function showStep(){selected=false;const s=scenarios[active].stages[step];$("feedback").classList.add("hidden");$("step-count").textContent=(step+1)+" / "+scenarios[active].stages.length+" 단계";$("progress-fill").style.width=(step/scenarios[active].stages.length*100)+"%";$("stage-title").textContent=s[0];$("situation").textContent=s[1];$("attack-path").textContent="공격 흐름 · "+s[2];const box=$("choices");box.replaceChildren();s[3].forEach((o,i)=>{const b=document.createElement("button");b.className="choice";b.textContent=(i+1)+". "+o[0];b.onclick=()=>choose(o);box.append(b);});}
+function choose(o){if(selected)return;selected=true;if(o[1])correct++;damage=Math.min(100,damage+o[2]);stats();$("choices").querySelectorAll("button").forEach(b=>b.disabled=true);$("feedback").classList.toggle("bad",!o[1]);$("feedback-title").textContent=o[1]?"✓ 적절한 대응":"! 위험한 대응";$("feedback-text").textContent=o[3];$("feedback").classList.remove("hidden");$("next-step").textContent=step===scenarios[active].stages.length-1?"훈련 결과 보기 →":"다음 단계 →";log(o[1]?"DEFEND":"IMPACT",o[3]);}
+function advance(){if(!active||!selected)return;step++;if(step>=scenarios[active].stages.length){$("exercise").classList.add("hidden");$("result").classList.remove("hidden");$("progress-fill").style.width="100%";$("result-score").textContent=correct+" / 4 정답 · 방어 "+(100-damage)+"%";$("result-explain").textContent=correct===4?"훌륭합니다. 모든 단계에서 권장 대응을 선택했습니다.":"다른 선택이 어떤 결과를 가져오는지 확인했습니다. 다시 시도해 방어 순서를 익혀보세요.";log("REVIEW","훈련이 완료됐습니다. 올바른 대응 "+correct+"회, 누적 피해 "+damage+"%p.");}else showStep();}
+function isometric(x,z){const w=canvas.clientWidth,h=canvas.clientHeight,scale=Math.max(7,Math.min(w/47,h/40));return {x:w*.5+(x-z)*scale*.82,y:h*.48+(x+z)*scale*.37,scale};}
+function poly(points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke();}}
+function isoBox(x,z,w,d,h,color){const a=isometric(x-w/2,z-d/2),b=isometric(x+w/2,z-d/2),c=isometric(x+w/2,z+d/2),e=isometric(x-w/2,z+d/2),yy=h*a.scale;poly([a,b,{x:b.x,y:b.y-yy},{x:a.x,y:a.y-yy}],shade(color,-18),color);poly([b,c,{x:c.x,y:c.y-yy},{x:b.x,y:b.y-yy}],shade(color,-38),color);poly([{x:a.x,y:a.y-yy},{x:b.x,y:b.y-yy},{x:c.x,y:c.y-yy},{x:e.x,y:e.y-yy}],color,"#72b8b7");}
+function shade(hex,n){const v=parseInt(hex.slice(1),16);let rgb=[(v>>16)&255,(v>>8)&255,v&255].map(x=>Math.min(255,Math.max(0,x+n)));return "#"+rgb.map(x=>Math.round(x).toString(16).padStart(2,"0")).join("");}
+function draw(t){const rect=canvas.getBoundingClientRect();const dpr=Math.min(window.devicePixelRatio||1,2);if(canvas.width!==Math.round(rect.width*dpr)||canvas.height!==Math.round(rect.height*dpr)){canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);const w=rect.width,h=rect.height;ctx.clearRect(0,0,w,h);let grd=ctx.createRadialGradient(w*.45,h*.4,10,w*.5,h*.5,Math.max(w,h)*.65);grd.addColorStop(0,"#194660");grd.addColorStop(1,"#061524");ctx.fillStyle=grd;ctx.fillRect(0,0,w,h);
+for(let k=-21;k<=21;k+=2){let l=isometric(k,-21),r=isometric(k,21);ctx.strokeStyle="#24516788";ctx.beginPath();ctx.moveTo(l.x,l.y);ctx.lineTo(r.x,r.y);ctx.stroke();l=isometric(-21,k);r=isometric(21,k);ctx.beginPath();ctx.moveTo(l.x,l.y);ctx.lineTo(r.x,r.y);ctx.stroke();}
+const drawZones=zones.slice().sort((a,b)=>(a.x+a.z)-(b.x+b.z));for(const z of drawZones){const p=isometric(z.x,z.z),pulse=active==="phishing"||active==="ransomware"||active==="ddos";ctx.beginPath();ctx.ellipse(p.x,p.y,39,16,0,0,Math.PI*2);ctx.fillStyle=z.id==="incident"&&pulse?"#bf51495c":"#51cece25";ctx.fill();ctx.strokeStyle=z.col;ctx.lineWidth=2;ctx.stroke();isoBox(z.x,z.z,4.8,3.7,z.id==="plaza"?3.4:2.7,z.col);ctx.font="700 11px system-ui";ctx.textAlign="center";ctx.fillStyle="#f1fdff";ctx.fillText(z.name,p.x,p.y-4*zScale()-15);ctx.textAlign="start";}
+const me=isometric(player.x,player.z);ctx.beginPath();ctx.ellipse(me.x,me.y,14,7,0,0,Math.PI*2);ctx.fillStyle="#39bfb855";ctx.fill();ctx.strokeStyle="#98fff2";ctx.lineWidth=2;ctx.stroke();ctx.fillStyle="#77f8e7";ctx.beginPath();ctx.arc(me.x,me.y-13,8,0,Math.PI*2);ctx.fill();ctx.fillStyle="#edffff";ctx.beginPath();ctx.arc(me.x,me.y-26,7,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#4de6dc";ctx.stroke();if(active){ctx.fillStyle="#fb7775";ctx.font="800 28px system-ui";let z=zones.find(v=>v.id==="incident"),p=isometric(z.x,z.z);ctx.fillText("!",p.x-5,p.y-64+Math.sin(t*.004)*3);} }
+function zScale(){return Math.max(7,Math.min(canvas.clientWidth/47,canvas.clientHeight/40));}
+function nearest(x,y){let best=null,dist=55;for(let z of zones){let p=isometric(z.x,z.z);const d=Math.hypot(x-p.x,y-p.y);if(d<dist){best=z;dist=d;}}return best;}
+function frame(t){const s=.17;if(keys.w||keys.ArrowUp)player.z-=s;if(keys.s||keys.ArrowDown)player.z+=s;if(keys.a||keys.ArrowLeft)player.x-=s;if(keys.d||keys.ArrowRight)player.x+=s;if(target){let dx=target.x-player.x,dz=target.z-player.z,dist=Math.hypot(dx,dz);if(dist<.3)target=null;else{player.x+=dx/dist*.2;player.z+=dz/dist*.2;}}player.x=Math.max(-20,Math.min(20,player.x));player.z=Math.max(-20,Math.min(20,player.z));draw(t);requestAnimationFrame(frame);}
+canvas.addEventListener("click",e=>{const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;const z=nearest(x,y);if(z)setZone(z.id,true);else{const sc=zScale(),dx=(x-canvas.clientWidth*.5)/(.82*sc),dy=(y-canvas.clientHeight*.48)/(.37*sc);target={x:Math.max(-20,Math.min(20,(dx+dy)/2)),z:Math.max(-20,Math.min(20,(dy-dx)/2))};}canvas.focus();});
+window.addEventListener("keydown",e=>{if(/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;if(["w","a","s","d","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)){keys[e.key]=true;target=null;e.preventDefault();}});
+window.addEventListener("keyup",e=>{keys[e.key]=false;});
+document.querySelectorAll(".zone").forEach(b=>b.addEventListener("click",()=>setZone(b.dataset.zone,true)));
+document.querySelectorAll(".scenario").forEach(b=>b.addEventListener("click",()=>start(b.dataset.scenario)));
+$("next-step").addEventListener("click",advance);$("again").addEventListener("click",showCatalog);
+const key="cyberverse-personal-notes-v1";
+function getNotes(){try{const v=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(v)?v.slice(0,20):[];}catch(e){return [];}}
+function showNotes(){const box=$("notes");box.replaceChildren();const items=getNotes();if(!items.length){const p=document.createElement("p");p.className="note";p.textContent="저장된 개인 기록이 없습니다.";box.append(p);}for(const o of items){const d=document.createElement("div");d.className="personal-note";const strong=document.createElement("strong");strong.textContent=o.title;const body=document.createElement("p");body.textContent=o.body;d.append(strong,body);box.append(d);}}
+$("note-form").addEventListener("submit",e=>{e.preventDefault();const title=$("note-title").value.trim(),body=$("note-body").value.trim();if(!title||!body)return;const notes=getNotes();notes.unshift({title:title.slice(0,70),body:body.slice(0,800)});try{localStorage.setItem(key,JSON.stringify(notes.slice(0,20)));$("note-form").reset();showNotes();log("MEMO","개인 보안 경험 기록을 이 브라우저에 저장했습니다.");}catch(err){log("WARN","브라우저 저장 공간에 접근할 수 없습니다.");}});
+showNotes();stats();log("SYSTEM","로컬 체험 준비 완료. 오른쪽에서 피싱·랜섬웨어·DDoS 중 하나를 선택하세요.");requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
