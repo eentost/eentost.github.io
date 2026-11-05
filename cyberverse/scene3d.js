@@ -168,7 +168,7 @@ function resize(){const w=root.clientWidth,h=root.clientHeight;if(!w||!h)return;
 new ResizeObserver(resize).observe(root);resize();
 const cinematic=createCinematicCity({scene,city,renderer,root,zones,sky,sun,state});
 const combat=createCombatTraining({city,camera,renderer,root,state,local,zones,announce});
-const fps=createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat});
+const fps=createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat,cinematic});
 const clk=new THREE.Clock();let last=0;
 function loop(){
 requestAnimationFrame(loop);const dt=Math.min(clk.getDelta(),.05),t=clk.elapsedTime;
