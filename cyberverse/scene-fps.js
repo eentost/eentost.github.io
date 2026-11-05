@@ -235,12 +235,12 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     if(u.player){
       if(data.deathDelay>0||data.spawnShield>0)return;
       const absorbed=Math.min(data.ap,dmg*.56);data.ap-=absorbed;data.hp=Math.max(0,data.hp-dmg+absorbed);flash=.45;
-      if(data.hp<=0){data.deaths++;data.deathDelay=3;data.red++;feedKill(who,"YOU");}
+      if(data.hp<=0){data.deaths++;data.deathDelay=3;data.red++;effects.play("hurt");feedKill(who,"YOU");}
     }else if(!u.dead){
       u.hp-=dmg;if(u.hp<=0){
         u.dead=true;u.respawn=3.5;u.group.visible=false;
         const team=u.team==="red"?"blue":"red";data[team]++;
-        if(who==="YOU")data.kills++;feedKill(who,u.team.toUpperCase()+"-"+u.n,head);
+        if(who==="YOU"){data.kills++;effects.play("kill");}feedKill(who,u.team.toUpperCase()+"-"+u.n,head);
       }
     }
     if(data.blue>=30||data.red>=30)finish();
@@ -339,7 +339,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     lastBackground=scene.background;lastFog=scene.fog;lastFov=camera.fov;lastOverflow=document.body.style.overflow;
     city.visible=false;interior.visible=false;local.visible=false;world.visible=true;cinematic?.setArenaActive?.(true);
     view.visible=true;
-    effects.setTheme(chosenTheme);effects.apply();
+    effects.setTheme(chosenTheme);effects.apply();effects.setActive(true);
     document.body.style.overflow="hidden";root.classList.add("cv3-full","cv-fps-active");
     Object.assign(data,{active:true,running:false,finished:false,paused:false,time:300,blue:0,red:0,kills:0,deaths:0});
     gun=specs[loadout.value]?loadout.value:"rifle";
@@ -354,6 +354,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   function stop(){
     if(!data.active)return;
     data.active=false;data.running=false;fireHeld=false;aim=false;
+    effects.setActive(false);
     network?.disconnect();online=false;
     if(document.pointerLockElement===renderer.domElement)document.exitPointerLock?.();
     world.visible=false;city.visible=lastCity;interior.visible=lastInterior;local.visible=true;cinematic?.setArenaActive?.(false);
@@ -396,7 +397,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
         const n=Math.hypot(f,s)||1,v=keys.has("KeyC")?3.2:aim?4.2:keys.has("ShiftLeft")?9:6.1;
         if(!online)slide(data,(-Math.sin(data.yaw)*f+Math.cos(data.yaw)*s)*v*dt/n,(-Math.cos(data.yaw)*f-Math.sin(data.yaw)*s)*v*dt/n);
         if(f||s)bob+=dt*(v>8?14:10);
-        if(keys.has("Space")&&data.height===0)data.vy=6.8;
+        if(keys.has("Space")&&data.height===0){data.vy=6.8;effects.play("jump");}
         data.vy-=17*dt;data.height=Math.max(0,data.height+data.vy*dt);if(data.height===0)data.vy=0;
         if(!online)data.spawnShield=Math.max(0,data.spawnShield-dt);
         effects.footsteps(dt,f!==0||s!==0,keys.has("ShiftLeft"));
