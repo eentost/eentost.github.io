@@ -62,14 +62,14 @@ test("FPS server: health, two-player room, authoritative movement, score state a
   const initial=await until(blue,m=>m.type==="state"&&m.players.length===2);
   assert.equal(initial.players.length,2);
   const before=initial.players.find(p=>p.id===a.id);
-  blue.ws.send(JSON.stringify({type:"input",yaw:0,pitch:0,keys:{w:true,s:false,a:false,d:false,shift:false,c:false},hp:0,score:9999,x:3000,z:3000}));
+  blue.ws.send(JSON.stringify({type:"input",yaw:0,pitch:0,keys:{w:false,s:false,a:false,d:true,shift:false,c:false},hp:0,score:9999,x:3000,z:3000}));
   await delay(320);
-  const moved=await until(blue,m=>m.type==="state"&&m.players.some(p=>p.id===a.id&&p.z<before.z-.2));
+  const moved=await until(blue,m=>m.type==="state"&&m.players.some(p=>p.id===a.id&&p.x>before.x+.2));
   const me=moved.players.find(p=>p.id===a.id);
   assert.equal(me.hp,100,"Client must not set its own health");
   assert.ok(me.x>-31&&me.x<31,"Server world position must remain bounded");
-  assert.ok(me.z<before.z,"Server-authoritative movement should advance player");
-  assert.ok(me.z>before.z-6,"Server must reject teleport-like movement");
+  assert.ok(me.x>before.x,"Server-authoritative lateral movement should advance player");
+  assert.ok(me.x<before.x+6,"Server must reject teleport-like movement");
   blue.ws.send(JSON.stringify({type:"equip",gun:"not-a-weapon"}));
   const unchanged=await until(blue,m=>m.type==="state"&&m.players.some(p=>p.id===a.id));
   assert.equal(unchanged.players.find(p=>p.id===a.id).gun,"rifle");
