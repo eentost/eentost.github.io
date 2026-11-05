@@ -2,10 +2,21 @@
  * Dedicated scene, pointer-lock look, cover collision, bot teams, respawn, score.
  */
 import * as THREE from "three";
+import {createFpsEffects} from "./fps-effects.js";
+import {createFpsOnline} from "./fps-online.js";
 export function createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat,cinematic}) {
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const rng=(()=>{let a=31415;return ()=>{a=(Math.imul(a,1664525)+1013904223)>>>0;return a/4294967296;};})();
-  const specs={rifle:{name:"CV-47 돌격소총",mag:30,stock:150,damage:30,cool:.11,reload:1.8,spread:.018,recoil:.026,auto:true},sniper:{name:"SV-8 저격소총",mag:5,stock:35,damage:100,cool:1.1,reload:2.6,spread:.002,recoil:.095,auto:false}};
+  const specs={
+    rifle:{name:"CV-47 돌격소총",mag:30,stock:150,damage:30,cool:.115,reload:1.8,spread:.018,recoil:.026,auto:true},
+    smg:{name:"Viper-9 기관단총",mag:40,stock:200,damage:20,cool:.075,reload:1.5,spread:.032,recoil:.016,auto:true},
+    carbine:{name:"Kestrel-C 카빈",mag:30,stock:150,damage:27,cool:.095,reload:1.6,spread:.017,recoil:.021,auto:true},
+    shotgun:{name:"Breach-8 산탄총",mag:8,stock:48,damage:15,pellets:8,cool:.75,reload:2.4,spread:.135,recoil:.085,auto:false},
+    dmr:{name:"Sentinel-D 지정사수소총",mag:15,stock:75,damage:47,cool:.29,reload:2,spread:.007,recoil:.048,auto:false},
+    sniper:{name:"SV-8 저격소총",mag:5,stock:35,damage:100,cool:1.1,reload:2.6,spread:.002,recoil:.095,auto:false},
+    lmg:{name:"Guardian-65 경기관총",mag:65,stock:260,damage:23,cool:.09,reload:3.8,spread:.039,recoil:.027,auto:true},
+    pistol:{name:"Pulse-15 권총",mag:15,stock:90,damage:30,cool:.24,reload:1.2,spread:.027,recoil:.027,auto:false}
+  };
   const world=new THREE.Group();world.name="OPS ZERO FPS";world.visible=false;scene.add(world);
   const obstacles=[],walls=[],units=[],hitParts=[],traces=[],keys=new Set();
   const raycaster=new THREE.Raycaster(),vec=(x,y,z)=>new THREE.Vector3(x,y,z);
@@ -54,23 +65,23 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   }
   buildMap();
   const data={active:false,running:false,finished:false,paused:false,hp:100,ap:100,deathDelay:0,spawnShield:0,x:0,z:28,height:0,vy:0,yaw:0,pitch:0,time:300,blue:0,red:0,kills:0,deaths:0};
-  let gun="rifle",ammo={rifle:30,sniper:5},stock={rifle:150,sniper:35},cool=0,loading=0,reloadGun="",aim=false,fireHeld=false,bob=0,recoil=0,flash=0,hit=0,frame=0,lastFull=false,lastOverflow="",lastFog=null,lastBackground=null,lastFov=56,lastCity=true,lastInterior=false;
+  let gun="rifle",ammo=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.mag])),stock=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.stock])),cool=0,loading=0,reloadGun="",aim=false,fireHeld=false,bob=0,recoil=0,flash=0,hit=0,frame=0,lastFull=false,lastOverflow="",lastFog=null,lastBackground=null,lastFov=56,lastCity=true,lastInterior=false;
   const view=new THREE.Group();if(camera.parent!==scene)scene.add(camera);camera.add(view);
   const gunModels={};
   function makeViewGun(kind){
-    const sniper=kind==="sniper",body=paint(0x263746,.36,.65),accent=paint(sniper?0xc5a77e:0x4a9290,.42,.5);
+    const sniper=kind==="sniper"||kind==="dmr",short=kind==="pistol"||kind==="smg"||kind==="shotgun",body=paint(0x263746,.36,.65),accent=paint(sniper?0xc5a77e:kind==="smg"?0x4f9ba1:0x4a9290,.42,.5);
     const group=new THREE.Group(),gbox=(x,y,z,w,h,d,m)=>{
       const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);group.add(o);
     };
-    gbox(0,0,-.34,.17,.18,sniper?1.08:.7,body);
+    gbox(0,0,-.34,.17,.18,sniper?1.08:short?.49:.7,body);
     gbox(0,-.16,-.12,.16,.39,.18,body);gbox(0,.09,-.35,.2,.12,.5,accent);
-    gbox(0,.21,-.36,.12,.12,sniper?.52:.29,body);
+    gbox(0,.21,-.36,.12,.12,sniper?.52:short?.17:.29,body);
     gbox(.15,-.07,.11,.19,.17,.3,body);
-    const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,sniper?.95:.58,12),body);
-    barrel.rotation.x=Math.PI/2;barrel.position.set(0,.018,sniper?-1.19:-.85);group.add(barrel);
+    const barrel=new THREE.Mesh(new THREE.CylinderGeometry(kind==="shotgun"?.075:.04,kind==="shotgun"?.075:.04,sniper?.95:short?.34:.58,12),body);
+    barrel.rotation.x=Math.PI/2;barrel.position.set(0,.018,sniper?-1.19:short?-.63:-.85);group.add(barrel);
     group.position.set(.33,-.30,-.63);view.add(group);gunModels[kind]=group;
   }
-  makeViewGun("rifle");makeViewGun("sniper");
+  for(const kind of Object.keys(specs))makeViewGun(kind);
   const muzzle=new THREE.PointLight(0xffc78d,0,2.6);muzzle.position.set(.2,-.15,-1.2);camera.add(muzzle);
   function buildUnit(team,n){
     const group=new THREE.Group();world.add(group);
@@ -95,6 +106,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   for(let i=0;i<3;i++)buildUnit("blue",i+1);
   for(let i=0;i<5;i++)buildUnit("red",i+1);
   units.forEach(u=>u.group.visible=false);
+  const effects=createFpsEffects({scene,world,camera,root});
   const ui=document.createElement("div");ui.className="cv-fps-ui";ui.setAttribute("aria-label","CyberVerse FPS 데스매치");
   ui.innerHTML=[
     '<button type="button" class="cv-fps-entry" id="cv-fps-entry">FPS 팀데스매치 입장</button>',
@@ -102,6 +114,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     '<div class="cv-fps-eyebrow">CYBERVERSE // ORIGINAL FPS ARENA</div>',
     '<h2 id="cv-fps-title">OPS ZERO</h2><p id="cv-fps-desc">1인칭 FPS · BLUE 4명 VS RED AI 5명 · 5분 제한</p>',
     '<div class="cv-fps-pillrow"><span>팀데스매치</span><span>30킬 승리</span><span>엄폐 전투</span><span>AI 봇</span></div>',
+    '<div class="cv-fps-config"><label>전장 환경<select id="cv-fps-theme"><option value="industrial">물류 터미널 · 황혼</option><option value="night">도심 항만 · 야간</option><option value="rain">항만 기지 · 폭우</option><option value="desert">사막 전초기지 · 주간</option></select></label><label>기본 무기<select id="cv-fps-loadout"></select></label><label>효과음 <input id="cv-fps-volume" type="range" min="0" max="100" value="65"></label></div>',
     '<button id="cv-fps-play" class="cv-fps-primary" type="button">클릭하여 FPS 시작</button>',
     '<button id="cv-fps-exit" class="cv-fps-secondary" type="button">CyberVerse 도시로 돌아가기</button>',
     '<small>로컬 AI 대전입니다. 다른 방문자와의 실시간 대전은 제공하지 않습니다.</small></div></section>',
@@ -115,14 +128,18 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     '<div class="cv-fps-damage" id="cv-fps-damage"></div>',
     '<div class="cv-fps-bottom"><div class="cv-fps-health">HP <b id="cv-fps-hp">100</b>　AP <b id="cv-fps-ap">100</b><div><i id="cv-fps-hpbar"></i></div></div>',
     '<div class="cv-fps-weapon"><small id="cv-fps-gun">CV-47 돌격소총</small><strong id="cv-fps-ammo">30 / 150</strong><span id="cv-fps-reload">R 재장전</span></div></div>',
-    '<div class="cv-fps-instructions">WASD 이동 · SHIFT 달리기 · C 앉기 · SPACE 점프 · 좌클릭 사격 · 우클릭 조준 · 1/2 무기 변경 · R 재장전 · ESC 정지</div>',
+    '<div class="cv-fps-instructions">WASD 이동 · SHIFT 달리기 · C 앉기 · SPACE 점프 · 좌클릭 사격 · 우클릭 조준 · 숫자 1~8 무기 · R 재장전 · ESC 메뉴</div>',
     '<div class="cv-fps-dead" id="cv-fps-dead" hidden>부활까지 <b id="cv-fps-respawn">3</b>초</div>',
     '<div class="cv-fps-mobile"><button id="cv-fps-aim" type="button">◎ 조준</button><button id="cv-fps-fire" type="button">● 사격</button></div>',
     '</section>'
   ].join("");
   root.append(ui);
   const $=id=>ui.querySelector("#"+id),menu=$("cv-fps-menu"),hud=$("cv-fps-hud"),map=$("cv-fps-map"),ctx=map.getContext("2d");
-  let feed=[];
+  let feed=[],network=null,online=false,serverTeam="blue",chosenTheme="industrial";
+  const loadout=$("cv-fps-loadout");
+  for(const [id,w]of Object.entries(specs)){const option=document.createElement("option");option.value=id;option.textContent=w.name;loadout.append(option);}
+  $("cv-fps-theme").addEventListener("change",e=>{chosenTheme=e.target.value;if(data.active){effects.setTheme(chosenTheme);effects.apply();}});
+  $("cv-fps-volume").addEventListener("input",e=>effects.setVolume(Number(e.target.value)/100));
   function isBlocked(x,z,r=.5){return Math.abs(x)>30.8||Math.abs(z)>34||obstacles.some(v=>Math.abs(x-v.x)<v.w/2+r&&Math.abs(z-v.z)<v.d/2+r);}
   function slide(obj,dx,dz){if(!isBlocked(obj.x+dx,obj.z))obj.x+=dx;if(!isBlocked(obj.x,obj.z+dz))obj.z+=dz;}
   function spawn(u){
