@@ -1,0 +1,13 @@
+{
+  email {$TLS_EMAIL}
+}
+{$FPS_DOMAIN} {
+  encode gzip
+  @fps_ws path /fps
+  reverse_proxy @fps_ws fps:8787 {
+    header_up Host {host}
+    header_up X-Forwarded-Proto {scheme}
+  }
+  @health path /health
+  reverse_proxy @health fps:8787
+}
