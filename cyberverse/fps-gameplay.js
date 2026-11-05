@@ -15,11 +15,11 @@ export function createFpsGameplay({world,scene,camera,root,specs,units,data,wall
  const rank=()=>ranks[Math.min(ranks.length-1,Math.floor((level()-1)/5))];
  const persist=()=>{try{localStorage.setItem(storageKey,JSON.stringify(profile));}catch{}};
  const hud=document.createElement("aside");hud.className="cv-rpg-hud";
- hud.innerHTML='<div class="cv-rpg-row"><strong id="cv-rpg-rank">훈련병</strong><b id="cv-rpg-level">LV 1</b><span id="cv-rpg-credit">0 CR</span></div><div class="cv-rpg-xp"><i id="cv-rpg-xpbar"></i></div><div class="cv-rpg-row"><span id="cv-rpg-grenades">수류탄 2</span><span id="cv-rpg-upgrade">강화 +0</span><span id="cv-rpg-headshot">헤드샷 0</span></div><div id="cv-rpg-pickup" class="cv-rpg-pickup" hidden></div><div id="cv-rpg-event" class="cv-rpg-event" hidden role="status"></div><div class="cv-rpg-controls">G 수류탄 · V 칼 · Alt+E 무기 줍기 · H 강화</div>';
+ hud.innerHTML='<div class="cv-rpg-row"><strong id="cv-rpg-rank">훈련병</strong><b id="cv-rpg-level">LV 1</b><span id="cv-rpg-credit">0 CR</span></div><div class="cv-rpg-xp"><i id="cv-rpg-xpbar"></i></div><div class="cv-rpg-row"><span id="cv-rpg-grenades">수류탄 2</span><span id="cv-rpg-upgrade">강화 +0</span><span id="cv-rpg-headshot">헤드샷 0</span><span id="cv-rpg-streak">연속 0</span></div><div id="cv-rpg-pickup" class="cv-rpg-pickup" hidden></div><div id="cv-rpg-event" class="cv-rpg-event" hidden role="status"></div><div class="cv-rpg-controls">G 수류탄 · V 칼 · Alt+E 무기 줍기 · H 강화</div>';
  root.append(hud);const $=id=>hud.querySelector("#"+id);
  const body=new THREE.Group();body.name="FPS progression gameplay effects";world.add(body);
  const grenades=[],drops=[],particles=[],bursts=[];
- let grenadeCount=2,elapsed=0,feedbackUntil=0,seed=27491,meleeCooldown=0,grenadeCooldown=0;
+ let grenadeCount=2,elapsed=0,feedbackUntil=0,seed=27491,meleeCooldown=0,grenadeCooldown=0,streak=0,comboDeadline=0;
  const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
  const black=new THREE.MeshStandardMaterial({color:0x242e32,metalness:.55,roughness:.5});
  const green=new THREE.MeshStandardMaterial({color:0x516956,metalness:.5,roughness:.45});
@@ -37,6 +37,7 @@ export function createFpsGameplay({world,scene,camera,root,specs,units,data,wall
   $("cv-rpg-grenades").textContent="수류탄 "+grenadeCount;
   $("cv-rpg-upgrade").textContent="강화 +"+(profile.upgrades[getWeapon()]||0);
   $("cv-rpg-headshot").textContent="헤드샷 "+profile.headshots;
+  $("cv-rpg-streak").textContent="연속 "+streak;
  }
  function xp(amount,credits,reason){
   if(isOnline())return;
@@ -140,14 +141,17 @@ export function createFpsGameplay({world,scene,camera,root,specs,units,data,wall
  }
  function kill(unit,head=false){
   if(isOnline())return;
-  xp(head?150:100,head?60:35,head?"헤드샷":"처치");
+  streak++;comboDeadline=elapsed+12;
+  const bonus=streak>=10?70:streak>=5?40:streak>=3?20:0;
+  xp((head?150:100)+bonus,(head?60:35)+bonus,head?"헤드샷":"처치");
+  if(streak===3||streak===5||streak===10)event("KILL STREAK "+streak+" · 보너스 "+bonus+" XP",2.8);
   profile.totalKills++;if(head)profile.headshots++;
   persist();refresh();
   const keys=Object.keys(specs),weapon=keys[Math.floor(rnd()*keys.length)];
   if(rnd()<.62)dropAt(unit.group.position,weapon);
  }
  function reset(){
-  grenadeCount=2;meleeCooldown=grenadeCooldown=0;elapsed=0;feedbackUntil=0;
+  grenadeCount=2;meleeCooldown=grenadeCooldown=0;elapsed=0;feedbackUntil=0;streak=0;comboDeadline=0;
   for(const g of grenades)body.remove(g.mesh);grenades.length=0;
   for(const d of [...drops])removeDrop(d);
   for(const p of particles){body.remove(p.mesh);p.mesh.material.dispose();}particles.length=0;
@@ -159,6 +163,7 @@ export function createFpsGameplay({world,scene,camera,root,specs,units,data,wall
   if(hud.hidden)return;
   dt=Math.min(.05,Math.max(0,dt));elapsed+=dt;
   meleeCooldown=Math.max(0,meleeCooldown-dt);grenadeCooldown=Math.max(0,grenadeCooldown-dt);
+  if(streak&&elapsed>comboDeadline){streak=0;refresh();}
   if(feedbackUntil<elapsed)$("cv-rpg-event").hidden=true;
   for(let i=grenades.length-1;i>=0;i--){
    const g=grenades[i];g.fuse-=dt;
@@ -189,5 +194,6 @@ export function createFpsGameplay({world,scene,camera,root,specs,units,data,wall
    if(d.age>75)removeDrop(d);
   }
  }
- return {start,reset,update,grenade,melee,pickup,upgrade,hitBurst,kill,multiplier,refresh,snapshot:()=>({level:level(),rank:rank(),xp:profile.xp,credits:profile.credits,upgrades:{...profile.upgrades},grenades:grenadeCount,loot:drops.length})};
+ function onDeath(){streak=0;refresh();}
+ return {start,reset,update,grenade,melee,pickup,upgrade,hitBurst,kill,onDeath,multiplier,refresh,snapshot:()=>({level:level(),rank:rank(),xp:profile.xp,credits:profile.credits,upgrades:{...profile.upgrades},streak,grenades:grenadeCount,loot:drops.length})};
 }
