@@ -192,7 +192,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   ].join("");
   root.append(ui);
   const $=id=>ui.querySelector("#"+id),menu=$("cv-fps-menu"),hud=$("cv-fps-hud"),map=$("cv-fps-map"),ctx=map.getContext("2d");
-  let feed=[],network=null,online=false,serverTeam="blue",chosenTheme="industrial",touchMove={x:0,z:0},lookTouch=null;
+  let feed=[],network=null,online=false,serverTeam="blue",chosenTheme="industrial",touchMove={x:0,z:0},lookTouch=null,serverPosition=null;
   const loadout=$("cv-fps-loadout");
   for(const [id,w]of Object.entries(specs)){const option=document.createElement("option");option.value=id;option.textContent=w.name;loadout.append(option);}
   $("cv-fps-theme").addEventListener("change",e=>{chosenTheme=e.target.value;if(data.active){effects.setTheme(chosenTheme);effects.apply();}});
@@ -356,7 +356,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     if(!data.active)return;
     data.active=false;data.running=false;fireHeld=false;aim=false;
     effects.setActive(false);
-    network?.disconnect();online=false;
+    network?.disconnect();online=false;serverPosition=null;
     if(document.pointerLockElement===renderer.domElement)document.exitPointerLock?.();
     world.visible=false;city.visible=lastCity;interior.visible=lastInterior;local.visible=true;cinematic?.setArenaActive?.(false);
     scene.background=lastBackground;scene.fog=lastFog;camera.fov=lastFov;camera.updateProjectionMatrix();camera.rotation.set(0,0,0);
@@ -396,7 +396,12 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       else{
         const f=(keys.has("KeyW")?1:0)-(keys.has("KeyS")?1:0)+touchMove.z,s=(keys.has("KeyD")?1:0)-(keys.has("KeyA")?1:0)+touchMove.x;
         const n=Math.hypot(f,s)||1,v=keys.has("KeyC")?3.2:aim?4.2:keys.has("ShiftLeft")?9:6.1;
-        if(!online)slide(data,(-Math.sin(data.yaw)*f+Math.cos(data.yaw)*s)*v*dt/n,(-Math.cos(data.yaw)*f-Math.sin(data.yaw)*s)*v*dt/n);
+        slide(data,(-Math.sin(data.yaw)*f+Math.cos(data.yaw)*s)*v*dt/n,(-Math.cos(data.yaw)*f-Math.sin(data.yaw)*s)*v*dt/n);
+        if(online&&serverPosition){
+          const error=Math.hypot(serverPosition.x-data.x,serverPosition.z-data.z);
+          const correction=error>4?1:Math.min(1,dt*3.2);
+          data.x+=(serverPosition.x-data.x)*correction;data.z+=(serverPosition.z-data.z)*correction;
+        }
         if(f||s)bob+=dt*(v>8?14:10);
         if(keys.has("Space")&&data.height===0){data.vy=6.8;effects.play("jump");}
         data.vy-=17*dt;data.height=Math.max(0,data.height+data.vy*dt);if(data.height===0)data.vy=0;
@@ -417,7 +422,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     flash=Math.max(0,flash-dt*2);hit=Math.max(0,hit-dt);
     for(let i=traces.length-1;i>=0;i--){const v=traces[i];v.ttl-=dt;v.mesh.material.opacity=clamp(v.ttl/.16,0,1);if(v.ttl<=0){scene.remove(v.mesh);v.mesh.geometry.dispose();v.mesh.material.dispose();traces.splice(i,1);}}
     effects.update(dt);
-    network?.update(dt,t,{keys:{
+    network?.update(dt,t,{moveX:touchMove.x,moveZ:touchMove.z,keys:{
       w:keys.has("KeyW"),s:keys.has("KeyS"),a:keys.has("KeyA"),d:keys.has("KeyD"),
       shift:keys.has("ShiftLeft"),c:keys.has("KeyC")
     },yaw:data.yaw,pitch:data.pitch});
@@ -488,7 +493,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   window.addEventListener("blur",()=>{keys.clear();fireHeld=false;aim=false;});
   network=createFpsOnline({world,root,
     connectionChanged:(active)=>{
-      online=active;
+      online=active;if(!active)serverPosition=null;
       units.forEach(u=>u.group.visible=!online&&!u.dead&&data.active);
       if(!active&&data.active){
         $("cv-fps-desc").textContent="온라인 연결 종료 · 오프라인 AI 대전을 선택할 수 있습니다.";
@@ -496,7 +501,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       }
     },
     onWelcome:(m)=>{
-      serverTeam=m.team;online=true;
+      serverTeam=m.team;online=true;data.yaw=serverTeam==="red"?Math.PI:0;serverPosition=null;
       gun="rifle";units.forEach(u=>u.group.visible=false);
       data.blue=m.score?.blue||0;data.red=m.score?.red||0;data.time=m.time||300;
       $("cv-fps-desc").textContent="연결 성공 · "+m.room+" 방 · "+serverTeam.toUpperCase()+" 팀";
@@ -504,7 +509,11 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       refresh();
     },
     onSnapshot:(m,p)=>{
-      data.x=p.x;data.z=p.z;data.hp=p.hp;data.ap=p.armor;
+      if(!serverPosition||Math.hypot(data.x-p.x,data.z-p.z)>8){
+        data.x=p.x;data.z=p.z;
+      }
+      serverPosition={x:p.x,z:p.z};
+      data.hp=p.hp;data.ap=p.armor;
       data.deathDelay=p.dead?Math.max(.1,p.respawnIn||.1):0;
       data.blue=m.score?.blue||0;data.red=m.score?.red||0;data.time=m.time;
       data.kills=p.kills;data.deaths=p.deaths;
