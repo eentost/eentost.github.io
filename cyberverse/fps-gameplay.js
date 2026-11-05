@@ -15,7 +15,7 @@ export function createFpsGameplay({world,scene,camera,root,specs,units,data,wall
  const rank=()=>ranks[Math.min(ranks.length-1,Math.floor((level()-1)/5))];
  const persist=()=>{try{localStorage.setItem(storageKey,JSON.stringify(profile));}catch{}};
  const hud=document.createElement("aside");hud.className="cv-rpg-hud";
- hud.innerHTML='<div class="cv-rpg-row"><strong id="cv-rpg-rank">훈련병</strong><b id="cv-rpg-level">LV 1</b><span id="cv-rpg-credit">0 CR</span></div><div class="cv-rpg-xp"><i id="cv-rpg-xpbar"></i></div><div class="cv-rpg-row"><span id="cv-rpg-grenades">수류탄 2</span><span id="cv-rpg-upgrade">강화 +0</span><span id="cv-rpg-headshot">헤드샷 0</span></div><div id="cv-rpg-pickup" class="cv-rpg-pickup" hidden></div><div id="cv-rpg-event" class="cv-rpg-event" hidden role="status"></div><div class="cv-rpg-controls">G 수류탄 · V 칼 · E 무기 줍기 · H 강화</div>';
+ hud.innerHTML='<div class="cv-rpg-row"><strong id="cv-rpg-rank">훈련병</strong><b id="cv-rpg-level">LV 1</b><span id="cv-rpg-credit">0 CR</span></div><div class="cv-rpg-xp"><i id="cv-rpg-xpbar"></i></div><div class="cv-rpg-row"><span id="cv-rpg-grenades">수류탄 2</span><span id="cv-rpg-upgrade">강화 +0</span><span id="cv-rpg-headshot">헤드샷 0</span></div><div id="cv-rpg-pickup" class="cv-rpg-pickup" hidden></div><div id="cv-rpg-event" class="cv-rpg-event" hidden role="status"></div><div class="cv-rpg-controls">G 수류탄 · V 칼 · Alt+E 무기 줍기 · H 강화</div>';
  root.append(hud);const $=id=>hud.querySelector("#"+id);
  const body=new THREE.Group();body.name="FPS progression gameplay effects";world.add(body);
  const grenades=[],drops=[],particles=[],bursts=[];
@@ -55,7 +55,7 @@ export function createFpsGameplay({world,scene,camera,root,specs,units,data,wall
    const v=new THREE.Vector3((rnd()-.5)*3.4,rnd()*2.6+.1,(rnd()-.5)*3.4);
    particles.push({mesh,v,life:.35+rnd()*.38,total:.75});
   }
-  if(headshot)event("HEADSHOT! +150 XP / +60 CR",1.1);
+  if(headshot)event("HEADSHOT!",1.1);
  }
  function removeDrop(item){
   body.remove(item.group);
