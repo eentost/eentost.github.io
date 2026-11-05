@@ -54,6 +54,44 @@ props.push({id:z.id,name:z.name,x:door.x,z:door.z});
 for(let j=0;j<4;j++)orb(g,(j-1.5)*3.2,.53,-d/2-.85,.14,z.col);
 }
 for(let i=0;i<25;i++){const a=i*2.399,r=26+i%5*3.5,x=Math.cos(a)*r,z=Math.sin(a)*r;box(city,.36,1.7,.36,x,.9,z,M(0x385669));const leaf=new THREE.Mesh(new THREE.ConeGeometry(1.3,3.4,6),M(i%2?0x357e78:0x287a89));leaf.position.set(x,3.4,z);leaf.castShadow=true;city.add(leaf);}
+/* Live simulated intrusion traffic and response effects — visual only. */
+const incidentVisual=new THREE.Group();city.add(incidentVisual);
+const red=new THREE.MeshBasicMaterial({color:0xff766b}),cyan=new THREE.MeshBasicMaterial({color:0x6dffe1,transparent:true,opacity:.65,side:THREE.DoubleSide});
+const threatPaths=[
+[new THREE.Vector3(-34,1,-31),new THREE.Vector3(0,2,-24)],
+[new THREE.Vector3(32,1,-33),new THREE.Vector3(0,2,-24)],
+[new THREE.Vector3(0,2,-24),new THREE.Vector3(17,2,-11)],
+[new THREE.Vector3(-17,2,-11),new THREE.Vector3(0,2,-24)]];
+const beams=[],attackDots=[];
+for(let i=0;i<threatPaths.length;i++){
+ const [a,b]=threatPaths[i],line=b.clone().sub(a),length=line.length();
+ const beam=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,length,7),new THREE.MeshBasicMaterial({color:0xff766b,transparent:true,opacity:.56}));
+ beam.position.copy(a).add(b).multiplyScalar(.5);beam.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),line.normalize());
+ incidentVisual.add(beam);beams.push(beam);
+ for(let j=0;j<3;j++){const p=orb(incidentVisual,a.x,a.y,a.z,.18,0xff7d67);attackDots.push({node:p,path:i,phase:j/3+i*.17});}
+}
+const shield=new THREE.Mesh(new THREE.SphereGeometry(6.1,24,16),new THREE.MeshBasicMaterial({color:0x51ffde,transparent:true,opacity:.13,wireframe:true,depthWrite:false}));
+shield.position.set(17,5,-11);city.add(shield);shield.visible=false;incidentVisual.visible=false;
+function defenseFeedback(good){
+ shield.visible=!!good;state.flash=performance.now();state.lastGood=!!good;
+ announce(good?"대응 성공 · 보호막이 활성화되었습니다":"위험한 선택 · 공격 흐름이 확산됩니다");
+}
+function renderThreat(t){
+ incidentVisual.visible=!!state.phase&&!state.reduced;
+ if(!state.phase)return;
+ const activeCount=state.phase==="ddos"?4:state.phase==="ransomware"?3:2;
+ for(let i=0;i<beams.length;i++)beams[i].visible=i<activeCount;
+ for(const p of attackDots){
+ p.node.visible=p.path<activeCount;
+ if(!p.node.visible)continue;
+ const [a,b]=threatPaths[p.path],speed=state.reduced?0:.24;
+ const progress=(t*speed+p.phase)%1;
+ p.node.position.copy(a).lerp(b,progress);
+ p.node.position.y+=Math.sin(progress*Math.PI)*2;
+ }
+ if(shield.visible){shield.rotation.y+=state.reduced?0:.008;shield.scale.setScalar(1+(state.reduced?0:Math.sin(t*3)*.035));}
+}
+
 const effects=[];
 for(let i=0;i<100;i++){const a=i*2.4,r=6+(i*17)%46;const p=orb(city,Math.cos(a)*r,1+(i*5%16)*.23,Math.sin(a)*r,.04,i%3?0x64e9f0:0x92aef8);p.userData.base=p.position.y;p.userData.phase=i;effects.push(p);}
 function humanoid(color,peer=false){
@@ -135,13 +173,24 @@ else if(x||z)state.target=null;
 const moving=x!==0||z!==0,fast=state.keys.has("ShiftLeft")||state.keys.has("ShiftRight");
 if(moving){const len=Math.hypot(x,z),speed=fast?7.8:4.3;let dx=x/len,dz=z/len;
 if(!auto){const a=state.camAngle,nx=dx*Math.cos(a)+dz*Math.sin(a),nz=-dx*Math.sin(a)+dz*Math.cos(a);dx=nx;dz=nz;}
-state.pos.x=Math.max(state.area==="city"?-45:-10,Math.min(state.area==="city"?45:10,state.pos.x+dx*speed*dt));
-state.pos.z=Math.max(state.area==="city"?-45:-10,Math.min(state.area==="city"?45:10,state.pos.z+dz*speed*dt));
+const min=state.area==="city"?-45:-10,max=state.area==="city"?45:10;
+const nx=Math.max(min,Math.min(max,state.pos.x+dx*speed*dt)),nz=Math.max(min,Math.min(max,state.pos.z+dz*speed*dt));
+let blocked=false;
+if(state.area==="city"){
+ for(const zone of zones.slice(1)){
+  const w=zone.id==="incident"?14:11;
+  if(Math.abs(nx-zone.x)<w/2+.5&&Math.abs(nz-zone.z)<5.6){blocked=true;break;}
+ }
+}else{
+ for(const p of stationPoints)if(Math.abs(nx-p.x)<2.05&&Math.abs(nz-1)<1.7){blocked=true;break;}
+}
+if(!blocked){state.pos.x=nx;state.pos.z=nz;}
 const a=Math.atan2(dx,dz),delta=Math.atan2(Math.sin(a-state.pos.a),Math.cos(a-state.pos.a));state.pos.a+=delta*Math.min(1,dt*11);syncPosition();}
 local.position.set(state.pos.x,.04+(moving&&!state.reduced?Math.abs(Math.sin(t*8))*.04:0),state.pos.z);local.rotation.y=state.pos.a;
 if(assetLoaded&&mixer){let clip=moving?(fast?"run":"walk"):"idle";if(clip!==currentClip){clips[currentClip]?.fadeOut(.2);clips[clip]?.reset().fadeIn(.2).play();currentClip=clip;}mixer.update(state.reduced?0:dt);}
 else{const swing=state.reduced?0:moving?Math.sin(t*(fast?12:8))*.55:0;local.userData.arms[0].rotation.x=swing;local.userData.arms[1].rotation.x=-swing;local.userData.legs[0].rotation.x=-swing;local.userData.legs[1].rotation.x=swing;}
 if(!state.reduced){holo.rotation.y+=dt*.43;holo.rotation.x+=dt*.12;holo.position.y=3.4+Math.sin(t*.8)*.22;holoRing.rotation.z+=dt*.4;for(const o of effects)o.position.y=o.userData.base+Math.sin(t*.6+o.userData.phase)*.15;}
+renderThreat(t);
 for(const [id,o]of state.peers){const p=o.userData.net;if(!p)continue;o.visible=p.area===state.area&&(p.area==="city"||p.zone===state.zone);if(o.visible){o.position.lerp(new THREE.Vector3(p.x,0,p.z),Math.min(1,dt*9));o.rotation.y=p.a;}}
 const target=new THREE.Vector3(state.pos.x,1.7,state.pos.z),e=state.camHeight,dist=state.camDist;
 const cameraGoal=new THREE.Vector3(target.x+Math.sin(state.camAngle)*dist*Math.cos(e),target.y+Math.sin(e)*dist,target.z+Math.cos(state.camAngle)*dist*Math.cos(e));
@@ -150,5 +199,5 @@ if(!document.hidden)renderer.render(scene,camera);
 if(t-last>.25){nearby();last=t;}
 }
 $("cv3-loading")?.remove();
-window.CV3D={teleport,enter,leave,setPeers:peers,peerMove,setThreat:(id,step)=>{state.phase=id;state.step=step;announce(id?"사고 발생 · 공동 대응을 시작하세요":"방어 준비 완료");},getPosition:()=>({...state.pos,area:state.area,zone:state.zone})};
+window.CV3D={teleport,enter,leave,setPeers:peers,peerMove,setDefense:defenseFeedback,setThreat:(id,step)=>{if(state.phase!==id){shield.visible=false;state.phase=id;announce(id?"침해사고 발생 · 팀과 대응하세요":"방어 준비 완료");}state.step=step;},getPosition:()=>({...state.pos,area:state.area,zone:state.zone})};
 document.dispatchEvent(new Event("cv3:ready"));requestAnimationFrame(loop);
