@@ -186,12 +186,13 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     '<div class="cv-fps-weapon"><small id="cv-fps-gun">CV-47 돌격소총</small><strong id="cv-fps-ammo">30 / 150</strong><span id="cv-fps-reload">R 재장전</span></div></div>',
     '<div class="cv-fps-instructions">WASD 이동 · SHIFT 달리기 · C 앉기 · SPACE 점프 · 좌클릭 사격 · 우클릭 조준 · 숫자 1~8 무기 · R 재장전 · ESC 메뉴</div>',
     '<div class="cv-fps-dead" id="cv-fps-dead" hidden>부활까지 <b id="cv-fps-respawn">3</b>초</div>',
+    '<div class="cv-fps-touch-stick" id="cv-fps-touch-stick" aria-label="모바일 이동 조이스틱"><div class="cv-fps-stick-base"><i id="cv-fps-stick-knob"></i></div></div>',
     '<div class="cv-fps-mobile"><button id="cv-fps-aim" type="button">◎ 조준</button><button id="cv-fps-fire" type="button">● 사격</button></div>',
     '</section>'
   ].join("");
   root.append(ui);
   const $=id=>ui.querySelector("#"+id),menu=$("cv-fps-menu"),hud=$("cv-fps-hud"),map=$("cv-fps-map"),ctx=map.getContext("2d");
-  let feed=[],network=null,online=false,serverTeam="blue",chosenTheme="industrial";
+  let feed=[],network=null,online=false,serverTeam="blue",chosenTheme="industrial",touchMove={x:0,z:0},lookTouch=null;
   const loadout=$("cv-fps-loadout");
   for(const [id,w]of Object.entries(specs)){const option=document.createElement("option");option.value=id;option.textContent=w.name;loadout.append(option);}
   $("cv-fps-theme").addEventListener("change",e=>{chosenTheme=e.target.value;if(data.active){effects.setTheme(chosenTheme);effects.apply();}});
@@ -361,7 +362,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     scene.background=lastBackground;scene.fog=lastFog;camera.fov=lastFov;camera.updateProjectionMatrix();camera.rotation.set(0,0,0);
     if(!lastFull)root.classList.remove("cv3-full");root.classList.remove("cv-fps-active");document.body.style.overflow=lastOverflow;
     ui.querySelector("#cv-fps-entry").hidden=false;menu.hidden=true;hud.hidden=true;view.visible=false;
-    units.forEach(u=>u.group.visible=false);keys.clear();
+    units.forEach(u=>u.group.visible=false);keys.clear();lookTouch=null;touchMove={x:0,z:0};
     for(const v of traces){scene.remove(v.mesh);v.mesh.geometry.dispose();v.mesh.material.dispose();}traces.length=0;
   }
   function refresh(){
@@ -393,7 +394,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       if(!online&&loading>0){loading=Math.max(0,loading-dt);if(loading===0&&reloadGun){const n=Math.min(specs[reloadGun].mag-ammo[reloadGun],stock[reloadGun]);ammo[reloadGun]+=n;stock[reloadGun]-=n;reloadGun="";}}
       if(data.deathDelay>0){if(!online){data.deathDelay=Math.max(0,data.deathDelay-dt);if(data.deathDelay===0)respawn();}}
       else{
-        const f=(keys.has("KeyW")?1:0)-(keys.has("KeyS")?1:0),s=(keys.has("KeyD")?1:0)-(keys.has("KeyA")?1:0);
+        const f=(keys.has("KeyW")?1:0)-(keys.has("KeyS")?1:0)+touchMove.z,s=(keys.has("KeyD")?1:0)-(keys.has("KeyA")?1:0)+touchMove.x;
         const n=Math.hypot(f,s)||1,v=keys.has("KeyC")?3.2:aim?4.2:keys.has("ShiftLeft")?9:6.1;
         if(!online)slide(data,(-Math.sin(data.yaw)*f+Math.cos(data.yaw)*s)*v*dt/n,(-Math.cos(data.yaw)*f-Math.sin(data.yaw)*s)*v*dt/n);
         if(f||s)bob+=dt*(v>8?14:10);
@@ -435,11 +436,45 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   function keyUp(e){keys.delete(e.code);return data.active;}
   function pointerDown(e){
     if(!data.active)return false;
+    if(e.pointerType==="touch"){
+      lookTouch={id:e.pointerId,x:e.clientX,y:e.clientY};
+      renderer.domElement.setPointerCapture?.(e.pointerId);
+      return true;
+    }
     if(e.button===2){aim=true;e.preventDefault();return true;}
     if(e.button===0){fireHeld=true;if(!data.running)lock();else shoot();return true;}
     return true;
   }
-  function pointerUp(e){if(!data.active)return false;if(e.button===0)fireHeld=false;if(e.button===2)aim=false;return true;}
+  function pointerUp(e){
+    if(!data.active)return false;
+    if(lookTouch?.id===e.pointerId)lookTouch=null;
+    if(e.button===0&&e.pointerType!=="touch")fireHeld=false;
+    if(e.button===2)aim=false;
+    return true;
+  }
+  renderer.domElement.addEventListener("pointermove",e=>{
+    if(!data.active||!data.running||!lookTouch||lookTouch.id!==e.pointerId)return;
+    const dx=clamp(e.clientX-lookTouch.x,-90,90),dy=clamp(e.clientY-lookTouch.y,-90,90);
+    data.yaw-=dx*.004;data.pitch=clamp(data.pitch-dy*.0035,-1.26,1.26);
+    lookTouch.x=e.clientX;lookTouch.y=e.clientY;
+  });
+  const stick=$("cv-fps-touch-stick"),knob=$("cv-fps-stick-knob");
+  let stickId=null;
+  function moveStick(e){
+    const r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    const dx=clamp((e.clientX-cx)/(r.width*.35),-1,1),dy=clamp((e.clientY-cy)/(r.height*.35),-1,1);
+    const len=Math.hypot(dx,dy),scale=len>1?1/len:1;
+    touchMove={x:dx*scale,z:-dy*scale};
+    knob.style.transform="translate("+(dx*scale*28)+"px,"+(dy*scale*28)+"px)";
+  }
+  stick.addEventListener("pointerdown",e=>{
+    e.preventDefault();stickId=e.pointerId;stick.setPointerCapture?.(e.pointerId);moveStick(e);
+  });
+  stick.addEventListener("pointermove",e=>{if(stickId===e.pointerId)moveStick(e);});
+  function releaseStick(e){
+    if(stickId!==e.pointerId)return;stickId=null;touchMove={x:0,z:0};knob.style.transform="translate(0,0)";
+  }
+  for(const ev of ["pointerup","pointercancel","lostpointercapture"])stick.addEventListener(ev,releaseStick);
   document.addEventListener("mousemove",e=>{
     if(!data.active||!data.running||document.pointerLockElement!==renderer.domElement)return;
     data.yaw-=e.movementX*.0024;data.pitch=clamp(data.pitch-e.movementY*.0022,-1.26,1.26);
@@ -492,6 +527,9 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     if(online)data.finished=false;
     lock();
   });
-  $("cv-fps-fire").addEventListener("click",shoot);$("cv-fps-aim").addEventListener("click",()=>aim=!aim);
+  const touchFire=$("cv-fps-fire");
+  touchFire.addEventListener("pointerdown",e=>{e.preventDefault();fireHeld=true;shoot();touchFire.setPointerCapture?.(e.pointerId);});
+  for(const ev of ["pointerup","pointercancel","lostpointercapture"])touchFire.addEventListener(ev,()=>fireHeld=false);
+  $("cv-fps-aim").addEventListener("click",()=>aim=!aim);
   return {start,stop,update,keyDown,keyUp,pointerDown,pointerUp,isActive:()=>data.active,snapshot:()=>({active:data.active,running:data.running,online,hp:data.hp,blue:data.blue,red:data.red,kills:data.kills,deaths:data.deaths,time:data.time,gun,network:network?.snapshot()})};
 }
