@@ -22,7 +22,7 @@ export function createCombatTraining({city,camera,renderer,root,state,local,zone
  const models={};
  for(const kind of ["sniper","rifle"]) {
   const long=kind==="sniper",gun=new THREE.Group(),dark=material(0x182734),metal=material(long?0xd0b17e:0x3eaa98);
-  gun.position.set(.44,1.46,-.35);local.add(gun);
+  gun.position.set(.44,1.46,-.35);gun.name="cv-combat-training-prop";local.add(gun);
   cub(gun,0,0,-.32,.18,.2,long?1.32:.83,dark);
   cub(gun,0,-.21,-.14,.1,.41,.16,dark);
   cub(gun,0,.16,-.44,.14,.12,.58,metal);
@@ -165,7 +165,8 @@ export function createCombatTraining({city,camera,renderer,root,state,local,zone
   sync();
  }
  function lose(){
-  data.over=true;zoom(false);local.visible=true;reticle.hidden=true;actions.hidden=true;
+  zoom(false);data.over=true;local.visible=true;reticle.hidden=true;actions.hidden=true;
+  camera.fov=56;camera.updateProjectionMatrix();
   $("cv-battle-summary").textContent="웨이브 "+data.wave+" · "+data.kills+"대 제압 · "+data.score+"점 · 명중률 "+(data.shots?Math.round(data.hits/data.shots*100):0)+"%";
   result.hidden=false;notice("훈련 종료 · 재도전할 수 있습니다",3);
  }
@@ -251,5 +252,7 @@ export function createCombatTraining({city,camera,renderer,root,state,local,zone
  $("cv-battle-fire").addEventListener("click",()=>fire());
  ui.querySelectorAll("[data-gun]").forEach(b=>b.addEventListener("click",()=>choose(b.dataset.gun)));
  renderer.domElement.addEventListener("contextmenu",e=>{if(data.active)e.preventDefault();});
+ window.addEventListener("pointerup",e=>{if(e.button===2&&data.active)onPointerUp(e);});
+ window.addEventListener("blur",()=>{if(data.active&&data.zoom)zoom(false);});
  return {start,stop,update,onKeyDown,onPointerDown,onPointerMove,onPointerUp,isActive:()=>data.active,snapshot:()=>({active:data.active,wave:data.wave,hp:data.hp,kills:data.kills,score:data.score,enemies:bots.length})};
 }
