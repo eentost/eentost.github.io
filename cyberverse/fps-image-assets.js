@@ -12,7 +12,7 @@ export function createFpsImageAssets({scene,renderer,materials,onStatus=()=>{}})
   const hdrUrl="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/industrial_sunset_1k.hdr";
   const bricks="https://threejs.org/examples/textures/brick_diffuse.jpg";
   const brickBump="https://threejs.org/examples/textures/brick_bump.jpg";
-  const floorUrl="https://threejs.org/examples/textures/terrain/grasslight-big.jpg";
+  const floorUrl="https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_03/asphalt_03_diff_1k.jpg";
   function loadImage(url,repeat,apply,field){
     loader.load(url,texture=>{
       texture.colorSpace=THREE.SRGBColorSpace;
@@ -34,8 +34,8 @@ export function createFpsImageAssets({scene,renderer,materials,onStatus=()=>{}})
   },undefined,()=>{});
   // Image-based fine surface detail layered into rough map. Fallback canvas remains.
   loadImage(floorUrl,[12,12],texture=>{
-    // Scaled to muted low saturation so the old gray industrial yard remains visible.
-    materials.ground.map=texture;materials.ground.color.set(0x838d8d);materials.ground.needsUpdate=true;
+    // CC0 asphalt photo texture retains a realistic industrial surface.
+    materials.ground.map=texture;materials.ground.color.set(0xffffff);materials.ground.needsUpdate=true;
   },"floor");
   new RGBELoader().load(hdrUrl,texture=>{
     texture.mapping=THREE.EquirectangularReflectionMapping;
