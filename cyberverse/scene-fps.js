@@ -24,6 +24,37 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   const raycaster=new THREE.Raycaster(),vec=(x,y,z)=>new THREE.Vector3(x,y,z);
   const paint=(c,rough=.8,metal=.16)=>new THREE.MeshStandardMaterial({color:c,roughness:rough,metalness:metal});
   const mat={ground:paint(0x848b88),wall:paint(0x9c9891),metal:paint(0x576d7c,.48,.55),red:paint(0x977466,.55,.35),blue:paint(0x577b8f,.53,.41),crate:paint(0xaa9882),stripe:new THREE.MeshBasicMaterial({color:0xf2c976})};
+  // Small deterministic procedural textures for walls, concrete and asphalt.
+  function surfaceTexture(kind){
+    const canvas=document.createElement("canvas");canvas.width=384;canvas.height=384;
+    const c=canvas.getContext("2d"),base=kind==="ground"?"#636e70":kind==="wall"?"#9c9991":"#a39c8d";
+    c.fillStyle=base;c.fillRect(0,0,384,384);
+    for(let i=0;i<8000;i++){
+      const n=Math.floor(rng()*120)+60;
+      c.fillStyle="rgba("+n+","+(n+5)+","+(n+11)+","+(rng()*.19+.045)+")";
+      c.fillRect(rng()*384,rng()*384,rng()*2+.3,rng()*2+.3);
+    }
+    if(kind==="wall"){
+      c.lineWidth=1.6;c.strokeStyle="#313b3a31";
+      for(let y=0;y<384;y+=48){c.beginPath();c.moveTo(0,y);c.lineTo(384,y);c.stroke();}
+      for(let y=0;y<384;y+=48)for(let x=(y/48)%2?24:0;x<384;x+=48){
+        c.beginPath();c.moveTo(x,y);c.lineTo(x,y+48);c.stroke();
+      }
+    }
+    const tex=new THREE.CanvasTexture(canvas);
+    tex.colorSpace=THREE.SRGBColorSpace;
+    tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
+    tex.repeat.set(kind==="ground"?13:2,kind==="ground"?13:2);
+    tex.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+    return tex;
+  }
+  mat.ground.map=surfaceTexture("ground");
+  mat.wall.map=surfaceTexture("wall");
+  mat.crate.map=surfaceTexture("crate");
+  mat.ground.color.set(0xffffff);
+  mat.wall.color.set(0xffffff);
+  mat.crate.color.set(0xffffff);
+  mat.ground.needsUpdate=mat.wall.needsUpdate=mat.crate.needsUpdate=true;
   const box=(parent,x,y,z,w,h,d,m,solid=false)=>{
     const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);mesh.position.set(x,y,z);mesh.receiveShadow=true;parent.add(mesh);
     if(solid){obstacles.push({x,z,w,d});walls.push(mesh);}return mesh;
