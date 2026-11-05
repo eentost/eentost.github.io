@@ -117,7 +117,7 @@ export function createFpsOnline({world,root,connectionChanged,onWelcome,onSnapsh
     sendAt+=dt;
     if(sendAt>.05){
       sendAt=0;
-      send({type:"input",keys:input.keys,yaw:input.yaw,pitch:input.pitch});
+      send({type:"input",keys:input.keys,yaw:input.yaw,pitch:input.pitch,moveX:input.moveX,moveZ:input.moveZ});
     }
   }
   joinBtn.addEventListener("click",connect);
