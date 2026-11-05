@@ -173,7 +173,7 @@ export function createCinematicCity({scene,city,renderer,root,zones,sky,sun,stat
       mk(1.2,.8,1.5,metal,x,h+1.05,z,g);
       mk(1.32,.12,1.62,rubber,x,h+1.49,z,g);
     }
-    const led=mk(w+.4,.075,.18,new THREE.MeshBasicMaterial({color:tone}),0,h+.68,-d/2-.22,g);
+    const led=mk(w+.4,.075,.18,new THREE.MeshBasicMaterial({color:tone,transparent:true,opacity:.9}),0,h+.68,-d/2-.22,g);
     animated.push({mesh:led,phase:rand()*6});
     const labelCanvas=document.createElement("canvas");labelCanvas.width=512;labelCanvas.height=128;
     const lc=labelCanvas.getContext("2d");lc.fillStyle="#0c2435";lc.fillRect(0,0,512,128);
@@ -364,7 +364,7 @@ export function createCinematicCity({scene,city,renderer,root,zones,sky,sun,stat
     status.textContent=alarm?"침해사고 발생 · 위협 흐름 분석 중":"시네마틱 탐험 · 실시간 렌더링";
     if(t-prevStamp>.2){
       prevStamp=t;
-      const dir=((Math.atan2(-Math.sin(state.pos.a),-Math.cos(state.pos.a))*180/pi+360)%360);
+      const dir=((state.pos.a*180/pi+360)%360);
       const compass=["N","NE","E","SE","S","SW","W","NW"][Math.round(dir/45)%8];
       hud.querySelector("#cv-cin-heading").textContent=compass;
       hud.querySelector("#cv-cin-coord").textContent="X "+state.pos.x.toFixed(1)+" · Z "+state.pos.z.toFixed(1);
