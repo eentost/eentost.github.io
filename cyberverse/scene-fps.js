@@ -100,7 +100,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   buildMap();
   let tacticalMode=false;
   const data={active:false,running:false,finished:false,paused:false,hp:100,ap:100,deathDelay:0,spawnShield:0,x:0,z:28,height:0,vy:0,yaw:0,pitch:0,time:300,blue:0,red:0,kills:0,deaths:0};
-  let gun="rifle",ammo=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.mag])),stock=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.stock])),cool=0,loading=0,reloadGun="",aim=false,fireHeld=false,bob=0,recoil=0,flash=0,hit=0,frame=0,lastFull=false,lastOverflow="",lastFog=null,lastBackground=null,lastFov=56,lastCity=true,lastInterior=false;
+  let gun="rifle",ammo=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.mag])),stock=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.stock])),cool=0,loading=0,reloadGun="",aim=false,fireHeld=false,bob=0,recoil=0,flash=0,hit=0,frame=0,lastFull=false,lastOverflow="",lastFog=null,lastBackground=null,lastEnvironment=null,lastEnvIntensity=1,lastFov=56,lastCity=true,lastInterior=false;
   const view=new THREE.Group();if(camera.parent!==scene)scene.add(camera);camera.add(view);
   const gunModels={};const casings=[];
   function makeViewGun(kind){
@@ -178,7 +178,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   // Use locally bounded humanoid meshes until an animated asset passes measured-size QA.
   // The existing hitboxes, bot AI, team markers, weapons and movement remain intact.
   const effects=createFpsEffects({scene,world,camera,root});
-  const imageAssets=createFpsImageAssets({scene,renderer,materials:mat});
+  const imageAssets=createFpsImageAssets({scene,renderer,materials:mat,onStatus:status=>{const label=root.querySelector("#cv-fps-asset-status");if(label)label.textContent="실제 이미지 로딩: 하늘 "+status.sky+" · 벽 "+status.brick+" · 노면 "+status.floor;}});
   const ui=document.createElement("div");ui.className="cv-fps-ui";ui.setAttribute("aria-label","CyberVerse FPS 데스매치");
   ui.innerHTML=[
     '<button type="button" class="cv-fps-entry" id="cv-fps-entry">FPS 팀데스매치 입장</button>',
@@ -186,6 +186,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     '<div class="cv-fps-eyebrow">CYBERVERSE // ORIGINAL FPS ARENA</div>',
     '<h2 id="cv-fps-title">OPS ZERO</h2><p id="cv-fps-desc">1인칭 FPS · BLUE 4명 VS RED AI 5명 · 5분 제한</p>',
     '<div class="cv-fps-pillrow"><span>팀데스매치</span><span>30킬 승리</span><span>엄폐 전투</span><span>AI 봇</span></div>',
+    '<small id="cv-fps-asset-status">실제 이미지 로딩 중 · 로딩 실패 시 기존 재질 유지</small>',
     '<div class="cv-fps-config"><label>전투 모드<select id="cv-fps-mode-select"><option value="deathmatch">클래식 팀데스매치</option><option value="tactical" selected>사이버 전술전 · 코어 점령</option></select></label><label>전장 환경<select id="cv-fps-theme"><option value="industrial">물류 터미널 · 황혼</option><option value="night">도심 항만 · 야간</option><option value="rain">항만 기지 · 폭우</option><option value="desert">사막 전초기지 · 주간</option></select></label><label>기본 무기<select id="cv-fps-loadout"></select></label><label>효과음 <input id="cv-fps-volume" type="range" min="0" max="100" value="65"></label></div>',
     '<button id="cv-fps-play" class="cv-fps-primary" type="button">클릭하여 FPS 시작</button>',
     '<button id="cv-fps-exit" class="cv-fps-secondary" type="button">CyberVerse 도시로 돌아가기</button>',
@@ -368,7 +369,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     if(data.active){menu.hidden=false;return;}
     combat?.stop?.();
     lastCity=city.visible;lastInterior=interior.visible;lastFull=root.classList.contains("cv3-full");
-    lastBackground=scene.background;lastFog=scene.fog;lastFov=camera.fov;lastOverflow=document.body.style.overflow;
+    lastBackground=scene.background;lastFog=scene.fog;lastEnvironment=scene.environment;lastEnvIntensity=scene.environmentIntensity;lastFov=camera.fov;lastOverflow=document.body.style.overflow;
     city.visible=false;interior.visible=false;local.visible=false;world.visible=true;cinematic?.setArenaActive?.(true);
     view.visible=true;
     effects.setTheme(chosenTheme);effects.apply();effects.setActive(true);imageAssets.activate(true,chosenTheme);
@@ -391,7 +392,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     network?.disconnect();online=false;serverPosition=null;
     if(document.pointerLockElement===renderer.domElement)document.exitPointerLock?.();
     world.visible=false;city.visible=lastCity;interior.visible=lastInterior;local.visible=true;cinematic?.setArenaActive?.(false);
-    scene.background=lastBackground;scene.fog=lastFog;camera.fov=lastFov;camera.updateProjectionMatrix();camera.rotation.set(0,0,0);
+    scene.background=lastBackground;scene.fog=lastFog;scene.environment=lastEnvironment;scene.environmentIntensity=lastEnvIntensity;camera.fov=lastFov;camera.updateProjectionMatrix();camera.rotation.set(0,0,0);
     if(!lastFull)root.classList.remove("cv3-full");root.classList.remove("cv-fps-active");document.body.style.overflow=lastOverflow;
     ui.querySelector("#cv-fps-entry").hidden=false;menu.hidden=true;hud.hidden=true;view.visible=false;
     units.forEach(u=>u.group.visible=false);keys.clear();lookTouch=null;touchMove={x:0,z:0};
