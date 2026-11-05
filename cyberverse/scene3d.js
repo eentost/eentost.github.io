@@ -1,9 +1,8 @@
 /* CyberVerse 3D city — three.js r180, animated avatars, enterable buildings, multiplayer hooks. */
 import * as THREE from "three";
-import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {createCinematicCity} from "./scene-cinematic.js";
 import {createCombatTraining} from "./scene-combat.js";
-import {createFpsArena} from "./scene-fps.js";
+import {createFpsArena} from "./scene-fps.js?v=bot-guard-20261105-3";
 const root=document.querySelector(".world-wrap");
 if(!root)throw Error("CyberVerse world container not found");
 const zones=[
@@ -106,14 +105,9 @@ const glow=orb(g,0,2.48,0,.09,peer?0xffd599:0x99fff5);
 g.userData={arms,legs};return g;
 }
 const local=humanoid(0x4cc4bd);scene.add(local);const me=sign("나","#faffff");me.scale.set(3.5,.6,1);me.position.y=3.1;local.add(me);
-let mixer,clips={},currentClip="idle",assetLoaded=false;
-new GLTFLoader().load("https://threejs.org/examples/models/gltf/Soldier.glb",obj=>{
-const model=obj.scene;model.traverse(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true;}});
-const b=new THREE.Box3().setFromObject(model),size=new THREE.Vector3();b.getSize(size);model.scale.setScalar(2.15/Math.max(.01,size.y));
-b.setFromObject(model);model.position.y=-b.min.y;local.add(model);
-for(const child of local.children)if(child!==model&&child!==me&&child.name!=="cv-combat-training-prop")child.visible=false;
-mixer=new THREE.AnimationMixer(model);obj.animations.forEach(clip=>clips[clip.name.toLowerCase()]=mixer.clipAction(clip));clips.idle?.play();assetLoaded=true;
-},undefined,()=>{assetLoaded=false;});
+// Keep the city avatar within the local humanoid geometry until imported models
+// have validated skinned bounds across all animations. No remote Soldier.glb.
+let mixer=null,clips={},currentClip="idle",assetLoaded=false;
 let stationPoints=[];
 function buildInterior(id){
 while(interior.children.length){const o=interior.children[0];interior.remove(o);o.traverse(n=>n.geometry?.dispose?.());}
