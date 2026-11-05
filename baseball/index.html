@@ -90,7 +90,25 @@ const legSleeve=new THREE.Mesh(new THREE.CylinderGeometry(.16,.15,.78,10),navy);
 const umpArm=new THREE.Group();umpArm.position.set(.46,2.0,0);umpire.add(umpArm);
 const umpSleeve=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.72,10),mat(0x24354b));umpSleeve.position.y=-.35;umpArm.add(umpSleeve);
 
-const batPivot=new THREE.Group();batPivot.position.set(-.46,1.85,.1);batter.add(batPivot);const batProfile=[[0,.055],[.09,.063],[.22,.068],[.4,.075],[.63,.11],[.86,.145],[1.12,.148],[1.34,.13],[1.47,.08]];const bat=new THREE.Mesh(new THREE.LatheGeometry(batProfile.map(([y,r])=>new THREE.Vector2(r,y)),20),mat(0xc88d4e,.32));bat.position.set(-.3,.43,.08);bat.rotation.z=-.76;bat.castShadow=true;batPivot.add(bat);const grip=new THREE.Mesh(new THREE.CylinderGeometry(.072,.064,.38,16),mat(0x292d38));grip.position.y=.25;bat.add(grip);const knob=new THREE.Mesh(new THREE.CylinderGeometry(.10,.085,.07,16),mat(0x4b2a1e));bat.add(knob);
+// Bat and hands share a single pivot. The barrel points over the back shoulder at rest.
+const batPivot=new THREE.Group();batPivot.position.set(-.35,1.88,-.18);batter.add(batPivot);
+const batProfile=[[0,.088],[.045,.09],[.09,.062],[.19,.057],[.34,.061],[.51,.077],[.73,.105],[.94,.137],[1.17,.151],[1.35,.149],[1.48,.132],[1.52,.085],[1.54,.035]];
+const bat=new THREE.Mesh(new THREE.LatheGeometry(batProfile.map(([y,r])=>new THREE.Vector2(r,y)),32),mat(0xc58b4e,.31));
+bat.castShadow=true;batPivot.add(bat);
+const grip=new THREE.Mesh(new THREE.CylinderGeometry(.066,.062,.42,20),mat(0x243448,.8));grip.position.y=.28;bat.add(grip);
+for(let i=0;i<7;i++){const ring=new THREE.Mesh(new THREE.TorusGeometry(.067,.009,6,18),mat(0x9aa7b2,.65));ring.position.y=.12+i*.055;ring.rotation.x=Math.PI/2;bat.add(ring)}
+const knob=new THREE.Mesh(new THREE.CylinderGeometry(.098,.09,.055,20),mat(0x35231d,.6));knob.position.y=.018;bat.add(knob);
+const batDecal=new THREE.Mesh(new THREE.CylinderGeometry(.151,.151,.09,24),mat(0x3e2b25,.48));batDecal.position.y=1.1;bat.add(batDecal);
+const handMat=mat(0xe7eaf0,.78);
+for(const [x,y] of [[-.07,.16],[.08,.31]]){const hand=new THREE.Mesh(new THREE.SphereGeometry(.14,14,12),handMat);hand.scale.set(1.1,.76,.85);hand.position.set(x,y,.035);bat.add(hand)}
+const swingDuration=.64;
+function swingPose(t){
+ if(t<=0)return 0;
+ if(t<.14)return -.18*Math.sin(t/.14*Math.PI/2);
+ if(t<.40){const u=(t-.14)/.26;return -.18+2.75*(u*u*(3-2*u))}
+ if(t<.56){const u=(t-.40)/.16;return 2.57+.42*Math.sin(u*Math.PI/2)}
+ return 2.99;
+}
 const ball=mesh(new THREE.SphereGeometry(.19,32,24),white,0,1.8,-14);ball.visible=false;
 // Procedural stitch seams: geometry follows the ball rather than floating as a texture.
 for(const side of [-1,1]){const pts=[];for(let i=0;i<=60;i++){const u=-Math.PI/2+i*Math.PI/60;pts.push(new THREE.Vector3(.185*Math.sin(u),side*.135*Math.cos(u),.105*Math.cos(u)))}const seam=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),60,.008,5,false),mat(0xb93435,.55));ball.add(seam)}
@@ -121,7 +139,13 @@ if(state==='catch'){
 const target=mitt.getWorldPosition(new THREE.Vector3());ball.position.lerp(target,.29);
 if(now-catchStart>.42){ball.visible=false;result(catchText,0)}
 }
-batPivot.rotation.y=swingActive?Math.sin(Math.min(1,(now-swingAt)/.36)*Math.PI)*-2.2:0;if(swingActive&&now-swingAt>.38)swingActive=false;
+const swingElapsed=swingAt>0?now-swingAt:-1;
+const swinging=swingElapsed>=0&&swingElapsed<swingDuration;
+const angle=swinging?swingPose(swingElapsed):0;
+batPivot.rotation.set(.28+Math.sin(Math.min(1,Math.max(0,swingElapsed))/.64*Math.PI)*.10,angle,-.98);
+batter.children[0].rotation.y=swinging?Math.min(1,swingElapsed/.4)*.5:0;
+batter.children[0].rotation.z=swinging?-.07-Math.sin(Math.min(1,swingElapsed/.64)*Math.PI)*.14:-.07;
+if(swingActive&&swingElapsed>=swingDuration)swingActive=false;
 if(state==='pitch'){const t=(now-pitchStart)/flight,u=Math.max(0,Math.min(1,t));const p=pitches[pick];ball.position.set(p.bend*u*u + (pick===5?Math.sin(u*18)*.22*u:0),2.05-.68*u-p.drop*u*u+Math.sin(Math.PI*u)*.55,-13.7+18.4*u);ball.rotation.z+=dt*12;
 if(t>=1.10){
 state='catch';catchStart=now;ball.visible=true;
