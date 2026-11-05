@@ -110,7 +110,7 @@ new GLTFLoader().load("https://threejs.org/examples/models/gltf/Soldier.glb",obj
 const model=obj.scene;model.traverse(n=>{if(n.isMesh){n.castShadow=true;n.receiveShadow=true;}});
 const b=new THREE.Box3().setFromObject(model),size=new THREE.Vector3();b.getSize(size);model.scale.setScalar(2.15/Math.max(.01,size.y));
 b.setFromObject(model);model.position.y=-b.min.y;local.add(model);
-for(const child of local.children)if(child!==model&&child!==me)child.visible=false;
+for(const child of local.children)if(child!==model&&child!==me&&child.name!=="cv-combat-training-prop")child.visible=false;
 mixer=new THREE.AnimationMixer(model);obj.animations.forEach(clip=>clips[clip.name.toLowerCase()]=mixer.clipAction(clip));clips.idle?.play();assetLoaded=true;
 },undefined,()=>{assetLoaded=false;});
 let stationPoints=[];
