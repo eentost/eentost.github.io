@@ -60,3 +60,34 @@
 .cv-fps-active .cv3-ui,.cv-fps-active .cv-cinematic-hud,.cv-fps-active .cv-combat-ui{visibility:hidden;pointer-events:none!important}
 @media(max-width:950px){.cv-fps-entry{top:195px}.cv-fps-radar canvas{width:110px;height:110px}.cv-fps-top{top:7px}.cv-fps-mobile{display:flex}.cv-fps-feed{top:170px}}
 @media(max-width:560px){.cv-fps-entry{top:148px}.cv-fps-radar{top:76px;left:8px}.cv-fps-radar canvas{width:82px;height:82px}.cv-fps-scores{grid-template-columns:1fr 80px 1fr}.cv-fps-top{min-width:255px}.cv-fps-scores b{font-size:17px}.cv-fps-scores strong{font-size:18px}.cv-fps-bottom{bottom:15px;left:8px;right:8px}.cv-fps-health{min-width:120px;font-size:11px;padding:7px}.cv-fps-health b{font-size:17px}.cv-fps-weapon{padding:7px}.cv-fps-weapon strong{font-size:19px}.cv-fps-instructions{display:none}.cv-fps-modal h2{font-size:29px}.cv-fps-mobile{bottom:100px}}
+
+
+/* FPS v2 — loadout, environment and online lobby. Scoped to existing menu. */
+.cv-fps-config{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0 14px;text-align:left}
+.cv-fps-config label{display:grid;gap:5px;color:#b7d6df;font-size:11px;font-weight:750}
+.cv-fps-config label:last-child{grid-column:1 / -1;display:flex;gap:10px;align-items:center}
+.cv-fps-config select{width:100%;min-width:0;border:1px solid #5c899d;background:#0e2a3b;color:#e6f9fd;border-radius:7px;padding:10px;font:inherit}
+.cv-fps-config input[type="range"]{flex:1;accent-color:#8cebd9}
+.cv-online-panel{margin:16px 0 0;padding:13px;border:1px solid #467989;border-radius:9px;background:#081e2ee8;text-align:left;max-width:100%}
+.cv-online-head{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:9px}
+.cv-online-head strong{font-size:12px;color:#a2f8e1}
+.cv-online-head span{font-size:10px;color:#b3cbd7;text-align:right}
+.cv-online-panel label{display:grid;gap:4px;font-size:10px;color:#b5d3df;margin:8px 0;font-weight:700}
+.cv-online-panel input{min-width:0;width:100%;padding:9px;border:1px solid #436d81;background:#092436;color:#f5feff;border-radius:6px;font-size:12px}
+.cv-online-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.cv-online-buttons{display:flex;gap:7px;align-items:center;margin-top:7px}
+.cv-online-panel button{width:auto;margin:0;padding:9px 12px;background:#1b665f;color:#fff;font-size:11px;border:1px solid #82d4bc;border-radius:6px}
+.cv-online-panel button:last-child{background:#273e50;border-color:#7291a2}
+.cv-online-panel button:disabled{opacity:.42;cursor:not-allowed}
+.cv-online-panel p{font-size:10px;line-height:1.55;color:#9eb7c4;margin:8px 0 0}
+.cv-fps-modal{max-height:94vh;overflow-y:auto;overscroll-behavior:contain}
+.cv-fps-wet .cv-fps-hud::before{content:"";pointer-events:none;position:absolute;inset:0;background:linear-gradient(135deg,transparent 20%,#bbd9e006 55%,transparent 85%)}
+@media(max-width:560px){
+.cv-fps-config{grid-template-columns:1fr;gap:7px}
+.cv-fps-config label:last-child{grid-column:auto}
+.cv-online-panel{padding:9px}
+.cv-online-fields{gap:6px}
+.cv-online-panel input{font-size:11px}
+.cv-fps-modal{max-height:94vh;padding:17px 14px}
+.cv-fps-config select{padding:7px;font-size:11px}
+}
