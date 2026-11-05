@@ -267,7 +267,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     }catch(_){data.running=true;menu.hidden=true;}
   }
   function start(){
-    if(data.active){lock();return;}
+    if(data.active){menu.hidden=false;return;}
     combat?.stop?.();
     lastCity=city.visible;lastInterior=interior.visible;lastFull=root.classList.contains("cv3-full");
     lastBackground=scene.background;lastFog=scene.fog;lastFov=camera.fov;lastOverflow=document.body.style.overflow;
@@ -321,20 +321,21 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     if(!data.active)return;
     dt=clamp(dt,0,.05);frame++;
     if(data.running&&!data.finished){
-      data.time-=dt;if(data.time<=0){data.time=0;finish();}
+      if(!online){data.time-=dt;if(data.time<=0){data.time=0;finish();}}
       cool=Math.max(0,cool-dt);
-      if(loading>0){loading=Math.max(0,loading-dt);if(loading===0&&reloadGun){const n=Math.min(specs[reloadGun].mag-ammo[reloadGun],stock[reloadGun]);ammo[reloadGun]+=n;stock[reloadGun]-=n;reloadGun="";}}
-      if(data.deathDelay>0){data.deathDelay=Math.max(0,data.deathDelay-dt);if(data.deathDelay===0)respawn();}
+      if(!online&&loading>0){loading=Math.max(0,loading-dt);if(loading===0&&reloadGun){const n=Math.min(specs[reloadGun].mag-ammo[reloadGun],stock[reloadGun]);ammo[reloadGun]+=n;stock[reloadGun]-=n;reloadGun="";}}
+      if(data.deathDelay>0){if(!online){data.deathDelay=Math.max(0,data.deathDelay-dt);if(data.deathDelay===0)respawn();}}
       else{
         const f=(keys.has("KeyW")?1:0)-(keys.has("KeyS")?1:0),s=(keys.has("KeyD")?1:0)-(keys.has("KeyA")?1:0);
         const n=Math.hypot(f,s)||1,v=keys.has("KeyC")?3.2:aim?4.2:keys.has("ShiftLeft")?9:6.1;
-        slide(data,(-Math.sin(data.yaw)*f+Math.cos(data.yaw)*s)*v*dt/n,(-Math.cos(data.yaw)*f-Math.sin(data.yaw)*s)*v*dt/n);
+        if(!online)slide(data,(-Math.sin(data.yaw)*f+Math.cos(data.yaw)*s)*v*dt/n,(-Math.cos(data.yaw)*f-Math.sin(data.yaw)*s)*v*dt/n);
         if(f||s)bob+=dt*(v>8?14:10);
         if(keys.has("Space")&&data.height===0)data.vy=6.8;
         data.vy-=17*dt;data.height=Math.max(0,data.height+data.vy*dt);if(data.height===0)data.vy=0;
-        data.spawnShield=Math.max(0,data.spawnShield-dt);
+        if(!online)data.spawnShield=Math.max(0,data.spawnShield-dt);
+        effects.footsteps(dt,f!==0||s!==0,keys.has("ShiftLeft"));
       }
-      updateBots(dt,t);
+      if(!online)updateBots(dt,t);
       if(fireHeld&&specs[gun].auto)shoot();
     }
     camera.rotation.order="YXZ";
@@ -348,6 +349,10 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     flash=Math.max(0,flash-dt*2);hit=Math.max(0,hit-dt);
     for(let i=traces.length-1;i>=0;i--){const v=traces[i];v.ttl-=dt;v.mesh.material.opacity=clamp(v.ttl/.16,0,1);if(v.ttl<=0){scene.remove(v.mesh);v.mesh.geometry.dispose();v.mesh.material.dispose();traces.splice(i,1);}}
     effects.update(dt);
+    network?.update(dt,t,{keys:{
+      w:keys.has("KeyW"),s:keys.has("KeyS"),a:keys.has("KeyA"),d:keys.has("KeyD"),
+      shift:keys.has("ShiftLeft"),c:keys.has("KeyC")
+    },yaw:data.yaw,pitch:data.pitch});
     if(frame%6===0){refresh();radar();}
   }
   function keyDown(e){
@@ -379,12 +384,47 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   });
   renderer.domElement.addEventListener("contextmenu",e=>{if(data.active)e.preventDefault();});
   window.addEventListener("blur",()=>{keys.clear();fireHeld=false;aim=false;});
+  network=createFpsOnline({world,root,
+    connectionChanged:(active)=>{
+      online=active;
+      units.forEach(u=>u.group.visible=!online&&!u.dead&&data.active);
+      if(!active&&data.active){
+        $("cv-fps-desc").textContent="온라인 연결 종료 · 오프라인 AI 대전을 선택할 수 있습니다.";
+        $("cv-fps-play").textContent="오프라인 AI 대전 시작";
+      }
+    },
+    onWelcome:(m)=>{
+      serverTeam=m.team;online=true;
+      gun="rifle";units.forEach(u=>u.group.visible=false);
+      data.blue=m.score?.blue||0;data.red=m.score?.red||0;data.time=m.time||300;
+      $("cv-fps-desc").textContent="연결 성공 · "+m.room+" 방 · "+serverTeam.toUpperCase()+" 팀";
+      $("cv-fps-play").textContent="온라인 전투 참가";
+      refresh();
+    },
+    onSnapshot:(m,p)=>{
+      data.x=p.x;data.z=p.z;data.hp=p.hp;data.ap=p.armor;
+      data.deathDelay=p.dead?Math.max(.1,data.deathDelay):0;
+      data.blue=m.score?.blue||0;data.red=m.score?.red||0;data.time=m.time;
+      data.kills=p.kills;data.deaths=p.deaths;
+      if(specs[p.gun])gun=p.gun;
+      if(Number.isFinite(p.ammo))ammo[gun]=p.ammo;
+      if(Number.isFinite(p.reserve))stock[gun]=p.reserve;
+    },
+    onEvent:(m)=>{
+      if(m.type==="damage"){effects.play("hurt");flash=.4;}
+      if(m.type==="hit"){hit=.2;effects.play("hit");}
+      if(m.type==="kill"){feedKill(m.by===network.selfId()?"YOU":"PLAYER",m.victim===network.selfId()?"YOU":"PLAYER",m.head);effects.play("kill");}
+      if(m.type==="round_end"){data.running=false;data.finished=true;menu.hidden=false;$("cv-fps-title").textContent="라운드 종료";$("cv-fps-desc").textContent="BLUE "+m.score.blue+" : RED "+m.score.red;$("cv-fps-play").textContent="다음 라운드 준비";}
+      if(m.type==="round_start"){data.finished=false;menu.hidden=false;$("cv-fps-title").textContent="NEW ROUND";$("cv-fps-play").textContent="온라인 전투 재개";}
+    }
+  });
   $("cv-fps-entry").addEventListener("click",start);$("cv-fps-exit").addEventListener("click",stop);
   $("cv-fps-play").addEventListener("click",()=>{
-    if(data.finished){stop();start();return;}
+    if(data.finished&&!online){stop();start();return;}
     if(!online)units.forEach(spawn);
+    if(online)data.finished=false;
     lock();
   });
   $("cv-fps-fire").addEventListener("click",shoot);$("cv-fps-aim").addEventListener("click",()=>aim=!aim);
-  return {start,stop,update,keyDown,keyUp,pointerDown,pointerUp,isActive:()=>data.active,snapshot:()=>({active:data.active,running:data.running,hp:data.hp,blue:data.blue,red:data.red,kills:data.kills,deaths:data.deaths,time:data.time,gun})};
+  return {start,stop,update,keyDown,keyUp,pointerDown,pointerUp,isActive:()=>data.active,snapshot:()=>({active:data.active,running:data.running,online,hp:data.hp,blue:data.blue,red:data.red,kills:data.kills,deaths:data.deaths,time:data.time,gun,network:network?.snapshot()})};
 }
