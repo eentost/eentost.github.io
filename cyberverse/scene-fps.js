@@ -510,8 +510,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     if(e.code==="KeyH")gameplay.upgrade();
     if(e.code==="KeyE"&&keys.has("AltLeft"))gameplay.pickup();
     if(e.code==="KeyQ"&&!online)tactics.activate("emp");
-    if(e.code==="KeyE"&&!online&&!keys.has("AltLeft"))gameplay.pickup();
-    if(e.code==="KeyB"&&!online)tactics.activate("decoy");
+    if(e.code==="KeyE"&&!online&&!keys.has("AltLeft"))tactics.activate("decoy");
     return true;
   }
   function keyUp(e){keys.delete(e.code);return data.active;}
