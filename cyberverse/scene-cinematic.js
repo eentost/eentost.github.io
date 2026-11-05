@@ -319,7 +319,18 @@ export function createCinematicCity({scene,city,renderer,root,zones,sky,sun,stat
     drones.forEach((d,i)=>d.g.visible=!eco||i<2);
     live.textContent=eco?"저사양 모드 · 표시 효과와 렌더링 해상도 조절":"고화질 모드 · 환경 효과 복원";
   });
+  let arenaActive=false;
+  function setArenaActive(active){
+    arenaActive=!!active;
+    dome.visible=!arenaActive;
+    stars.visible=!arenaActive;
+    sunGlow.visible=!arenaActive;
+    clouds.forEach(c=>c.visible=!arenaActive&&!eco);
+    rain.visible=!arenaActive&&wet&&!state.reduced;
+    details.visible=!arenaActive;
+  }
   function update(dt,t) {
+    if(arenaActive)return;
     const goal=mode==="night"?1:0;
     night+=(goal-night)*Math.min(1,dt*1.4);
     skyUniforms.uNight.value=night;
@@ -370,5 +381,5 @@ export function createCinematicCity({scene,city,renderer,root,zones,sky,sun,stat
       hud.querySelector("#cv-cin-coord").textContent="X "+state.pos.x.toFixed(1)+" · Z "+state.pos.z.toFixed(1);
     }
   }
-  return {update,setWeather,setNight:(v)=>timeBtns[v?"1":"0"]?.click()};
+  return {update,setArenaActive,setWeather,setNight:(v)=>timeBtns[v?"1":"0"]?.click()};
 }
