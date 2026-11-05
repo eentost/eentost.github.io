@@ -43,7 +43,7 @@ case "move":{const p=state.players.get(m.id);if(p){Object.assign(p,m);window.CV3
 case "chat":log(m.name,m.text);break;
 case "incident":{const old=state.incident?.step;state.incident=m.incident;if(old!==m.incident?.step)state.voted=null;if(m.scores)for(const s of m.scores){const p=state.players.get(s.id);if(p)p.score=s.score;}refreshPeers();render();if(m.by)log("훈련",m.by+" 님이 사고를 시작했습니다.");break;}
 case "vote_status":if(state.incident?.step===m.step){state.incident.votes_count=m.count;state.incident.vote_needed=m.needed;render();}log("투표",m.count+"명 참여 / "+m.needed+"명 필요");break;
-case "feedback":log(m.correct?"방어 성공":"피해 발생",m.effect);break;
+case "feedback":log(m.correct?"방어 성공":"피해 발생",m.effect);window.CV3D?.setDefense(m.correct);break;
 case "notice":status(m.text);break;
 }
 }
