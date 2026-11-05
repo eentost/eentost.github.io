@@ -19,7 +19,7 @@ const status=s=>byId("cv-status").textContent=s;
 function log(who,msg){const d=document.createElement("div");d.className="cv-msg";d.textContent=who+" · "+msg;byId("cv-feed").append(d);while(byId("cv-feed").children.length>40)byId("cv-feed").firstChild.remove();byId("cv-feed").scrollTop=byId("cv-feed").scrollHeight;}
 function refreshPeers(){const peers=Array.from(state.players.values()).filter(p=>p.id!==state.me?.id);window.CV3D?.setPeers(peers);byId("cv-members").textContent="현재 "+state.players.size+"명 · "+Array.from(state.players.values()).map(p=>p.name+"("+p.score+"점)").join(" / ");}
 addEventListener("cv3:ready",refreshPeers);
-function setLive(on){state.live=on;byId("cv-live").hidden=!on;byId("cv-join").hidden=on;byId("catalog").classList.toggle("hidden",on);byId("exercise").classList.add("hidden");byId("result").classList.add("hidden");if(!on){byId("catalog").classList.remove("hidden");state.me=null;state.incident=null;state.players.clear();refreshPeers();}}
+function setLive(on){state.live=on;byId("cv-live").hidden=!on;byId("cv-join").hidden=on;byId("catalog").classList.toggle("hidden",on);byId("exercise").classList.add("hidden");byId("result").classList.add("hidden");if(!on){byId("catalog").classList.remove("hidden");state.me=null;state.incident=null;state.players.clear();refreshPeers();window.CV3D?.setThreat(null,0);}}
 function render(){
 const box=byId("cv-mission");box.replaceChildren();const incident=state.incident;
 if(!incident||incident.completed){
@@ -64,5 +64,6 @@ ws.onerror=()=>status("연결 실패 · 실시간 서버가 배포되었는지 �
 byId("cv-leave").addEventListener("click",()=>{state.socket?.close(1000,"left");setLive(false);status("개인 체험 모드로 돌아왔습니다.");});
 byId("cv-share").addEventListener("click",async()=>{const room=byId("cv-room").value.trim();if(!/^[a-z0-9-]{1,24}$/.test(room)){status("방 이름을 확인하세요.");return;}const u=new URL(location.href);u.searchParams.set("room",room);try{await navigator.clipboard.writeText(u.toString());status("초대 링크가 복사되었습니다. 상대방도 동일 서버를 연결해야 합니다.");}catch(err){status(u.toString());}});
 byId("cv-chat").addEventListener("submit",e=>{e.preventDefault();const inp=byId("cv-chat-text"),msg=inp.value.trim();if(msg){send({type:"chat",text:msg.slice(0,220)});inp.value="";}});
+window.CVCOOP={connected:()=>state.live,start:id=>{if(state.live&&["phishing","ransomware","ddos"].includes(id))send({type:"start",scenario:id});}};
 addEventListener("cv3:move",e=>{if(state.live)send({type:"move",...e.detail});});
 })();
