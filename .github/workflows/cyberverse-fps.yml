@@ -5,6 +5,8 @@ on:
       - "cyberverse/scene-fps.js"
       - "cyberverse/fps-online.js"
       - "cyberverse/fps-effects.js"
+      - "cyberverse/fps-scenery.js"
+      - "cyberverse/fps-gameplay.js"
       - "cyberverse/fps.css"
       - "cyberverse/fps-server/**"
       - ".github/workflows/cyberverse-fps.yml"
@@ -33,6 +35,8 @@ jobs:
           node --check ../scene-fps.js
           node --check ../fps-online.js
           node --check ../fps-effects.js
+          node --check ../fps-gameplay.js
+          node --check ../fps-scenery.js
           node --check ../scene3d.js
           node --check server.mjs
       - name: Two-client realtime and origin security tests
