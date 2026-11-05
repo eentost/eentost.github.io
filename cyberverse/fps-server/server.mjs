@@ -86,6 +86,9 @@ function recordInput(p,msg){
   if(Number.isFinite(yaw))p.yaw=clamp(yaw,-10000,10000);
   if(Number.isFinite(pitch))p.pitch=clamp(pitch,-1.26,1.26);
   if(msg.keys&&typeof msg.keys==="object")for(const k of ["w","a","s","d","shift","c"])p.input[k]=msg.keys[k]===true;
+  const axisX=Number(msg.moveX),axisZ=Number(msg.moveZ);
+  p.input.ax=Number.isFinite(axisX)?clamp(axisX,-1,1):0;
+  p.input.az=Number.isFinite(axisZ)?clamp(axisZ,-1,1):0;
 }
 function reload(p){
   if(p.dead||p.reloadUntil>now())return;
@@ -146,7 +149,7 @@ function tick(dt){
         p.ammo[key]+=n;p.reserve[key]-=n;p.reloadUntil=0;p.reloadWeapon="";
       }
       if(room.pendingReset)continue;
-      const input=p.input,forward=Number(input.w)-Number(input.s),strafe=Number(input.d)-Number(input.a);
+      const input=p.input,forward=Number(input.w)-Number(input.s)+(input.az||0),strafe=Number(input.d)-Number(input.a)+(input.ax||0);
       const length=Math.hypot(forward,strafe)||1,speed=input.c?3.2:input.shift?9:6.1;
       const dx=(-Math.sin(p.yaw)*forward+Math.cos(p.yaw)*strafe)*dt*speed/length;
       const dz=(-Math.cos(p.yaw)*forward-Math.sin(p.yaw)*strafe)*dt*speed/length;
