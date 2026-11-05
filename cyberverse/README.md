@@ -35,3 +35,9 @@ The underlying Python server's tests passed **12/12** locally, and the original 
 Public launch still requires TLS, authenticated users, moderation/reporting, abuse controls, logging, room state durability/redistribution, capacity/load testing, privacy policy updates, and verified frontend telemetry.
 
 This training environment simulates decisions and their impact; no live intrusion, harmful traffic or malware is executed.
+
+## FPS Arena v2 (optional)
+
+This repository also includes an independent 1st-person bot team-deathmatch FPS with eight original weapon types, animated procedural viewmodels, basic GLTF soldier animation, rain/night/desert environments, generated sounds, and mobile controls. Public WebSocket multiplayer source and Docker/Caddy TLS templates are available but **multiplayer is not publicly live until an external WSS server is deployed and `fps-config.js` is configured**.
+
+See [FPS_RELEASE_NOTES.md](./FPS_RELEASE_NOTES.md) for precise functionality, evidence, limitations, server deployment and QA instructions.
