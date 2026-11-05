@@ -343,7 +343,9 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       if(u.think<=0){
         const p=u.group.position,tx=best?.group.position.x??0,tz=best?.group.position.z??0;
         const a=Math.atan2(tx-p.x,tz-p.z)+(rng()-.5)*1.2,span=dist>10?6:3;
-        u.goal={x:clamp(p.x+Math.sin(a)*span+(rng()-.5)*6,-29,29),z:clamp(p.z+Math.cos(a)*span+(rng()-.5)*6,-31,31)};
+        // In tactical matches one bot per team actively contests the neutral data core.
+        const seekCore=tacticalMode&&u.n===1&&rng()<.72;
+        u.goal=seekCore?{x:(rng()-.5)*3,z:(rng()-.5)*3}:{x:clamp(p.x+Math.sin(a)*span+(rng()-.5)*6,-29,29),z:clamp(p.z+Math.cos(a)*span+(rng()-.5)*6,-31,31)};
         u.think=.65+rng()*1.3;
       }
       const p=u.group.position,dx=u.goal.x-p.x,dz=u.goal.z-p.z,d=Math.hypot(dx,dz);
