@@ -470,7 +470,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     },
     onSnapshot:(m,p)=>{
       data.x=p.x;data.z=p.z;data.hp=p.hp;data.ap=p.armor;
-      data.deathDelay=p.dead?Math.max(.1,data.deathDelay):0;
+      data.deathDelay=p.dead?Math.max(.1,p.respawnIn||.1):0;
       data.blue=m.score?.blue||0;data.red=m.score?.red||0;data.time=m.time;
       data.kills=p.kills;data.deaths=p.deaths;
       if(specs[p.gun])gun=p.gun;
