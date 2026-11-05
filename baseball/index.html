@@ -101,13 +101,50 @@ const knob=new THREE.Mesh(new THREE.CylinderGeometry(.098,.09,.055,20),mat(0x352
 const batDecal=new THREE.Mesh(new THREE.CylinderGeometry(.151,.151,.09,24),mat(0x3e2b25,.48));batDecal.position.y=1.1;bat.add(batDecal);
 const handMat=mat(0xe7eaf0,.78);
 for(const [x,y] of [[-.07,.16],[.08,.31]]){const hand=new THREE.Mesh(new THREE.SphereGeometry(.14,14,12),handMat);hand.scale.set(1.1,.76,.85);hand.position.set(x,y,.035);bat.add(hand)}
-const swingDuration=.64;
+// The bat is driven by a two-hand grip target. Shoulder-to-elbow-to-hand segments follow the grip.
+const batArms=[];
+for(const side of [-1,1]){
+ const upper=new THREE.Mesh(new THREE.CylinderGeometry(.125,.145,1,14),mat(0x2b89d9,.78));
+ const fore=new THREE.Mesh(new THREE.CylinderGeometry(.105,.115,1,14),skin);
+ const elbow=new THREE.Mesh(new THREE.SphereGeometry(.13,12,10),skin);
+ batter.add(upper,fore,elbow);batArms.push({side,upper,fore,elbow});
+}
+const batAxis=new THREE.Vector3(0,1,0);
+function setSegment(obj,a,b){const delta=b.clone().sub(a);obj.position.copy(a).addScaledVector(delta,.5);obj.scale.y=delta.length();obj.quaternion.setFromUnitVectors(batAxis,delta.normalize())}
+const swingDuration=.72;
+function ease(u){u=THREE.MathUtils.clamp(u,0,1);return u*u*(3-2*u)}
 function swingPose(t){
  if(t<=0)return 0;
- if(t<.14)return -.18*Math.sin(t/.14*Math.PI/2);
- if(t<.40){const u=(t-.14)/.26;return -.18+2.75*(u*u*(3-2*u))}
- if(t<.56){const u=(t-.40)/.16;return 2.57+.42*Math.sin(u*Math.PI/2)}
- return 2.99;
+ if(t<.17)return -.27*ease(t/.17);
+ if(t<.43)return -.27+2.60*ease((t-.17)/.26);
+ if(t<.62)return 2.33+.54*ease((t-.43)/.19);
+ return 2.87;
+}
+function animateBatter(now){
+ const t=swingAt>0?now-swingAt:-1;
+ const active=t>=0&&t<swingDuration;
+ const recovery=t>=swingDuration&&t<swingDuration+.22?1-ease((t-swingDuration)/.22):0;
+ const swingWeight=active?1:recovery;
+ const turn=active?swingPose(t):2.87*recovery;
+ const drive=active?ease((t-.13)/.30):recovery;
+ // Rotate around the hitter's spine; keep the bat grip tied to the same rig.
+ batter.children[0].rotation.y=drive*.52;
+ batter.children[0].rotation.z=-.07-drive*.12;
+ batPivot.position.set(-.35+drive*.13,1.89-drive*.12,-.18-drive*.13);
+ batPivot.rotation.set(.16+drive*.13,turn,-.92+drive*.35);
+ batPivot.updateMatrixWorld(true);
+ for(const arm of batArms){
+   const side=arm.side;
+   const shoulder=new THREE.Vector3(side*.39,1.96,0);
+   const gripLocal=new THREE.Vector3(side<0?-.07:.08,side<0?.16:.31,.035);
+   const hand=bat.localToWorld(gripLocal.clone());
+   batter.worldToLocal(hand);
+   const elbow=shoulder.clone().lerp(hand,.48);
+   elbow.x+=side*.20;elbow.z+=.23-drive*.12;elbow.y+=.10;
+   setSegment(arm.upper,shoulder,elbow);setSegment(arm.fore,elbow,hand);
+   arm.elbow.position.copy(elbow);
+ }
+ if(swingActive&&t>=swingDuration)swingActive=false;
 }
 const ball=mesh(new THREE.SphereGeometry(.19,32,24),white,0,1.8,-14);ball.visible=false;
 // Procedural stitch seams: geometry follows the ball rather than floating as a texture.
@@ -139,13 +176,7 @@ if(state==='catch'){
 const target=mitt.getWorldPosition(new THREE.Vector3());ball.position.lerp(target,.29);
 if(now-catchStart>.42){ball.visible=false;result(catchText,0)}
 }
-const swingElapsed=swingAt>0?now-swingAt:-1;
-const swinging=swingElapsed>=0&&swingElapsed<swingDuration;
-const angle=swinging?swingPose(swingElapsed):0;
-batPivot.rotation.set(.28+Math.sin(Math.min(1,Math.max(0,swingElapsed))/.64*Math.PI)*.10,angle,-.98);
-batter.children[0].rotation.y=swinging?Math.min(1,swingElapsed/.4)*.5:0;
-batter.children[0].rotation.z=swinging?-.07-Math.sin(Math.min(1,swingElapsed/.64)*Math.PI)*.14:-.07;
-if(swingActive&&swingElapsed>=swingDuration)swingActive=false;
+animateBatter(now);
 if(state==='pitch'){const t=(now-pitchStart)/flight,u=Math.max(0,Math.min(1,t));const p=pitches[pick];ball.position.set(p.bend*u*u + (pick===5?Math.sin(u*18)*.22*u:0),2.05-.68*u-p.drop*u*u+Math.sin(Math.PI*u)*.55,-13.7+18.4*u);ball.rotation.z+=dt*12;
 if(t>=1.10){
 state='catch';catchStart=now;ball.visible=true;
