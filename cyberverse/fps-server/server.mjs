@@ -10,7 +10,7 @@ import {WebSocketServer} from "ws";
 const PORT=Number(process.env.PORT||8787);
 const HOST=process.env.HOST||"0.0.0.0";
 const ORIGINS=(process.env.ALLOWED_ORIGINS||"https://eentost.github.io,http://localhost:5173,http://localhost:8000").split(",").map(v=>v.trim()).filter(Boolean);
-const MAX_ROOMS=80,MAX_PLAYERS=12,TICK_RATE=25,MAX_SCORE=30,GAME_LENGTH=300;
+const MAX_ROOMS=Math.max(1,Math.min(64,Number(process.env.MAX_ROOMS)||8)),MAX_PLAYERS=12,TICK_RATE=25,MAX_SCORE=30,GAME_LENGTH=300;
 const ROOM_NAME=/^[a-z0-9-]{1,24}$/,VALID_WEAPONS=["rifle","smg","carbine","shotgun","dmr","sniper","lmg","pistol"];
 const SPECS={
   rifle:{mag:30,damage:30,interval:.115,range:80,spread:.018,reload:1.8},
@@ -180,6 +180,7 @@ server.on("upgrade",(request,socket,head)=>{
   wss.handleUpgrade(request,socket,head,ws=>{ipCounts.set(ip,(ipCounts.get(ip)||0)+1);wss.emit("connection",ws,request,ip);});
 });
 wss.on("connection",(ws,request,ip)=>{
+  ws.isAlive=true;ws.on("pong",()=>{ws.isAlive=true;});
   let player=null,room=null,cleaned=false,limit={window:now(),count:0};
   const close=()=>{try{ws.close(1008,"invalid request");}catch{}};
   const remove=()=>{
@@ -215,5 +216,11 @@ wss.on("connection",(ws,request,ip)=>{
   });
 });
 const timer=setInterval(()=>tick(TICK),1000/TICK_RATE);timer.unref();
+const heartbeat=setInterval(()=>{
+  for(const ws of wss.clients){
+    if(ws.isAlive===false){ws.terminate();continue;}
+    ws.isAlive=false;try{ws.ping();}catch{ws.terminate();}
+  }
+},30000);heartbeat.unref();
 server.listen(PORT,HOST,()=>console.log("CyberVerse FPS server listening on "+HOST+":"+PORT));
-process.on("SIGTERM",()=>{clearInterval(timer);wss.close();server.close();});
+process.on("SIGTERM",()=>{clearInterval(timer);clearInterval(heartbeat);wss.close();server.close();});
