@@ -4,6 +4,8 @@
 import * as THREE from "three";
 import {createFpsEffects} from "./fps-effects.js";
 import {createFpsOnline} from "./fps-online.js";
+import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
+import {clone as cloneSkeleton} from "three/addons/utils/SkeletonUtils.js";
 export function createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat,cinematic}) {
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const rng=(()=>{let a=31415;return ()=>{a=(Math.imul(a,1664525)+1013904223)>>>0;return a/4294967296;};})();
@@ -106,6 +108,29 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   for(let i=0;i<3;i++)buildUnit("blue",i+1);
   for(let i=0;i<5;i++)buildUnit("red",i+1);
   units.forEach(u=>u.group.visible=false);
+  // Skinned soldier animations, with the existing primitive models as offline fallback.
+  new GLTFLoader().load("https://threejs.org/examples/models/gltf/Soldier.glb",asset=>{
+    for(const u of units){
+      const mesh=cloneSkeleton(asset.scene);
+      mesh.traverse(n=>{if(n.isMesh){n.castShadow=false;n.receiveShadow=true;}});
+      const bound=new THREE.Box3().setFromObject(mesh),size=new THREE.Vector3();bound.getSize(size);
+      mesh.scale.setScalar(2.32/Math.max(.1,size.y));
+      bound.setFromObject(mesh);mesh.position.y=-bound.min.y;
+      u.group.traverse(n=>{
+        if(n.isMesh){
+          const arr=(Array.isArray(n.material)?n.material:[n.material]).map(m=>{
+            const invisible=m.clone();invisible.transparent=true;invisible.opacity=0;invisible.depthWrite=false;return invisible;
+          });
+          n.material=arr.length===1?arr[0]:arr;
+        }
+      });
+      u.group.add(mesh);u.visual=mesh;
+      u.mixer=new THREE.AnimationMixer(mesh);
+      u.actions={};
+      for(const clip of asset.animations)u.actions[clip.name.toLowerCase()]=u.mixer.clipAction(clip);
+      u.anim="idle";u.actions.idle?.play();
+    }
+  },undefined,()=>{ /* no asset: original robot/soldier meshes remain */ });
   const effects=createFpsEffects({scene,world,camera,root});
   const ui=document.createElement("div");ui.className="cv-fps-ui";ui.setAttribute("aria-label","CyberVerse FPS 데스매치");
   ui.innerHTML=[
@@ -247,8 +272,18 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
           }else u.fire=.25;
         }
       }
-      const s=Math.sin(t*8+u.phase)*.52;
-      u.left[0].rotation.x=s;u.right[0].rotation.x=-s;u.left[1].rotation.x=-s;u.right[1].rotation.x=s;
+      if(u.mixer){
+        const next=d>.3?"walk":"idle";
+        if(next!==u.anim){
+          u.actions[u.anim]?.fadeOut(.17);
+          u.actions[next]?.reset().fadeIn(.17).play();
+          u.anim=next;
+        }
+        u.mixer.update(dt);
+      }else{
+        const swing=Math.sin(t*8+u.phase)*.52;
+        u.left[0].rotation.x=swing;u.right[0].rotation.x=-swing;u.left[1].rotation.x=-swing;u.right[1].rotation.x=swing;
+      }
     }
   }
   function finish(){
