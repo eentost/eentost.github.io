@@ -5,8 +5,6 @@ import * as THREE from "three";
 import {createFpsEffects} from "./fps-effects.js";
 import {createFpsOnline} from "./fps-online.js";
 import {createFpsTactics} from "./fps-tactics.js";
-import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
-import {clone as cloneSkeleton} from "three/addons/utils/SkeletonUtils.js";
 export function createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat,cinematic}) {
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const rng=(()=>{let a=31415;return ()=>{a=(Math.imul(a,1664525)+1013904223)>>>0;return a/4294967296;};})();
@@ -157,6 +155,21 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       hitBox(leg,"leg",0,-.34,0,.3,.72,.34,shell);
       (s<0?u.left:u.right).push(arm,leg);
     }
+    // Human-sized tactical equipment (all dimensions in the same ~1.9m actor space).
+    const gear=paint(team==="red"?0x603e36:0x254e61,.75,.18);
+    const detail=paint(team==="red"?0xdb785e:0x73bce5,.62,.26);
+    const boot=paint(0x1d2428,.85,.08);
+    box(group,0,1.35,.27,.64,.54,.13,armor);  // back armor
+    box(group,0,1.36,-.29,.58,.64,.1,gear);  // chest plate
+    box(group,-.22,1.34,-.36,.13,.36,.09,detail);
+    box(group,.23,1.34,-.36,.13,.36,.09,detail);
+    box(group,0,2.24,0,.57,.17,.53,armor);  // helmet
+    box(group,0,1.99,-.285,.48,.16,.1,visor); // face shield
+    for(const side of [-1,1]){
+      box(group,side*.25,.21,-.035,.33,.27,.46,boot); // boots
+      box(group,side*.24,.48,-.22,.26,.19,.11,gear); // kneepads
+      box(group,side*.57,1.64,-.03,.14,.25,.34,detail); // team shoulder stripe
+    }
     box(group,.22,1.22,-.34,.12,.12,.7,armor);
     // Clearly identify enemies and teammates even with animated soldier assets.
     const teamColor=team==="red"?"#ff685e":"#63c7ff";
@@ -177,40 +190,10 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   for(let i=0;i<3;i++)buildUnit("blue",i+1);
   for(let i=0;i<5;i++)buildUnit("red",i+1);
   units.forEach(u=>u.group.visible=false);
-  // Skinned soldier animations, with the existing primitive models as offline fallback.
-  new GLTFLoader().load("https://threejs.org/examples/models/gltf/Soldier.glb",asset=>{
-    for(const u of units){
-      const mesh=cloneSkeleton(asset.scene);
-      mesh.traverse(n=>{if(n.isMesh){n.castShadow=false;n.receiveShadow=true;}});
-      const bound=new THREE.Box3().setFromObject(mesh),size=new THREE.Vector3();bound.getSize(size);
-      // Keep animated soldiers near the same human-scale height as fallback bots.
-      mesh.scale.setScalar(2.18/Math.max(.1,size.y));
-      bound.setFromObject(mesh);mesh.position.y=-bound.min.y;
-      u.group.traverse(n=>{
-        if(n.isMesh){
-          const arr=(Array.isArray(n.material)?n.material:[n.material]).map(m=>{
-            const invisible=m.clone();invisible.transparent=true;invisible.opacity=0;invisible.depthWrite=false;return invisible;
-          });
-          n.material=arr.length===1?arr[0]:arr;
-        }
-      });
-      mesh.traverse(part=>{
-        if(!part.isMesh)return;
-        const tint=u.team==="red"?new THREE.Color(0xb85b54):new THREE.Color(0x5285a9);
-        const recolor=m=>{
-          const material=m.clone();
-          if(material.color)material.color.lerp(tint,.43);
-          return material;
-        };
-        part.material=Array.isArray(part.material)?part.material.map(recolor):recolor(part.material);
-      });
-      u.group.add(mesh);u.visual=mesh;
-      u.mixer=new THREE.AnimationMixer(mesh);
-      u.actions={};
-      for(const clip of asset.animations)u.actions[clip.name.toLowerCase()]=u.mixer.clipAction(clip);
-      u.anim="idle";u.actions.idle?.play();
-    }
-  },undefined,()=>{ /* no asset: original robot/soldier meshes remain */ });
+  // Model safety gate: disable the remote Soldier.glb path.
+  // Its skinned bounds can change after animation begins, causing giant overlapping actors.
+  // Use locally bounded humanoid meshes until an animated asset passes measured-size QA.
+  // The existing hitboxes, bot AI, team markers, weapons and movement remain intact.
   const effects=createFpsEffects({scene,world,camera,root});
   const ui=document.createElement("div");ui.className="cv-fps-ui";ui.setAttribute("aria-label","CyberVerse FPS 데스매치");
   ui.innerHTML=[
