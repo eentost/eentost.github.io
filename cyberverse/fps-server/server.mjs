@@ -120,15 +120,16 @@ function fire(room,p){
       if(lateral>.42||y<.55||y>2.3||!visible(origin,target))continue;
       best=target;bestDepth=t;head=y>1.8;
     }
-    if(best){const amt=w.damage*(head?1.7:1);victims.set(best,(victims.get(best)||0)+amt);}
+    if(best){const amt=w.damage*(head?1.7:1),prior=victims.get(best);victims.set(best,{damage:(prior?.damage||0)+amt,head:!!head||!!prior?.head});}
   }
-  for(const [victim,amount]of victims){
+  for(const [victim,info]of victims){
+    const amount=info.damage;
     const absorbed=Math.min(victim.armor,amount*.55);
     victim.armor=Math.max(0,victim.armor-absorbed);
     victim.hp=Math.max(0,Math.ceil(victim.hp-amount+absorbed));
     send(victim,{type:"damage",hp:victim.hp,armor:victim.armor});
     send(p,{type:"hit",victim:victim.id});
-    if(victim.hp===0)scoreKill(room,p,victim,true);
+    if(victim.hp===0)scoreKill(room,p,victim,info.head);
   }
   broadcast(room,{type:"shot",id:p.id,gun:p.weapon});
 }
