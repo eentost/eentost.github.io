@@ -30,7 +30,7 @@ The server must set `ALLOWED_ORIGINS=https://eentost.github.io` (in the supplied
 
 ## Evidence, status and limitations
 
-The underlying Python server's tests passed **11/11** locally, and the original live two-client HTTP/WebSocket smoke test passed. The updated public frontend has been committed to GitHub. A real GPU browser/production WSS/load/mobile test is not yet complete, so this is a **functionally implemented public beta**, not a certified production multi-user service.
+The underlying Python server's tests passed **12/12** locally, and the original live two-client HTTP/WebSocket smoke test passed. The updated public frontend has been committed to GitHub. A real GPU browser/production WSS/load/mobile test is not yet complete, so this is a **functionally implemented public beta**, not a certified production multi-user service.
 
 Public launch still requires TLS, authenticated users, moderation/reporting, abuse controls, logging, room state durability/redistribution, capacity/load testing, privacy policy updates, and verified frontend telemetry.
 
