@@ -3,6 +3,7 @@ import * as THREE from "three";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {createCinematicCity} from "./scene-cinematic.js";
 import {createCombatTraining} from "./scene-combat.js";
+import {createFpsArena} from "./scene-fps.js";
 const root=document.querySelector(".world-wrap");
 if(!root)throw Error("CyberVerse world container not found");
 const zones=[
@@ -151,12 +152,12 @@ $("cv3-presence").textContent="● "+(players.length+1)+"명 협력 중";
 }
 function peerMove(p){let m=state.peers.get(p.id);if(!m)return;m.userData.net={...m.userData.net,x:Number(p.x)||0,z:Number(p.z)||0,a:Number(p.angle)||0,area:p.area||"city",zone:p.zone||"plaza"};}
 const controls=new Set(["KeyW","KeyS","KeyA","KeyD","KeyE","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","ShiftLeft","ShiftRight","Escape"]);
-addEventListener("keydown",e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||""))return;if(combat.onKeyDown(e)){e.preventDefault();return;}if(controls.has(e.code)){state.keys.add(e.code);if(e.code.startsWith("Arrow"))e.preventDefault();}if(e.repeat)return;if(e.code==="KeyE")interact();if(e.code==="Escape"){if(!$("cv3-popup").hidden)$("cv3-popup").hidden=true;else if(state.area==="interior")leave();}});
-addEventListener("keyup",e=>state.keys.delete(e.code));
+addEventListener("keydown",e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||""))return;if(fps.keyDown(e)){e.preventDefault();return;}if(combat.onKeyDown(e)){e.preventDefault();return;}if(controls.has(e.code)){state.keys.add(e.code);if(e.code.startsWith("Arrow"))e.preventDefault();}if(e.repeat)return;if(e.code==="KeyE")interact();if(e.code==="Escape"){if(!$("cv3-popup").hidden)$("cv3-popup").hidden=true;else if(state.area==="interior")leave();}});
+addEventListener("keyup",e=>{fps.keyUp(e);state.keys.delete(e.code);});
 for(const b of ui.querySelectorAll(".cv3-dpad button")){const d=b.dataset.dir;b.addEventListener("pointerdown",e=>{e.preventDefault();b.setPointerCapture?.(e.pointerId);state.pad.add(d);});for(const name of ["pointerup","pointercancel","lostpointercapture"])b.addEventListener(name,()=>state.pad.delete(d));}
-renderer.domElement.addEventListener("pointerdown",e=>{if(combat.onPointerDown(e))return;state.mouse.drag=true;state.mouse.x=e.clientX;state.mouse.y=e.clientY;renderer.domElement.setPointerCapture?.(e.pointerId);});
-renderer.domElement.addEventListener("pointermove",e=>{if(combat.onPointerMove(e))return;if(!state.mouse.drag)return;state.camAngle-=(e.clientX-state.mouse.x)*.006;state.camHeight=Math.max(.25,Math.min(1.37,state.camHeight+(e.clientY-state.mouse.y)*.004));state.mouse.x=e.clientX;state.mouse.y=e.clientY;});
-renderer.domElement.addEventListener("pointerup",e=>{combat.onPointerUp(e);state.mouse.drag=false;});
+renderer.domElement.addEventListener("pointerdown",e=>{if(fps.pointerDown(e)||combat.onPointerDown(e))return;state.mouse.drag=true;state.mouse.x=e.clientX;state.mouse.y=e.clientY;renderer.domElement.setPointerCapture?.(e.pointerId);});
+renderer.domElement.addEventListener("pointermove",e=>{if(fps.isActive()||combat.onPointerMove(e))return;if(!state.mouse.drag)return;state.camAngle-=(e.clientX-state.mouse.x)*.006;state.camHeight=Math.max(.25,Math.min(1.37,state.camHeight+(e.clientY-state.mouse.y)*.004));state.mouse.x=e.clientX;state.mouse.y=e.clientY;});
+renderer.domElement.addEventListener("pointerup",e=>{fps.pointerUp(e);combat.onPointerUp(e);state.mouse.drag=false;});
 renderer.domElement.addEventListener("wheel",e=>{state.camDist=Math.max(6,Math.min(24,state.camDist+Math.sign(e.deltaY)*1.5));e.preventDefault();},{passive:false});
 $("cv3-action").addEventListener("click",interact);$("cv3-exit").addEventListener("click",leave);$("cv3-close").addEventListener("click",()=>$("cv3-popup").hidden=true);
 $("cv3-popup-cta").addEventListener("click",()=>{const act=state.currentStation?.action;$("cv3-popup").hidden=true;if(["phishing","ransomware","ddos"].includes(act)){if(window.CVCOOP?.connected())window.CVCOOP.start(act);else document.querySelector('[data-scenario="'+act+'"]')?.click();document.querySelector(".panel")?.scrollIntoView({behavior:"smooth",block:"nearest"});}else if(act==="community")$("community")?.scrollIntoView({behavior:"smooth"});else if(act==="incident"){leave();teleport("incident");}else announce("전시 장비를 관찰하며 위협 대응을 익혀보세요");});
@@ -167,6 +168,7 @@ function resize(){const w=root.clientWidth,h=root.clientHeight;if(!w||!h)return;
 new ResizeObserver(resize).observe(root);resize();
 const cinematic=createCinematicCity({scene,city,renderer,root,zones,sky,sun,state});
 const combat=createCombatTraining({city,camera,renderer,root,state,local,zones,announce});
+const fps=createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat});
 const clk=new THREE.Clock();let last=0;
 function loop(){
 requestAnimationFrame(loop);const dt=Math.min(clk.getDelta(),.05),t=clk.elapsedTime;
@@ -199,8 +201,9 @@ cinematic.update(dt,t);
 for(const [id,o]of state.peers){const p=o.userData.net;if(!p)continue;o.visible=p.area===state.area&&(p.area==="city"||p.zone===state.zone);if(o.visible){o.position.lerp(new THREE.Vector3(p.x,0,p.z),Math.min(1,dt*9));o.rotation.y=p.a;}}
 const target=new THREE.Vector3(state.pos.x,1.7,state.pos.z),e=state.camHeight,dist=state.camDist;
 const cameraGoal=new THREE.Vector3(target.x+Math.sin(state.camAngle)*dist*Math.cos(e),target.y+Math.sin(e)*dist,target.z+Math.cos(state.camAngle)*dist*Math.cos(e));
-camera.position.lerp(cameraGoal,Math.min(1,dt*3.6));camera.lookAt(target);
+if(!fps.isActive()){camera.position.lerp(cameraGoal,Math.min(1,dt*3.6));camera.lookAt(target);}
 combat.update(dt,t);
+fps.update(dt,t);
 if(!document.hidden)renderer.render(scene,camera);
 if(t-last>.25){nearby();last=t;}
 }
