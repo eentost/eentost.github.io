@@ -132,7 +132,7 @@ function animateBatter(now){
  batter.children[0].rotation.z=-.07-drive*.12;
  batPivot.position.set(-.35+drive*.13,1.89-drive*.12,-.18-drive*.13);
  batPivot.rotation.set(.16+drive*.13,turn,-.92+drive*.35);
- batPivot.updateMatrixWorld(true);
+ batter.updateMatrixWorld(true);
  for(const arm of batArms){
    const side=arm.side;
    const shoulder=new THREE.Vector3(side*.39,1.96,0);
