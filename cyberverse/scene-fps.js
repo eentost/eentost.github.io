@@ -151,11 +151,15 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   }
   function setGun(type){
     if(!specs[type]||loading>0)return;
-    gun=type;aim=false;cool=0;for(const [id,m]of Object.entries(gunModels))m.visible=id===gun;refresh();
+    gun=type;aim=false;cool=0;
+    if(online)network?.send({type:"equip",gun:type});
+    effects.play("equip",type);
+    for(const [id,m]of Object.entries(gunModels))m.visible=id===gun;refresh();
   }
   function reload(){
     if(!data.running||data.deathDelay>0||loading>0||ammo[gun]>=specs[gun].mag||stock[gun]<=0)return;
-    loading=specs[gun].reload;reloadGun=gun;refresh();
+    if(online){network?.send({type:"reload"});effects.play("reload",gun);return;}
+    loading=specs[gun].reload;reloadGun=gun;effects.play("reload",gun);refresh();
   }
   function lineOfSight(a,b){
     const dir=b.clone().sub(a),len=dir.length();
@@ -189,17 +193,20 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     if(!data.running||data.finished||data.deathDelay>0||loading>0||cool>0)return;
     const w=specs[gun];if(ammo[gun]<=0){reload();return;}
     ammo[gun]--;cool=w.cool;recoil=.3;data.pitch=clamp(data.pitch+w.recoil,-1.2,1.2);
+    effects.play("shot",gun);
+    if(online){network?.send({type:"shoot"});refresh();return;}
     const dir=new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
-    const spread=w.spread*(aim?.17:1);
-    dir.add(vec((rng()-.5)*spread,(rng()-.5)*spread,0)).normalize();
-    raycaster.set(camera.position,dir);raycaster.far=100;
-    const targets=hitParts.filter(m=>m.userData.unit?.team==="red"&&!m.userData.unit.dead);
-    const first=raycaster.intersectObjects(walls.concat(targets),false)[0];
-    const where=first?first.point:raycaster.ray.at(88,new THREE.Vector3());
-    addTrace(camera.position.clone(),where,0xffcf9c);
-    if(first?.object.userData.unit){
-      const bot=first.object.userData.unit,head=first.object.userData.part==="head";
-      damage(bot,w.damage*(head?2.2:1),"YOU",head);hit=.2;
+    const pellets=w.pellets||1,targets=hitParts.filter(m=>m.userData.unit?.team==="red"&&!m.userData.unit.dead);
+    for(let i=0;i<pellets;i++){
+      const shot=dir.clone().add(vec((rng()-.5)*w.spread*(aim?.2:1),(rng()-.5)*w.spread*(aim?.2:1),0)).normalize();
+      raycaster.set(camera.position,shot);raycaster.far=gun==="shotgun"?22:100;
+      const first=raycaster.intersectObjects(walls.concat(targets),false)[0];
+      const where=first?first.point:raycaster.ray.at(88,new THREE.Vector3());
+      if(i===0)addTrace(camera.position.clone(),where,0xffcf9c);
+      if(first?.object.userData.unit){
+        const bot=first.object.userData.unit,head=first.object.userData.part==="head";
+        damage(bot,w.damage*(head?2.2:1),"YOU",head);hit=.2;effects.play("hit");
+      }
     }
     refresh();
   }
@@ -265,18 +272,23 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     lastCity=city.visible;lastInterior=interior.visible;lastFull=root.classList.contains("cv3-full");
     lastBackground=scene.background;lastFog=scene.fog;lastFov=camera.fov;lastOverflow=document.body.style.overflow;
     city.visible=false;interior.visible=false;local.visible=false;world.visible=true;cinematic?.setArenaActive?.(true);
-    scene.background=new THREE.Color(0x97aab7);scene.fog=new THREE.Fog(0x9caab5,35,110);
+    view.visible=true;
+    effects.setTheme(chosenTheme);effects.apply();
     document.body.style.overflow="hidden";root.classList.add("cv3-full","cv-fps-active");
     Object.assign(data,{active:true,running:false,finished:false,paused:false,time:300,blue:0,red:0,kills:0,deaths:0});
-    gun="rifle";ammo={rifle:30,sniper:5};stock={rifle:150,sniper:35};cool=0;loading=0;aim=false;recoil=0;feed=[];$("cv-fps-feed").replaceChildren();respawn();
+    gun=specs[loadout.value]?loadout.value:"rifle";
+    ammo=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.mag]));
+    stock=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.stock]));
+    cool=0;loading=0;aim=false;recoil=0;feed=[];$("cv-fps-feed").replaceChildren();respawn();
     units.forEach(spawn);ui.querySelector("#cv-fps-entry").hidden=true;hud.hidden=false;menu.hidden=false;
     $("cv-fps-title").textContent="OPS ZERO";$("cv-fps-desc").textContent="BLUE 4명 VS RED AI 5명 · 30킬 승리 · 5분 제한";
     $("cv-fps-play").textContent="클릭하여 FPS 시작";
-    refresh();lock();
+    refresh(); // Show mode / loadout selection before acquiring pointer lock.
   }
   function stop(){
     if(!data.active)return;
     data.active=false;data.running=false;fireHeld=false;aim=false;
+    network?.disconnect();online=false;
     if(document.pointerLockElement===renderer.domElement)document.exitPointerLock?.();
     world.visible=false;city.visible=lastCity;interior.visible=lastInterior;local.visible=true;cinematic?.setArenaActive?.(false);
     scene.background=lastBackground;scene.fog=lastFog;camera.fov=lastFov;camera.updateProjectionMatrix();camera.rotation.set(0,0,0);
@@ -335,6 +347,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     recoil=Math.max(0,recoil-dt*4);muzzle.intensity=recoil>.2?3.2:0;
     flash=Math.max(0,flash-dt*2);hit=Math.max(0,hit-dt);
     for(let i=traces.length-1;i>=0;i--){const v=traces[i];v.ttl-=dt;v.mesh.material.opacity=clamp(v.ttl/.16,0,1);if(v.ttl<=0){scene.remove(v.mesh);v.mesh.geometry.dispose();v.mesh.material.dispose();traces.splice(i,1);}}
+    effects.update(dt);
     if(frame%6===0){refresh();radar();}
   }
   function keyDown(e){
@@ -342,7 +355,9 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     if(e.code==="Escape"){if(document.pointerLockElement===renderer.domElement)document.exitPointerLock?.();else{data.running=false;menu.hidden=false;}return true;}
     keys.add(e.code);
     if(!data.running||e.repeat)return true;
-    if(e.code==="Digit1")setGun("rifle");if(e.code==="Digit2")setGun("sniper");if(e.code==="KeyR")reload();
+    const choices=Object.keys(specs),digit=/^Digit([1-8])$/.exec(e.code);
+    if(digit)setGun(choices[Number(digit[1])-1]);
+    if(e.code==="KeyR")reload();
     return true;
   }
   function keyUp(e){keys.delete(e.code);return data.active;}
@@ -365,7 +380,11 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   renderer.domElement.addEventListener("contextmenu",e=>{if(data.active)e.preventDefault();});
   window.addEventListener("blur",()=>{keys.clear();fireHeld=false;aim=false;});
   $("cv-fps-entry").addEventListener("click",start);$("cv-fps-exit").addEventListener("click",stop);
-  $("cv-fps-play").addEventListener("click",()=>{if(data.finished){stop();start();}else lock();});
+  $("cv-fps-play").addEventListener("click",()=>{
+    if(data.finished){stop();start();return;}
+    if(!online)units.forEach(spawn);
+    lock();
+  });
   $("cv-fps-fire").addEventListener("click",shoot);$("cv-fps-aim").addEventListener("click",()=>aim=!aim);
   return {start,stop,update,keyDown,keyUp,pointerDown,pointerUp,isActive:()=>data.active,snapshot:()=>({active:data.active,running:data.running,hp:data.hp,blue:data.blue,red:data.red,kills:data.kills,deaths:data.deaths,time:data.time,gun})};
 }
