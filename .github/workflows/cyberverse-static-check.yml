@@ -1,0 +1,48 @@
+name: CyberVerse static checks
+on:
+  push:
+    branches: [master]
+    paths:
+      - "cyberverse/**"
+      - ".github/workflows/cyberverse-static-check.yml"
+  pull_request:
+    paths:
+      - "cyberverse/**"
+      - ".github/workflows/cyberverse-static-check.yml"
+permissions:
+  contents: read
+jobs:
+  syntax-and-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: JavaScript syntax
+        run: |
+          node --check cyberverse/animations.js
+          node --check cyberverse/coop.js
+          node --check cyberverse/scene3d.js
+      - name: HTML links and feature anchors
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("cyberverse")
+          html=(p/"index.html").read_text()
+          three=(p/"scene3d.js").read_text()
+          coop=(p/"coop.js").read_text()
+          required=[
+            'href="./scene3d.css"',
+            'src="./scene3d.js"',
+            'src="./coop.js"',
+            '"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"',
+            'const scenarios=',
+          ]
+          for token in required:assert token in html,token
+          for token in ("function enter(id)","function leave()","function renderThreat(t)","setDefense:defenseFeedback","function peers(players)"):
+            assert token in three,token
+          for token in ("cv3:move","type:\"vote\"","vote_status","case \"feedback\""):
+            assert token in coop,token
+          print("PASS: CyberVerse static structure assertions")
+          PY
