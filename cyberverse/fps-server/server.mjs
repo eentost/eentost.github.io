@@ -57,7 +57,7 @@ function spawn(p){
 function playerSnapshot(p){
   return {id:p.id,name:p.name,team:p.team,x:+p.x.toFixed(3),z:+p.z.toFixed(3),
     yaw:+p.yaw.toFixed(3),pitch:+p.pitch.toFixed(3),
-    hp:p.hp,armor:p.armor,dead:p.dead>0,invuln:p.invuln>0,
+    hp:p.hp,armor:p.armor,dead:p.dead>0,respawnIn:+p.dead.toFixed(2),invuln:p.invuln>0,
     gun:p.weapon,ammo:p.ammo[p.weapon],reserve:p.reserve[p.weapon],kills:p.kills,deaths:p.deaths};
 }
 function getRoom(name){
