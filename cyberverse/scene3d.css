@@ -25,3 +25,5 @@
 @keyframes cv3-rot{to{transform:rotate(360deg)}}@keyframes cv3-rise{from{opacity:0;transform:translate(-50%,-46%)}to{opacity:1;transform:translate(-50%,-50%)}}
 @media(max-width:970px){.cv3-dpad{display:flex}.cv3-bottom{bottom:12px;right:14px}.cv3-action,.cv3-exit{max-width:38%;padding:9px 12px}.cv3-help small{display:none}.cv3-top{top:7px}.cv3-top button{padding:7px 9px}}
 @media(prefers-reduced-motion:reduce){.cv3-loading .cv3-spin,.cv3-popup{animation:none!important}}
+
+.world-wrap.cv3-ready>.cv-ops,.world-wrap.cv3-ready>.cv-toast,.world-wrap.cv3-ready>.cv-tip{display:none}
