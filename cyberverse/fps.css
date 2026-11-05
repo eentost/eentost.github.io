@@ -91,3 +91,14 @@
 .cv-fps-modal{max-height:94vh;padding:17px 14px}
 .cv-fps-config select{padding:7px;font-size:11px}
 }
+
+
+/* Touch-screen FPS controller. Does not change desktop WASD behavior. */
+.cv-fps-touch-stick{position:absolute;left:20px;bottom:105px;width:125px;height:125px;display:none;pointer-events:auto;touch-action:none;align-items:center;justify-content:center;user-select:none}
+.cv-fps-stick-base{position:relative;width:94px;height:94px;border:2px solid #8aafb09c;border-radius:50%;background:#122d3aa3;backdrop-filter:blur(6px);box-shadow:inset 0 0 16px #a9ded01c}
+.cv-fps-stick-base:before,.cv-fps-stick-base:after{content:"";position:absolute;background:#a9dadd69;left:50%;top:50%;transform:translate(-50%,-50%)}
+.cv-fps-stick-base:before{height:1px;width:65%}
+.cv-fps-stick-base:after{width:1px;height:65%}
+#cv-fps-stick-knob{position:absolute;z-index:1;left:calc(50% - 23px);top:calc(50% - 23px);width:46px;height:46px;background:#82dcd3a8;border:1px solid #d0f6e6;border-radius:50%;box-shadow:0 0 15px #71f8dc50;transition:none;display:block}
+@media(max-width:970px){.cv-fps-touch-stick{display:flex}}
+@media(max-width:560px){.cv-fps-touch-stick{left:8px;bottom:78px;width:112px;height:112px}.cv-fps-mobile{bottom:93px}}
