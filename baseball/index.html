@@ -89,11 +89,11 @@ function player(x,z,color,batting=false){
  if(batting){const number=add(new THREE.BoxGeometry(.31,.29,.025),navy,0,1.59,-.41);number.rotation.x=.08}
  return group;
 }
-const pitcher=player(-1.9,-14,0x17864c),batter=player(1.65,4.65,0xf1f5f7,true);pitcher.rotation.y=Math.PI;batter.rotation.y=Math.PI;
+const pitcher=player(-1.9,-14,0x17864c),batter=player(1.65,4.65,0xf1f5f7,true);pitcher.rotation.y=Math.PI;batter.rotation.y=0;
 
 // Catcher, protective equipment and plate umpire (original low-poly placeholder models).
 const catcher=player(0,6.35,0xc34844),umpire=player(0,8.0,0x24354b);
-catcher.rotation.y=Math.PI;umpire.rotation.y=Math.PI;catcher.scale.set(.92,.68,.92);
+catcher.rotation.y=0;umpire.rotation.y=0;catcher.scale.set(.92,.68,.92);
 const catchMask=new THREE.Mesh(new THREE.BoxGeometry(.67,.46,.22),mat(0x182538));catchMask.position.set(0,2.35,-.26);catcher.add(catchMask);
 const catchChest=new THREE.Mesh(new THREE.BoxGeometry(.82,.7,.23),mat(0x263a52));catchChest.position.set(0,1.56,-.34);catcher.add(catchChest);
 const mitt=new THREE.Mesh(new THREE.SphereGeometry(.36,18,14),mat(0x95623b));mitt.scale.set(1.1,1.05,.52);catcher.add(mitt);
@@ -184,7 +184,7 @@ const phase=state==='windup'?Math.min(1,(now-windupStart)/1.0):0;
 throwArm.rotation.x=state==='windup'?-Math.sin(phase*Math.PI)*2.1:0;
 liftLeg.rotation.x=state==='windup'?Math.sin(phase*Math.PI)*.95:0;
 pitcher.rotation.y=state==='windup'?Math.sin(phase*Math.PI)*.4:0;
-const mittTargetX=state==='pitch'?-THREE.MathUtils.clamp(ball.position.x,-1.6,1.6)/.92:-.43;
+const mittTargetX=state==='pitch'?THREE.MathUtils.clamp(ball.position.x,-1.6,1.6)/.92:-.43;
 const mittTargetY=state==='pitch'?THREE.MathUtils.clamp(ball.position.y/.68,.78,2.4):1.72;
 mitt.position.x=THREE.MathUtils.lerp(mitt.position.x,mittTargetX,.17);
 mitt.position.y=THREE.MathUtils.lerp(mitt.position.y,mittTargetY,.17);
