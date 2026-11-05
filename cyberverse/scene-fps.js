@@ -103,6 +103,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   const scenery=createFpsScenery({world});
   let tacticalMode=false;
   const data={active:false,running:false,finished:false,paused:false,hp:100,ap:100,deathDelay:0,spawnShield:0,x:0,z:28,height:0,vy:0,yaw:0,pitch:0,time:300,blue:0,red:0,kills:0,deaths:0};
+  let sniperZoom=4,focusDistance=0;
   let gun="rifle",ammo=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.mag])),stock=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.stock])),cool=0,loading=0,reloadGun="",aim=false,fireHeld=false,bob=0,recoil=0,flash=0,hit=0,frame=0,lastFull=false,lastOverflow="",lastFog=null,lastBackground=null,lastEnvironment=null,lastEnvIntensity=1,lastFov=56,lastCity=true,lastInterior=false;
   const view=new THREE.Group();if(camera.parent!==scene)scene.add(camera);camera.add(view);
   const gunModels={};const casings=[];
@@ -200,7 +201,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     '<div class="cv-fps-radar"><canvas id="cv-fps-map" width="154" height="154"></canvas><small>OPS ZERO · YARD</small></div>',
     '<div class="cv-fps-feed" id="cv-fps-feed"></div>',
     '<div class="cv-fps-cross" id="cv-fps-cross"><i></i><i></i><i></i><i></i><b>×</b></div>',
-    '<div class="cv-fps-scope" id="cv-fps-scope" hidden><div class="cv-fps-scope-circle"><i></i><small>SV-8 / 4X</small></div></div>',
+    '<div class="cv-fps-scope" id="cv-fps-scope" hidden><div class="cv-fps-scope-circle"><i></i><small id="cv-fps-focus">SV-8 / 4X · RANGE -- m</small></div></div>',
     '<div class="cv-fps-damage" id="cv-fps-damage"></div>',
     '<div class="cv-fps-bottom"><div class="cv-fps-health">HP <b id="cv-fps-hp">100</b>　AP <b id="cv-fps-ap">100</b><div><i id="cv-fps-hpbar"></i></div></div>',
     '<div class="cv-fps-weapon"><small id="cv-fps-gun">CV-47 돌격소총</small><strong id="cv-fps-ammo">30 / 150</strong><span id="cv-fps-reload">R 재장전</span></div></div>',
@@ -387,7 +388,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     effects.setTheme(chosenTheme);effects.apply();effects.setActive(true);imageAssets.activate(true,chosenTheme);scenery.setTheme(chosenTheme);
     document.body.style.overflow="hidden";root.classList.add("cv3-full","cv-fps-active");
     Object.assign(data,{active:true,running:false,finished:false,paused:false,time:300,blue:0,red:0,kills:0,deaths:0});
-    gun=specs[loadout.value]?loadout.value:"rifle";
+    gun=specs[loadout.value]?loadout.value:"rifle";sniperZoom=4;focusDistance=0;
     ammo=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.mag]));
     stock=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.stock]));
     cool=0;loading=0;aim=false;recoil=0;feed=[];$("cv-fps-feed").replaceChildren();respawn();
@@ -465,7 +466,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     camera.rotation.order="YXZ";
     camera.position.set(data.x,(keys.has("KeyC")?1.25:1.72)+data.height+Math.sin(bob)*.021,data.z);
     camera.rotation.set(data.pitch,data.yaw,0,"YXZ");
-    const fov=aim?(gun==="sniper"?25:53):78;
+    const fov=aim?(gun==="sniper"?clamp(78/sniperZoom,9,40):53):78;
     camera.fov+=(fov-camera.fov)*Math.min(1,dt*17);camera.updateProjectionMatrix();
     view.visible=data.deathDelay===0&&!aim;
     for(const [id,model]of Object.entries(gunModels)){
@@ -497,7 +498,17 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       w:keys.has("KeyW"),s:keys.has("KeyS"),a:keys.has("KeyA"),d:keys.has("KeyD"),
       shift:keys.has("ShiftLeft"),c:keys.has("KeyC")
     },yaw:data.yaw,pitch:data.pitch});
-    if(frame%6===0){refresh();radar();}
+    if(frame%6===0){
+      refresh();radar();
+      if(gun==="sniper"&&aim){
+        raycaster.setFromCamera(new THREE.Vector2(0,0),camera);
+        raycaster.far=120;
+        const found=raycaster.intersectObjects(walls.concat(hitParts.filter(m=>!m.userData.unit?.dead)),false);
+        focusDistance=found.length?found[0].distance:120;
+        const label=$("cv-fps-focus");
+        if(label)label.textContent="SV-8 / "+sniperZoom+"X · FOCUS "+focusDistance.toFixed(0)+"m";
+      }
+    }
   }
   function keyDown(e){
     if(!data.active)return false;
@@ -507,6 +518,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     const choices=Object.keys(specs),digit=/^Digit([1-8])$/.exec(e.code);
     if(digit)setGun(choices[Number(digit[1])-1]);
     if(e.code==="KeyR")reload();
+    if(e.code==="KeyZ"&&gun==="sniper"){sniperZoom=sniperZoom===2?4:sniperZoom===4?8:2;}
     if(e.code==="KeyG")gameplay.grenade();
     if(e.code==="KeyV")gameplay.melee();
     if(e.code==="KeyH")gameplay.upgrade();
