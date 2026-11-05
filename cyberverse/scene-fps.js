@@ -274,7 +274,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     if(u.player){
       if(data.deathDelay>0||data.spawnShield>0)return;
       const absorbed=Math.min(data.ap,dmg*.56);data.ap-=absorbed;data.hp=Math.max(0,data.hp-dmg+absorbed);flash=.45;
-      if(data.hp<=0){data.deaths++;data.deathDelay=3;data.red++;effects.play("hurt");feedKill(who,"YOU");}
+      if(data.hp<=0){data.deaths++;data.deathDelay=3;data.red++;gameplay.onDeath();effects.play("hurt");feedKill(who,"YOU");}
     }else if(!u.dead){
       u.hp-=dmg;if(u.hp<=0){
         u.dead=true;u.respawn=3.5;u.group.visible=false;
