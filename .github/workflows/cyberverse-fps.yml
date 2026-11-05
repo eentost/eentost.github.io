@@ -1,0 +1,39 @@
+name: CyberVerse FPS QA
+on:
+  push:
+    paths:
+      - "cyberverse/scene-fps.js"
+      - "cyberverse/fps-online.js"
+      - "cyberverse/fps-effects.js"
+      - "cyberverse/fps.css"
+      - "cyberverse/fps-server/**"
+      - ".github/workflows/cyberverse-fps.yml"
+  pull_request:
+    paths:
+      - "cyberverse/**"
+      - ".github/workflows/cyberverse-fps.yml"
+permissions:
+  contents: read
+jobs:
+  fps-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: cyberverse/fps-server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install WebSocket server dependency
+        run: npm install --no-audit --no-fund
+      - name: Verify client and server JavaScript syntax
+        run: |
+          node --check ../scene-fps.js
+          node --check ../fps-online.js
+          node --check ../fps-effects.js
+          node --check ../scene3d.js
+          node --check server.mjs
+      - name: Two-client realtime and origin security tests
+        run: npm test
