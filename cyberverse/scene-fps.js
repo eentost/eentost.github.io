@@ -4,6 +4,7 @@
 import * as THREE from "three";
 import {createFpsEffects} from "./fps-effects.js";
 import {createFpsOnline} from "./fps-online.js";
+import {createFpsTactics} from "./fps-tactics.js";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
 import {clone as cloneSkeleton} from "three/addons/utils/SkeletonUtils.js";
 export function createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat,cinematic}) {
@@ -97,6 +98,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     const light=new THREE.DirectionalLight(0xffe6c9,2.3);light.position.set(-21,44,8);world.add(light);
   }
   buildMap();
+  let tacticalMode=false;
   const data={active:false,running:false,finished:false,paused:false,hp:100,ap:100,deathDelay:0,spawnShield:0,x:0,z:28,height:0,vy:0,yaw:0,pitch:0,time:300,blue:0,red:0,kills:0,deaths:0};
   let gun="rifle",ammo=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.mag])),stock=Object.fromEntries(Object.entries(specs).map(([k,v])=>[k,v.stock])),cool=0,loading=0,reloadGun="",aim=false,fireHeld=false,bob=0,recoil=0,flash=0,hit=0,frame=0,lastFull=false,lastOverflow="",lastFog=null,lastBackground=null,lastFov=56,lastCity=true,lastInterior=false;
   const view=new THREE.Group();if(camera.parent!==scene)scene.add(camera);camera.add(view);
@@ -217,7 +219,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     '<div class="cv-fps-eyebrow">CYBERVERSE // ORIGINAL FPS ARENA</div>',
     '<h2 id="cv-fps-title">OPS ZERO</h2><p id="cv-fps-desc">1인칭 FPS · BLUE 4명 VS RED AI 5명 · 5분 제한</p>',
     '<div class="cv-fps-pillrow"><span>팀데스매치</span><span>30킬 승리</span><span>엄폐 전투</span><span>AI 봇</span></div>',
-    '<div class="cv-fps-config"><label>전장 환경<select id="cv-fps-theme"><option value="industrial">물류 터미널 · 황혼</option><option value="night">도심 항만 · 야간</option><option value="rain">항만 기지 · 폭우</option><option value="desert">사막 전초기지 · 주간</option></select></label><label>기본 무기<select id="cv-fps-loadout"></select></label><label>효과음 <input id="cv-fps-volume" type="range" min="0" max="100" value="65"></label></div>',
+    '<div class="cv-fps-config"><label>전투 모드<select id="cv-fps-mode-select"><option value="deathmatch">클래식 팀데스매치</option><option value="tactical" selected>사이버 전술전 · 코어 점령</option></select></label><label>전장 환경<select id="cv-fps-theme"><option value="industrial">물류 터미널 · 황혼</option><option value="night">도심 항만 · 야간</option><option value="rain">항만 기지 · 폭우</option><option value="desert">사막 전초기지 · 주간</option></select></label><label>기본 무기<select id="cv-fps-loadout"></select></label><label>효과음 <input id="cv-fps-volume" type="range" min="0" max="100" value="65"></label></div>',
     '<button id="cv-fps-play" class="cv-fps-primary" type="button">클릭하여 FPS 시작</button>',
     '<button id="cv-fps-exit" class="cv-fps-secondary" type="button">CyberVerse 도시로 돌아가기</button>',
     '<small>로컬 AI 대전입니다. 다른 방문자와의 실시간 대전은 제공하지 않습니다.</small></div></section>',
@@ -240,6 +242,15 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   root.append(ui);
   const $=id=>ui.querySelector("#"+id),menu=$("cv-fps-menu"),hud=$("cv-fps-hud"),map=$("cv-fps-map"),ctx=map.getContext("2d");
   let feed=[],network=null,online=false,serverTeam="blue",chosenTheme="industrial",touchMove={x:0,z:0},lookTouch=null,serverPosition=null;
+  const tactics=createFpsTactics({world,root,units,data,notify:(type,message)=>feedKill(type,message)});
+  $("cv-fps-mode-select").addEventListener("change",()=>{if(data.active&&!data.running)configureMode();});
+  function configureMode(){
+    tacticalMode=!online&&$("cv-fps-mode-select").value==="tactical";
+    tactics.reset(tacticalMode);
+    const label=tacticalMode?"CYBER WARFARE · CORE CONTROL · Q EMP · E DECOY":"30 KILLS TO WIN · BOT TEAM DEATHMATCH";
+    ui.querySelector(".cv-fps-mode").textContent=label;
+    $("cv-fps-mode-select").disabled=!!online;
+  }
   const loadout=$("cv-fps-loadout");
   for(const [id,w]of Object.entries(specs)){const option=document.createElement("option");option.value=id;option.textContent=w.name;loadout.append(option);}
   $("cv-fps-theme").addEventListener("change",e=>{chosenTheme=e.target.value;if(data.active){effects.setTheme(chosenTheme);effects.apply();}});
@@ -346,7 +357,11 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
           const a=p.clone().add(vec(0,1.6,0)),b=best.group.position.clone().add(vec(0,1.6,0));
           if(lineOfSight(a,b)){
             addTrace(a,b,u.team==="blue"?0x8bd9f1:0xff9b7a);
-            if(rng()<clamp(.6-dist*.015,.15,.52))damage(best,8+rng()*9,u.team==="red"?"RED BOT":"BLUE BOT");
+            const disrupted=u.team==="red"&&tactics.isEmpActive();
+            const decoy=disrupted?null:u.team==="red"?tactics.decoyTarget():null;
+            if(decoy&&Math.hypot(decoy.position.x-p.x,decoy.position.z-p.z)<18&&rng()<.7){
+              addTrace(a,decoy.position.clone().add(vec(0,1.3,0)),0xff9b7a);
+            }else if(rng()<clamp(.6-dist*.015,.15,.52)*(disrupted?.22:1))damage(best,8+rng()*9,u.team==="red"?"RED BOT":"BLUE BOT");
             u.fire=.65+rng()*.8;
           }else u.fire=.25;
         }
@@ -397,11 +412,12 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     units.forEach(spawn);ui.querySelector("#cv-fps-entry").hidden=true;hud.hidden=false;menu.hidden=false;
     $("cv-fps-title").textContent="OPS ZERO";$("cv-fps-desc").textContent="BLUE 4명 VS RED AI 5명 · 30킬 승리 · 5분 제한";
     $("cv-fps-play").textContent="클릭하여 FPS 시작";
+    configureMode();
     refresh(); // Show mode / loadout selection before acquiring pointer lock.
   }
   function stop(){
     if(!data.active)return;
-    data.active=false;data.running=false;fireHeld=false;aim=false;
+    data.active=false;data.running=false;fireHeld=false;aim=false;tactics.reset(false);
     effects.setActive(false);
     network?.disconnect();online=false;serverPosition=null;
     if(document.pointerLockElement===renderer.domElement)document.exitPointerLock?.();
@@ -457,7 +473,10 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
         if(!online)data.spawnShield=Math.max(0,data.spawnShield-dt);
         effects.footsteps(dt,f!==0||s!==0,keys.has("ShiftLeft"));
       }
-      if(!online)updateBots(dt,t);
+      if(!online){
+        updateBots(dt,t);
+        if(tacticalMode&&tactics.update(dt,t)==="finish")finish();
+      }
       if(fireHeld&&specs[gun].auto)shoot();
     }
     camera.rotation.order="YXZ";
@@ -504,6 +523,8 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     const choices=Object.keys(specs),digit=/^Digit([1-8])$/.exec(e.code);
     if(digit)setGun(choices[Number(digit[1])-1]);
     if(e.code==="KeyR")reload();
+    if(e.code==="KeyQ"&&!online)tactics.activate("emp");
+    if(e.code==="KeyE"&&!online)tactics.activate("decoy");
     return true;
   }
   function keyUp(e){keys.delete(e.code);return data.active;}
@@ -562,6 +583,8 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   network=createFpsOnline({world,root,
     connectionChanged:(active)=>{
       online=active;if(!active)serverPosition=null;
+      if(active){tacticalMode=false;tactics.reset(false);ui.querySelector(".cv-fps-mode").textContent="ONLINE TEAM DEATHMATCH";$("cv-fps-mode-select").disabled=true;}
+      else if(data.active)configureMode();
       units.forEach(u=>u.group.visible=!online&&!u.dead&&data.active);
       if(!active&&data.active){
         $("cv-fps-desc").textContent="온라인 연결 종료 · 오프라인 AI 대전을 선택할 수 있습니다.";
@@ -601,7 +624,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   $("cv-fps-entry").addEventListener("click",start);$("cv-fps-exit").addEventListener("click",stop);
   $("cv-fps-play").addEventListener("click",()=>{
     if(data.finished&&!online){stop();start();return;}
-    if(!online)units.forEach(spawn);
+    if(!online){units.forEach(spawn);configureMode();}
     if(online)data.finished=false;
     lock();
   });
@@ -609,5 +632,5 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   touchFire.addEventListener("pointerdown",e=>{e.preventDefault();fireHeld=true;shoot();touchFire.setPointerCapture?.(e.pointerId);});
   for(const ev of ["pointerup","pointercancel","lostpointercapture"])touchFire.addEventListener(ev,()=>fireHeld=false);
   $("cv-fps-aim").addEventListener("click",()=>aim=!aim);
-  return {start,stop,update,keyDown,keyUp,pointerDown,pointerUp,isActive:()=>data.active,snapshot:()=>({active:data.active,running:data.running,online,hp:data.hp,blue:data.blue,red:data.red,kills:data.kills,deaths:data.deaths,time:data.time,gun,network:network?.snapshot()})};
+  return {start,stop,update,keyDown,keyUp,pointerDown,pointerUp,isActive:()=>data.active,snapshot:()=>({active:data.active,running:data.running,online,tactics:tactics.snapshot(),hp:data.hp,blue:data.blue,red:data.red,kills:data.kills,deaths:data.deaths,time:data.time,gun,network:network?.snapshot()})};
 }
