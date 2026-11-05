@@ -7,6 +7,7 @@ import {createFpsOnline} from "./fps-online.js";
 import {createFpsTactics} from "./fps-tactics.js";
 import {buildWeaponModel} from "./fps-weapon-models.js";
 import {createFpsImageAssets} from "./fps-image-assets.js";
+import {createFpsGameplay} from "./fps-gameplay.js";
 export function createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat,cinematic}) {
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const rng=(()=>{let a=31415;return ()=>{a=(Math.imul(a,1664525)+1013904223)>>>0;return a/4294967296;};})();
@@ -211,6 +212,14 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   const $=id=>ui.querySelector("#"+id),menu=$("cv-fps-menu"),hud=$("cv-fps-hud"),map=$("cv-fps-map"),ctx=map.getContext("2d");
   let feed=[],network=null,online=false,serverTeam="blue",chosenTheme="industrial",touchMove={x:0,z:0},lookTouch=null,serverPosition=null;
   const tactics=createFpsTactics({world,root,units,data,notify:(type,message)=>feedKill(type,message)});
+  const gameplay=createFpsGameplay({
+    world,scene,camera,root,specs,units,data,walls,
+    emit:message=>feedKill("SYSTEM",message),
+    dealDamage:(unit,amount,who,head)=>damage(unit,amount,who,head),
+    setWeapon:type=>setGun(type),
+    addReserve:(kind,count)=>{stock[kind]+=count;},
+    getWeapon:()=>gun,isOnline:()=>online
+  });
   $("cv-fps-mode-select").addEventListener("change",()=>{if(data.active&&!data.running)configureMode();});
   function configureMode(){
     tacticalMode=!online&&$("cv-fps-mode-select").value==="tactical";
@@ -267,7 +276,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       u.hp-=dmg;if(u.hp<=0){
         u.dead=true;u.respawn=3.5;u.group.visible=false;
         const team=u.team==="red"?"blue":"red";data[team]++;
-        if(who==="YOU"){data.kills++;effects.play("kill");}feedKill(who,u.team.toUpperCase()+"-"+u.n,head);
+        if(who==="YOU"){data.kills++;effects.play("kill");gameplay.kill(u,head);}feedKill(who,u.team.toUpperCase()+"-"+u.n,head);
       }
     }
     if(data.blue>=30||data.red>=30)finish();
@@ -288,7 +297,8 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       if(i===0)addTrace(camera.position.clone(),where,0xffcf9c);
       if(first?.object.userData.unit){
         const bot=first.object.userData.unit,head=first.object.userData.part==="head";
-        damage(bot,w.damage*(head?2.2:1),"YOU",head);hit=.2;effects.play("hit");
+        gameplay.hitBurst(first.point,head);
+        damage(bot,w.damage*gameplay.multiplier(gun)*(head?2.2:1),"YOU",head);hit=.2;effects.play("hit");
       }
     }
     refresh();
@@ -383,11 +393,12 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     $("cv-fps-title").textContent="OPS ZERO";$("cv-fps-desc").textContent="BLUE 4명 VS RED AI 5명 · 30킬 승리 · 5분 제한";
     $("cv-fps-play").textContent="클릭하여 FPS 시작";
     configureMode();
+    gameplay.start();
     refresh(); // Show mode / loadout selection before acquiring pointer lock.
   }
   function stop(){
     if(!data.active)return;
-    data.active=false;data.running=false;fireHeld=false;aim=false;tactics.reset(false);
+    data.active=false;data.running=false;fireHeld=false;aim=false;tactics.reset(false);gameplay.reset();
     effects.setActive(false);imageAssets.activate(false,chosenTheme);
     network?.disconnect();online=false;serverPosition=null;
     if(document.pointerLockElement===renderer.domElement)document.exitPointerLock?.();
@@ -479,6 +490,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     flash=Math.max(0,flash-dt*2);hit=Math.max(0,hit-dt);
     for(let i=traces.length-1;i>=0;i--){const v=traces[i];v.ttl-=dt;v.mesh.material.opacity=clamp(v.ttl/.16,0,1);if(v.ttl<=0){scene.remove(v.mesh);v.mesh.geometry.dispose();v.mesh.material.dispose();traces.splice(i,1);}}
     effects.update(dt);
+    gameplay.update(dt,t);
     network?.update(dt,t,{moveX:touchMove.x,moveZ:touchMove.z,keys:{
       w:keys.has("KeyW"),s:keys.has("KeyS"),a:keys.has("KeyA"),d:keys.has("KeyD"),
       shift:keys.has("ShiftLeft"),c:keys.has("KeyC")
@@ -493,8 +505,13 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     const choices=Object.keys(specs),digit=/^Digit([1-8])$/.exec(e.code);
     if(digit)setGun(choices[Number(digit[1])-1]);
     if(e.code==="KeyR")reload();
+    if(e.code==="KeyG")gameplay.grenade();
+    if(e.code==="KeyV")gameplay.melee();
+    if(e.code==="KeyH")gameplay.upgrade();
+    if(e.code==="KeyE"&&keys.has("AltLeft"))gameplay.pickup();
     if(e.code==="KeyQ"&&!online)tactics.activate("emp");
-    if(e.code==="KeyE"&&!online)tactics.activate("decoy");
+    if(e.code==="KeyE"&&!online&&!keys.has("AltLeft"))gameplay.pickup();
+    if(e.code==="KeyB"&&!online)tactics.activate("decoy");
     return true;
   }
   function keyUp(e){keys.delete(e.code);return data.active;}
@@ -602,5 +619,5 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   touchFire.addEventListener("pointerdown",e=>{e.preventDefault();fireHeld=true;shoot();touchFire.setPointerCapture?.(e.pointerId);});
   for(const ev of ["pointerup","pointercancel","lostpointercapture"])touchFire.addEventListener(ev,()=>fireHeld=false);
   $("cv-fps-aim").addEventListener("click",()=>aim=!aim);
-  return {start,stop,update,keyDown,keyUp,pointerDown,pointerUp,isActive:()=>data.active,snapshot:()=>({active:data.active,running:data.running,online,tactics:tactics.snapshot(),hp:data.hp,blue:data.blue,red:data.red,kills:data.kills,deaths:data.deaths,time:data.time,gun,network:network?.snapshot()})};
+  return {start,stop,update,keyDown,keyUp,pointerDown,pointerUp,isActive:()=>data.active,snapshot:()=>({active:data.active,running:data.running,online,progression:gameplay.snapshot(),tactics:tactics.snapshot(),hp:data.hp,blue:data.blue,red:data.red,kills:data.kills,deaths:data.deaths,time:data.time,gun,network:network?.snapshot()})};
 }
