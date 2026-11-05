@@ -138,7 +138,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     casings.push({mesh,velocity:direction.multiplyScalar(2.3),ttl:1.8});
   }
   function buildUnit(team,n){
-    const group=new THREE.Group();world.add(group);
+    const group=new THREE.Group();group.scale.setScalar(.82);world.add(group);
     const shell=paint(team==="blue"?0x46718a:0x915450,.59,.3),armor=paint(team==="blue"?0x273d51:0x593a38,.51,.4),skin=paint(0xbac0bc),visor=new THREE.MeshBasicMaterial({color:team==="blue"?0x78e6ff:0xff9c83});
     const u={team,n,group,hp:100,dead:false,respawn:0,fire:1+rng(),think:0,goal:{x:0,z:0},phase:rng()*6,left:[],right:[]};
     const hitBox=(parent,part,x,y,z,w,h,d,m)=>{
@@ -155,7 +155,22 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       hitBox(leg,"leg",0,-.34,0,.3,.72,.34,shell);
       (s<0?u.left:u.right).push(arm,leg);
     }
-    box(group,.22,1.22,-.34,.12,.12,.7,armor);units.push(u);return u;
+    box(group,.22,1.22,-.34,.12,.12,.7,armor);
+    // Clearly identify enemies and teammates even with animated soldier assets.
+    const teamColor=team==="red"?"#ff685e":"#63c7ff";
+    const labelCanvas=document.createElement("canvas");labelCanvas.width=256;labelCanvas.height=64;
+    const labelContext=labelCanvas.getContext("2d");
+    labelContext.fillStyle="rgba(5,14,26,.82)";labelContext.fillRect(5,5,246,54);
+    labelContext.strokeStyle=teamColor;labelContext.lineWidth=4;labelContext.strokeRect(5,5,246,54);
+    labelContext.fillStyle=teamColor;labelContext.font="bold 29px system-ui";labelContext.textAlign="center";
+    labelContext.fillText((team==="red"?"ENEMY":"ALLY")+" "+n,128,43);
+    const labelTexture=new THREE.CanvasTexture(labelCanvas);labelTexture.colorSpace=THREE.SRGBColorSpace;
+    const marker=new THREE.Sprite(new THREE.SpriteMaterial({map:labelTexture,transparent:true,depthTest:true,depthWrite:false}));
+    marker.scale.set(1.45,.36,1);marker.position.set(0,2.65,0);group.add(marker);
+    u.marker=marker;
+    const beaconMaterial=new THREE.MeshBasicMaterial({color:team==="red"?0xff493c:0x35b9ff});
+    for(const side of [-1,1])box(group,side*.55,1.78,0,.14,.16,.34,beaconMaterial);
+    units.push(u);return u;
   }
   for(let i=0;i<3;i++)buildUnit("blue",i+1);
   for(let i=0;i<5;i++)buildUnit("red",i+1);
@@ -166,7 +181,8 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
       const mesh=cloneSkeleton(asset.scene);
       mesh.traverse(n=>{if(n.isMesh){n.castShadow=false;n.receiveShadow=true;}});
       const bound=new THREE.Box3().setFromObject(mesh),size=new THREE.Vector3();bound.getSize(size);
-      mesh.scale.setScalar(2.32/Math.max(.1,size.y));
+      // Keep animated soldiers near the same human-scale height as fallback bots.
+      mesh.scale.setScalar(2.18/Math.max(.1,size.y));
       bound.setFromObject(mesh);mesh.position.y=-bound.min.y;
       u.group.traverse(n=>{
         if(n.isMesh){
@@ -175,6 +191,16 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
           });
           n.material=arr.length===1?arr[0]:arr;
         }
+      });
+      mesh.traverse(part=>{
+        if(!part.isMesh)return;
+        const tint=u.team==="red"?new THREE.Color(0xb85b54):new THREE.Color(0x5285a9);
+        const recolor=m=>{
+          const material=m.clone();
+          if(material.color)material.color.lerp(tint,.43);
+          return material;
+        };
+        part.material=Array.isArray(part.material)?part.material.map(recolor):recolor(part.material);
       });
       u.group.add(mesh);u.visual=mesh;
       u.mixer=new THREE.AnimationMixer(mesh);
