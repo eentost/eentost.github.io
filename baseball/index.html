@@ -15,7 +15,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
 const $=id=>document.getElementById(id),arena=$('arena'),scene=new THREE.Scene();scene.background=new THREE.Color(0x08192a);scene.fog=new THREE.Fog(0x08192a,70,175);
 let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;arena.prepend(renderer.domElement)}catch(e){arena.insertAdjacentHTML('afterbegin','<div class="error">WebGL을 시작할 수 없습니다. Chrome/Edge의 하드웨어 가속 설정을 확인하세요.</div>');throw e}
-const camera=new THREE.PerspectiveCamera(54,1,.1,350);camera.position.set(0,4.4,14.2);camera.lookAt(0,1.5,-6);scene.add(new THREE.HemisphereLight(0xc6e8ff,0x405632,2.2));
+const camera=new THREE.PerspectiveCamera(54,1,.1,350);camera.position.set(-3.9,3.25,12.8);camera.lookAt(0,1.48,-5.2);scene.add(new THREE.HemisphereLight(0xc6e8ff,0x405632,2.2));
 const sun=new THREE.DirectionalLight(0xffefce,3.4);sun.position.set(-20,35,10);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-45;sun.shadow.camera.right=45;sun.shadow.camera.top=45;sun.shadow.camera.bottom=-45;scene.add(sun);
 function mat(c,rough=1,em=0){return new THREE.MeshStandardMaterial({color:c,roughness:rough,emissive:em,emissiveIntensity:em?.55:0})}
 const grass=mat(0x206344),dirt=mat(0xa77b51),white=mat(0xeaf4e9),navy=mat(0x152d4a),cyan=mat(0x1bddf1),skin=mat(0xd9ab81),red=mat(0xe95a40);
@@ -31,15 +31,19 @@ for(let i=0;i<14;i++){const angle=i/13*Math.PI;const x=Math.cos(angle)*83,z=-20-
 for(let i=0;i<9;i++){const x=-70+i*17.5;const post=mesh(new THREE.CylinderGeometry(.12,.12,15,8),mat(0x8298a9),x,7,-91,false);mesh(new THREE.BoxGeometry(5,.6,.7),mat(0xf3fbff,1,0x90aaff),x,14,-91,false)}
 const board=mesh(new THREE.BoxGeometry(21,7,1),navy,0,12,-95,false);const boardCanvas=document.createElement('canvas');boardCanvas.width=800;boardCanvas.height=260;const bc=boardCanvas.getContext('2d');bc.fillStyle='#102438';bc.fillRect(0,0,800,260);bc.fillStyle='#52eaf6';bc.font='bold 72px sans-serif';bc.textAlign='center';bc.fillText('NEO BASEBALL',400,110);bc.font='32px sans-serif';bc.fillStyle='#ffffff';bc.fillText('HOMERUN CHALLENGE',400,175);const screen=mesh(new THREE.PlaneGeometry(20,6.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(boardCanvas)}),0,12,-94.43,false);
 function player(x,z,color,batting=false){const group=new THREE.Group();group.position.set(x,0,z);scene.add(group);const add=(g,m,px,py,pz)=>{const o=new THREE.Mesh(g,m);o.position.set(px,py,pz);o.castShadow=true;group.add(o);return o};add(new THREE.CylinderGeometry(.39,.3,1.1,12),mat(color),0,1.55,0);add(new THREE.SphereGeometry(.31,16,12),skin,0,2.37,0);add(new THREE.CylinderGeometry(.33,.35,.14,14),navy,0,2.63,0);for(const s of [-1,1]){add(new THREE.CylinderGeometry(.14,.17,1,10),navy,s*.2,.58,0);add(new THREE.CylinderGeometry(.12,.11,.8,10),mat(color),s*.47,1.61,0)}return group}
-const pitcher=player(0,-14,0xeff7fa),batter=player(1.15,4.7,0x2b89d9,true);batter.rotation.y=Math.PI;
+const pitcher=player(0,-14,0xeff7fa),batter=player(-1.65,4.65,0x2b89d9,true);batter.rotation.y=Math.PI;
 
 // Catcher, protective equipment and plate umpire (original low-poly placeholder models).
-const catcher=player(0,7.05,0xc34844),umpire=player(0,9.0,0x24354b);
-catcher.rotation.y=Math.PI;umpire.rotation.y=Math.PI;catcher.scale.set(.92,.76,.92);
+const catcher=player(0,6.35,0xc34844),umpire=player(0,8.0,0x24354b);
+catcher.rotation.y=Math.PI;umpire.rotation.y=Math.PI;catcher.scale.set(.92,.68,.92);
 const catchMask=new THREE.Mesh(new THREE.BoxGeometry(.67,.46,.22),mat(0x182538));catchMask.position.set(0,2.35,-.26);catcher.add(catchMask);
 const catchChest=new THREE.Mesh(new THREE.BoxGeometry(.82,.7,.23),mat(0x263a52));catchChest.position.set(0,1.56,-.34);catcher.add(catchChest);
 const mitt=new THREE.Mesh(new THREE.SphereGeometry(.36,18,14),mat(0x95623b));mitt.scale.set(1.1,1.05,.52);catcher.add(mitt);
 const mittRim=new THREE.Mesh(new THREE.TorusGeometry(.30,.055,8,20),mat(0xe1b276));mittRim.position.z=-.20;mitt.add(mittRim);
+const catchHelmet=new THREE.Mesh(new THREE.SphereGeometry(.37,20,16),mat(0x162b46,.42));catchHelmet.position.set(0,2.60,-.04);catcher.add(catchHelmet);
+for(let i=-2;i<=2;i++){const bar=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.72,8),mat(0x9daeb9,.3));bar.position.set(i*.13,2.31,-.42);catcher.add(bar)}
+for(let i=0;i<3;i++){const bar=new THREE.Mesh(new THREE.CylinderGeometry(.023,.023,.7,8),mat(0xa9bac4,.3));bar.rotation.z=Math.PI/2;bar.position.set(0,2.12+i*.17,-.44);catcher.add(bar)}
+for(const side of [-1,1]){const shin=new THREE.Mesh(new THREE.BoxGeometry(.33,.63,.24),mat(0x172e4a,.45));shin.position.set(side*.35,.52,-.36);catcher.add(shin);const knee=new THREE.Mesh(new THREE.SphereGeometry(.21,12,10),mat(0x263c58,.45));knee.position.set(side*.35,.87,-.38);catcher.add(knee);const shoulder=new THREE.Mesh(new THREE.SphereGeometry(.26,12,10),mat(0xb9413e,.5));shoulder.position.set(side*.40,1.91,-.17);catcher.add(shoulder)}
 const throwArm=new THREE.Group();throwArm.position.set(-.48,2,0);pitcher.add(throwArm);
 const sleeve=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.8,10),mat(0xe7f0f8));sleeve.position.y=-.37;throwArm.add(sleeve);
 const liftLeg=new THREE.Group();liftLeg.position.set(.22,.98,0);pitcher.add(liftLeg);
@@ -47,7 +51,7 @@ const legSleeve=new THREE.Mesh(new THREE.CylinderGeometry(.16,.15,.78,10),navy);
 const umpArm=new THREE.Group();umpArm.position.set(.46,2.0,0);umpire.add(umpArm);
 const umpSleeve=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.72,10),mat(0x24354b));umpSleeve.position.y=-.35;umpArm.add(umpSleeve);
 
-const batPivot=new THREE.Group();batPivot.position.set(-.46,1.85,.1);batter.add(batPivot);const bat=new THREE.Mesh(new THREE.CylinderGeometry(.085,.048,1.55,12),mat(0xd2a160));bat.position.set(-.3,.43,.08);bat.rotation.z=-.76;batPivot.add(bat);
+const batPivot=new THREE.Group();batPivot.position.set(-.46,1.85,.1);batter.add(batPivot);const batProfile=[[0,.055],[.09,.063],[.22,.068],[.4,.075],[.63,.11],[.86,.145],[1.12,.148],[1.34,.13],[1.47,.08]];const bat=new THREE.Mesh(new THREE.LatheGeometry(batProfile.map(([y,r])=>new THREE.Vector2(r,y)),20),mat(0xc88d4e,.32));bat.position.set(-.3,.43,.08);bat.rotation.z=-.76;bat.castShadow=true;batPivot.add(bat);const grip=new THREE.Mesh(new THREE.CylinderGeometry(.072,.064,.38,16),mat(0x292d38));grip.position.y=.25;bat.add(grip);const knob=new THREE.Mesh(new THREE.CylinderGeometry(.10,.085,.07,16),mat(0x4b2a1e));bat.add(knob);
 const ball=mesh(new THREE.SphereGeometry(.19,20,16),white,0,1.8,-14);ball.visible=false;
 const trail=[];for(let i=0;i<16;i++){const m=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0}));scene.add(m);trail.push(m)}
 const pitches=[{name:'직구',bend:0,drop:0,color:0xffffff},{name:'커브',bend:-1,drop:.8,color:0x70c7ff},{name:'슬라이더',bend:1.3,drop:.23,color:0xa88cff},{name:'포크볼',bend:0,drop:1.2,color:0x7ff0d0},{name:'화염 마구',bend:-1.7,drop:.18,color:0xff6029},{name:'번개 마구',bend:1.8,drop:.46,color:0x55eaff}];
@@ -82,7 +86,7 @@ sound(180,.16,'square',.07);$('log').textContent=catchText;message(catchText,115
 }}
 if(state==='hit'){const t=now-hitStart;ball.position.copy(ballStart).addScaledVector(ballVel,t);ball.position.y+=-13*t*t;ball.rotation.x+=dt*15;if(ball.position.y<0||t>3.4){ball.position.y=Math.max(0,ball.position.y);result(hitType==='home'?'홈런! '+hitDistance+'m · +1000점':hitType==='hit'?'안타! '+hitDistance+'m · +'+(hitDistance>=100?400:250)+'점':'뜬공 아웃 · 0점',hitType==='home'?1000:hitType==='hit'?(hitDistance>=100?400:250):0)}}
 trail.forEach((v,i)=>{const active=ball.visible&&(state==='pitch'||state==='hit')&&pick>=4;v.visible=active;if(active){const offset=(i+1)*.014;v.position.copy(ball.position);if(state==='pitch')v.position.z-=offset*18.4/flight;else v.position.addScaledVector(ballVel,-offset);v.scale.setScalar(1-i/18);v.material.color.setHex(pitches[pick].color);v.material.opacity=.47*(1-i/16)}});
-camera.position.x+=(0-camera.position.x)*.06;camera.position.y+=(4.4-camera.position.y)*.08;camera.position.z+=(14.2-camera.position.z)*.06;if(shake>0){camera.position.x+=(Math.random()-.5)*shake;camera.position.y+=(Math.random()-.5)*shake;shake=Math.max(0,shake-dt*1.6)}camera.lookAt(0,1.5,-6);renderer.render(scene,camera)}
+camera.position.x+=(-3.9-camera.position.x)*.06;camera.position.y+=(3.25-camera.position.y)*.08;camera.position.z+=(12.8-camera.position.z)*.06;if(shake>0){camera.position.x+=(Math.random()-.5)*shake;camera.position.y+=(Math.random()-.5)*shake;shake=Math.max(0,shake-dt*1.6)}camera.lookAt(0,1.48,-5.2);renderer.render(scene,camera)}
 for(const button of document.querySelectorAll('[data-pitch]'))button.addEventListener('click',()=>{pick=Number(button.dataset.pitch);document.querySelectorAll('[data-pitch]').forEach(b=>b.classList.toggle('active',b===button));$('log').textContent=pitches[pick].name+' 선택 완료. 속도를 조정하고 투구하세요.'});
 $('speed').addEventListener('input',e=>{speed=+e.target.value;$('speedLabel').textContent=speed+' km/h'});$('pitch').addEventListener('click',throwBall);$('swing').addEventListener('click',swing);renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button===0)swing()});
 $('reset').addEventListener('click',()=>{remaining=10;score=hits=homers=best=balls=strikes=0;state='idle';ball.visible=false;trail.forEach(v=>v.visible=false);$('liveSpeed').textContent='-- km/h';$('log').textContent='새 챌린지가 시작됐습니다. 총 10구에 도전하세요.';message('READY!',850);update()});
