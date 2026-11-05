@@ -185,7 +185,7 @@ if(state.area==="city"){
  for(const p of stationPoints)if(Math.abs(nx-p.x)<2.05&&Math.abs(nz-1)<1.7){blocked=true;break;}
 }
 if(!blocked){state.pos.x=nx;state.pos.z=nz;}
-const a=Math.atan2(dx,dz),delta=Math.atan2(Math.sin(a-state.pos.a),Math.cos(a-state.pos.a));state.pos.a+=delta*Math.min(1,dt*11);syncPosition();}
+const a=Math.atan2(-dx,-dz),delta=Math.atan2(Math.sin(a-state.pos.a),Math.cos(a-state.pos.a));state.pos.a+=delta*Math.min(1,dt*11);syncPosition();}
 local.position.set(state.pos.x,.04+(moving&&!state.reduced?Math.abs(Math.sin(t*8))*.04:0),state.pos.z);local.rotation.y=state.pos.a;
 if(assetLoaded&&mixer){let clip=moving?(fast?"run":"walk"):"idle";if(clip!==currentClip){clips[currentClip]?.fadeOut(.2);clips[clip]?.reset().fadeIn(.2).play();currentClip=clip;}mixer.update(state.reduced?0:dt);}
 else{const swing=state.reduced?0:moving?Math.sin(t*(fast?12:8))*.55:0;local.userData.arms[0].rotation.x=swing;local.userData.arms[1].rotation.x=-swing;local.userData.legs[0].rotation.x=-swing;local.userData.legs[1].rotation.x=swing;}
