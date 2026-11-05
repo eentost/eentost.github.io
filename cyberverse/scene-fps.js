@@ -6,6 +6,7 @@ import {createFpsEffects} from "./fps-effects.js";
 import {createFpsOnline} from "./fps-online.js";
 import {createFpsTactics} from "./fps-tactics.js";
 import {buildWeaponModel} from "./fps-weapon-models.js";
+import {createFpsImageAssets} from "./fps-image-assets.js";
 export function createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat,cinematic}) {
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const rng=(()=>{let a=31415;return ()=>{a=(Math.imul(a,1664525)+1013904223)>>>0;return a/4294967296;};})();
@@ -177,6 +178,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   // Use locally bounded humanoid meshes until an animated asset passes measured-size QA.
   // The existing hitboxes, bot AI, team markers, weapons and movement remain intact.
   const effects=createFpsEffects({scene,world,camera,root});
+  const imageAssets=createFpsImageAssets({scene,renderer,materials:mat});
   const ui=document.createElement("div");ui.className="cv-fps-ui";ui.setAttribute("aria-label","CyberVerse FPS 데스매치");
   ui.innerHTML=[
     '<button type="button" class="cv-fps-entry" id="cv-fps-entry">FPS 팀데스매치 입장</button>',
@@ -218,7 +220,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   }
   const loadout=$("cv-fps-loadout");
   for(const [id,w]of Object.entries(specs)){const option=document.createElement("option");option.value=id;option.textContent=w.name;loadout.append(option);}
-  $("cv-fps-theme").addEventListener("change",e=>{chosenTheme=e.target.value;if(data.active){effects.setTheme(chosenTheme);effects.apply();}});
+  $("cv-fps-theme").addEventListener("change",e=>{chosenTheme=e.target.value;if(data.active){effects.setTheme(chosenTheme);effects.apply();imageAssets.applyTheme(chosenTheme);}});
   $("cv-fps-volume").addEventListener("input",e=>effects.setVolume(Number(e.target.value)/100));
   function isBlocked(x,z,r=.5){return Math.abs(x)>30.8||Math.abs(z)>34||obstacles.some(v=>Math.abs(x-v.x)<v.w/2+r&&Math.abs(z-v.z)<v.d/2+r);}
   function slide(obj,dx,dz){if(!isBlocked(obj.x+dx,obj.z))obj.x+=dx;if(!isBlocked(obj.x,obj.z+dz))obj.z+=dz;}
@@ -369,7 +371,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
     lastBackground=scene.background;lastFog=scene.fog;lastFov=camera.fov;lastOverflow=document.body.style.overflow;
     city.visible=false;interior.visible=false;local.visible=false;world.visible=true;cinematic?.setArenaActive?.(true);
     view.visible=true;
-    effects.setTheme(chosenTheme);effects.apply();effects.setActive(true);
+    effects.setTheme(chosenTheme);effects.apply();effects.setActive(true);imageAssets.activate(true,chosenTheme);
     document.body.style.overflow="hidden";root.classList.add("cv3-full","cv-fps-active");
     Object.assign(data,{active:true,running:false,finished:false,paused:false,time:300,blue:0,red:0,kills:0,deaths:0});
     gun=specs[loadout.value]?loadout.value:"rifle";
@@ -385,7 +387,7 @@ export function createFpsArena({scene,camera,renderer,root,city,interior,local,s
   function stop(){
     if(!data.active)return;
     data.active=false;data.running=false;fireHeld=false;aim=false;tactics.reset(false);
-    effects.setActive(false);
+    effects.setActive(false);imageAssets.activate(false,chosenTheme);
     network?.disconnect();online=false;serverPosition=null;
     if(document.pointerLockElement===renderer.domElement)document.exitPointerLock?.();
     world.visible=false;city.visible=lastCity;interior.visible=lastInterior;local.visible=true;cinematic?.setArenaActive?.(false);
