@@ -102,3 +102,19 @@
 #cv-fps-stick-knob{position:absolute;z-index:1;left:calc(50% - 23px);top:calc(50% - 23px);width:46px;height:46px;background:#82dcd3a8;border:1px solid #d0f6e6;border-radius:50%;box-shadow:0 0 15px #71f8dc50;transition:none;display:block}
 @media(max-width:970px){.cv-fps-touch-stick{display:flex}}
 @media(max-width:560px){.cv-fps-touch-stick{left:8px;bottom:78px;width:112px;height:112px}.cv-fps-mobile{bottom:93px}}
+
+
+/* FPS RPG HUD: compact bottom-left status and deterministic event alerts. */
+.cv-rpg-hud{position:absolute;z-index:19;left:20px;bottom:137px;min-width:242px;max-width:min(350px,42vw);padding:12px 13px;background:linear-gradient(150deg,#081b2de8,#14394bdf);border:1px solid #7fd1c084;border-radius:10px;box-shadow:0 12px 35px #0007;backdrop-filter:blur(12px);pointer-events:none;color:#e6faff;font:700 11px system-ui,"Malgun Gothic",sans-serif}
+.cv-rpg-hud[hidden],.cv-rpg-hud [hidden]{display:none!important}
+.cv-rpg-row{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:3px 0 7px;white-space:nowrap}
+.cv-rpg-row strong{color:#f3d5a0}.cv-rpg-row b{font-size:15px;color:#89f8e3}
+.cv-rpg-row span{font-size:10px;color:#bad4dc}
+.cv-rpg-xp{height:7px;background:#344457;border-radius:5px;overflow:hidden;margin:8px 0}
+.cv-rpg-xp i{display:block;height:100%;width:0;background:linear-gradient(90deg,#42b9cf,#a2eec7);transition:width .2s}
+.cv-rpg-pickup{margin:5px 0;color:#f5db9c;background:#304b44;padding:7px;border-radius:6px}
+.cv-rpg-event{position:absolute;top:-55px;left:0;min-width:200px;padding:9px 13px;border:1px solid #f9c786;border-radius:7px;background:#3c2f2acc;color:#fbe2a5;font-size:13px;text-align:center;text-shadow:0 2px 6px #000}
+.cv-rpg-controls{font-size:9px;color:#93b9c5;margin-top:9px;letter-spacing:.015em}
+.cv-fps-active~.cv-rpg-hud{display:block}
+@media(max-width:970px){.cv-rpg-hud{left:12px;bottom:180px;max-width:210px;min-width:0;padding:9px}.cv-rpg-controls{font-size:8px}}
+@media(max-width:560px){.cv-rpg-hud{left:8px;bottom:200px;max-width:175px;padding:7px}.cv-rpg-row{gap:4px}.cv-rpg-row b{font-size:12px}.cv-rpg-row span{font-size:9px}.cv-rpg-controls{font-size:7px;line-height:1.3}}
