@@ -1,0 +1,54 @@
+/* CyberVerse motion UI. Isolated to /cyberverse/; existing layout/logic preserved. */
+.world-wrap{isolation:isolate}
+.world-wrap::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.23;background:repeating-linear-gradient(to bottom,transparent 0 5px,#a2eaff0b 6px 7px)}
+#world{position:relative;z-index:0;touch-action:pan-y}
+.world-top{z-index:3}
+.world-caption{z-index:3;backdrop-filter:blur(10px)}
+.cv-ops{position:absolute;top:22px;right:18px;z-index:4;display:flex;flex-direction:column;align-items:flex-end;gap:9px;max-width:min(246px,43%)}
+.cv-signal{min-width:188px;padding:11px 13px 12px;border-radius:11px;border:1px solid #347885;background:linear-gradient(138deg,#0d3243ed,#0a2135ef);box-shadow:0 8px 26px #00172966;backdrop-filter:blur(9px)}
+.cv-signal-title{display:flex;gap:8px;align-items:center;color:#b6fff1;font-size:12px;font-weight:800}
+.cv-beacon{width:8px;height:8px;flex-shrink:0;background:#69ead9;border-radius:50%;box-shadow:0 0 0 5px #51d9cb1e,0 0 15px #6ef9ea;animation:cv-beacon 2.1s ease-in-out infinite}
+.cv-signal small{color:#afccd7;display:block;margin:7px 0 0 15px;font-size:10px;line-height:1.55}
+.cv-toggles{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.cv-toggle{border-radius:7px;border:1px solid #487589;background:#103144e8;color:#d9f4fa;padding:7px 9px;font-size:10px;font-weight:700;transition:background .2s,border-color .2s,transform .2s}
+.cv-toggle:hover{background:#215268;border-color:#91ddd6;transform:translateY(-2px)}
+.cv-toggle[aria-pressed="false"]{color:#8da6b4;border-color:#345166;background:#0a2236dd}
+.cv-toast{position:absolute;z-index:6;left:50%;bottom:83px;width:max-content;max-width:min(85%,390px);transform:translate(-50%,14px);border:1px solid #5eb7a8;background:#0b3643f2;color:#e0fffa;font-size:12px;font-weight:700;line-height:1.55;padding:12px 15px;border-radius:12px;box-shadow:0 10px 32px #00111f9c;opacity:0;pointer-events:none;transition:opacity .23s,transform .23s;text-align:center}
+.cv-toast.is-visible{opacity:1;transform:translate(-50%,0)}
+.cv-toast.is-danger{border-color:#e98b79;background:#542b39f2;color:#ffded3}
+.cv-tip{position:absolute;z-index:3;left:0;top:0;transform:translate(-50%,-125%);font-size:11px;font-weight:800;border-radius:7px;white-space:nowrap;border:1px solid #76cbca;padding:5px 9px;background:#07273cef;color:#dcfff8;pointer-events:none;display:none}
+.cv-tip.is-visible{display:block}
+.zone .orb{transition:transform .22s,box-shadow .22s,background .22s}
+.zone:hover .orb,.zone.active .orb{transform:translateY(-2px) scale(1.05);box-shadow:0 0 0 1px #5fdcd64d,0 0 22px #5fe1df25;background:#1c4c5d}
+.zone.active{position:relative;box-shadow:inset 3px 0 0 #72ffed}
+.scenario{position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s,background .2s}
+.scenario::before{position:absolute;inset:0;content:"";background:linear-gradient(110deg,transparent 24%,#76ffed1a 51%,transparent 76%);transform:translateX(-160%);transition:transform .65s;pointer-events:none}
+.scenario:hover{transform:translateY(-3px);box-shadow:0 9px 24px #0016278c}
+.scenario:hover::before{transform:translateX(160%)}
+.choice{position:relative;transition:transform .17s,background .17s,border-color .17s,box-shadow .17s}
+.choice:hover:not(:disabled){transform:translateX(4px);box-shadow:inset 3px 0 0 #80f1d8,0 5px 18px #00111f88}
+#exercise:not(.hidden){animation:cv-stage-enter .36s ease-out}
+#feedback:not(.hidden){animation:cv-feedback .35s cubic-bezier(.2,.85,.3,1.2)}
+#result:not(.hidden){animation:cv-result .6s ease-out}
+#integrity.cv-damaged{color:#ffaba0;animation:cv-jolt .4s ease-out}
+#integrity.cv-recovered{color:#90ffdb;animation:cv-score .46s ease-out}
+.cv-path-list{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.cv-path-node{border:1px solid #986271;background:#442c40;border-radius:7px;padding:6px 8px;color:#ffe2d8;font-size:11px}
+.cv-path-arrow{color:#efa18c;font-size:14px;font-weight:900}
+body.cv-threat-active .cv-beacon{background:#ff9280;box-shadow:0 0 0 5px #ff5c6322,0 0 16px #ff786c}
+body.cv-threat-active .cv-signal{border-color:#ba7172}
+body.cv-threat-active .cv-signal-title{color:#ffd1c8}
+body.cv-guarded .cv-signal{border-color:#67dfba}
+.cv-flash{animation:cv-panel-flash .45s ease-out}
+@keyframes cv-beacon{50%{box-shadow:0 0 0 9px #51d9cb0b,0 0 24px #6ef9ea;opacity:.65}}
+@keyframes cv-stage-enter{from{opacity:.4;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cv-feedback{from{opacity:.2;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes cv-result{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+@keyframes cv-jolt{25%{transform:translateX(-5px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
+@keyframes cv-score{50%{transform:scale(1.12)}}
+@keyframes cv-panel-flash{50%{box-shadow:0 0 0 2px #6cf6d288,0 0 28px #6cf6d222}}
+body.cv-reduced .cv-beacon,body.cv-reduced .scenario,body.cv-reduced .scenario::before,body.cv-reduced .zone .orb,body.cv-reduced .choice,body.cv-reduced #exercise:not(.hidden),body.cv-reduced #feedback:not(.hidden),body.cv-reduced #result:not(.hidden),body.cv-reduced #integrity.cv-damaged,body.cv-reduced #integrity.cv-recovered,body.cv-reduced .cv-flash{animation:none!important;transition:none!important;transform:none!important}
+@media(prefers-reduced-motion:reduce){.cv-beacon,.scenario,.scenario::before,.zone .orb,.choice,#exercise:not(.hidden),#feedback:not(.hidden),#result:not(.hidden),#integrity.cv-damaged,#integrity.cv-recovered,.cv-flash{animation:none!important;transition:none!important;transform:none!important}}
+@media(max-width:1180px){.cv-ops{top:15px;right:11px;max-width:45%}.cv-signal{min-width:155px}.cv-toggles{max-width:180px}}
+@media(max-width:970px){.cv-ops{top:15px}.world-top{max-width:55%}}
+@media(max-width:540px){.cv-ops{right:8px;top:100px;max-width:58%}.cv-signal{padding:8px;min-width:145px}.cv-signal-title{font-size:10px}.cv-signal small{font-size:9px}.cv-toggles{max-width:180px}.cv-toggle{font-size:9px;padding:6px}.world-top{max-width:calc(100% - 25px)}.cv-toast{bottom:95px}.world-caption{padding:8px}.cv-tip{font-size:10px}}
