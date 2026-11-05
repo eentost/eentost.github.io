@@ -1,0 +1,55 @@
+/* CyberVerse — cinematic visual layer v1. 3D functionality remains in scene3d.js. */
+:root{--cv-cyan:#79f8e9;--cv-ink:#071523}
+body{background:radial-gradient(ellipse 75% 52% at 53% 7%,#163a50 0%,#081725 60%,#06111d 100%) fixed}
+.header{background:linear-gradient(110deg,#0a2338f5,#092034 50%,#102e43);border-bottom:1px solid #396278;box-shadow:0 5px 24px #0004}
+.logo{font-weight:900;letter-spacing:.12em;text-shadow:0 0 30px #39e1d955}
+.notice{background:#0f2638;box-shadow:inset 0 -1px #33566b}
+.sidebar{background:linear-gradient(180deg,#0e2a3d,#091a2a 62%);box-shadow:inset -12px 0 25px #001a2a45}
+.zone{transition:transform .2s,background .2s,border-color .2s;position:relative}
+.zone:hover{transform:translateX(3px)}
+.zone.active{background:linear-gradient(100deg,#19475a,#122c41);border-color:#5be0ce;box-shadow:inset 3px 0 #74f0df,0 4px 25px #0f70672a}
+.zone .orb{background:linear-gradient(145deg,#1d5164,#0c3040);box-shadow:inset 0 1px #5bb5c04f}
+.panel{background:linear-gradient(160deg,#0c283a,#081b2b 65%);box-shadow:inset 12px 0 22px #00132150}
+.panel h2,.sidebar h2{letter-spacing:-.02em}
+.stat,.scenario,.community,.personal-note,.feed-item{box-shadow:inset 0 1px #8bd4d513,0 8px 18px #00000017}
+.scenario{transition:transform .2s,background .2s,border-color .2s,box-shadow .2s}
+.scenario:hover{transform:translateY(-2px);box-shadow:0 6px 24px #13a7a023}
+.world-wrap{isolation:isolate;background:radial-gradient(ellipse at 50% 42%,#386377,#0a2336 55%,#071321)}
+.world-wrap::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(180deg,#03152255 0%,transparent 22%,transparent 64%,#01111d8c 100%);box-shadow:inset 0 0 85px #03132399}
+.cv3-webgl{filter:saturate(1.07) contrast(1.045)}
+.cv3-ui{z-index:6}
+.cv3-top{z-index:2}
+.cv3-chip,.cv3-top button{background:#0b2c3cc9;border-color:#73c4c372;box-shadow:0 5px 24px #00101a55}
+.cv3-bottom{z-index:2}
+.cv3-help{border:1px solid #7ecfd05c;box-shadow:0 9px 35px #00152185}
+.cv3-help b{color:#86ffe0}
+.cv3-dpad{display:flex;z-index:2}
+.cv3-dpad button{min-width:46px;min-height:43px;backdrop-filter:blur(12px);background:#123647c9;border-color:#80b5c66b;box-shadow:inset 0 1px #d9ffff1c;transition:transform .15s,background .15s}
+.cv3-dpad button:active{transform:scale(.93);background:#176274}
+.cv3-full .cv3-dpad{bottom:92px}
+.cv-cinematic-hud{position:absolute;z-index:7;top:14px;left:15px;max-width:min(255px,43%);color:#e3f9ff;font-family:inherit;pointer-events:auto}
+.cv-cin-main{border:1px solid #83d7d25e;background:linear-gradient(155deg,#09283ccf,#061d30cf);border-radius:12px;padding:12px 13px;box-shadow:0 10px 35px #00182466;backdrop-filter:blur(12px);position:relative;overflow:hidden}
+.cv-cin-main::before{content:"";height:2px;background:linear-gradient(90deg,#65fbe3,transparent 90%);position:absolute;top:0;left:0;right:0}
+.cv-cin-eyebrow{font-size:9px;letter-spacing:.2em;font-weight:900;color:#91eddc}
+.cv-cin-title{font-size:15px;font-weight:900;letter-spacing:.04em;margin:5px 0 4px;text-shadow:0 2px 12px #0008}
+.cv-cin-sub{display:flex;align-items:center;gap:6px;font-size:10px;color:#accbd8;flex-wrap:wrap}
+.cv-cin-pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:#62e8bc;box-shadow:0 0 10px #66f5e4;animation:cv-cin-beat 2.1s infinite}
+.cv-cin-controls{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.cv-cin-controls button{font:700 10px system-ui,"Malgun Gothic",sans-serif;color:#cbe6ee;background:#102f42e5;border:1px solid #517d91;border-radius:7px;min-height:30px;padding:5px 9px;cursor:pointer;transition:background .2s,transform .2s}
+.cv-cin-controls button:hover{background:#1c5263;transform:translateY(-1px)}
+.cv-cin-controls button[aria-pressed="true"]{color:#063234;background:#8cebd9;border-color:#a9faee}
+.cv-cin-live{margin-top:8px;font-size:10px;color:#c3dce7;line-height:1.5}
+.cv-cin-alert{border-color:#ef886e}
+.cv-cin-alert::before{background:linear-gradient(90deg,#ff8365,transparent)}
+.cv-cin-alert .cv-cin-eyebrow,.cv-cin-alert .cv-cin-title{color:#ffc2a6}
+.cv-cin-alert .cv-cin-pulse{background:#ff816e;box-shadow:0 0 12px #ff7050}
+.cv-cin-bottom{display:flex;gap:8px;margin-top:7px;color:#b9d7e2;font-size:10px;text-shadow:0 2px 8px #000}
+.cv-cin-compass{background:#0b2e41bb;border:1px solid #58899570;padding:5px 9px;border-radius:7px}
+.cv-cin-direction{font-weight:900;color:#93ffdb}
+.cv-cin-rainline{position:absolute;z-index:4;pointer-events:none;inset:0;background:linear-gradient(120deg,transparent,#a1cde008 60%,transparent);opacity:0;transition:opacity .4s}
+.world-wrap.cv-cin-wet .cv-cin-rainline{opacity:1}
+@keyframes cv-cin-beat{0%,100%{opacity:.55;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}
+@media(max-width:1180px){.cv-cinematic-hud{max-width:207px}.cv-cin-title{font-size:13px}}
+@media(max-width:970px){.cv-cinematic-hud{top:55px;left:11px;max-width:205px}.cv3-top{max-width:calc(100% - 10px)}.cv3-dpad{bottom:75px}.cv3-bottom{bottom:9px}.cv-cin-bottom{display:none}}
+@media(max-width:540px){.cv-cinematic-hud{top:46px;max-width:168px}.cv-cin-main{padding:8px}.cv-cin-title{font-size:11px}.cv-cin-sub,.cv-cin-live{font-size:9px}.cv-cin-controls{gap:4px}.cv-cin-controls button{padding:4px 6px;min-height:27px;font-size:9px}.cv3-help{max-width:58%;padding:9px}.cv3-dpad{right:10px;bottom:105px}.cv3-dpad button{min-width:41px;min-height:38px}}
+@media(prefers-reduced-motion:reduce){.cv-cin-pulse{animation:none}.zone,.scenario,.cv-cin-controls button{transition:none}}
