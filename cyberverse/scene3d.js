@@ -1,6 +1,7 @@
 /* CyberVerse 3D city — three.js r180, animated avatars, enterable buildings, multiplayer hooks. */
 import * as THREE from "three";
 import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
+import {createCinematicCity} from "./scene-cinematic.js";
 const root=document.querySelector(".world-wrap");
 if(!root)throw Error("CyberVerse world container not found");
 const zones=[
@@ -163,6 +164,7 @@ $("cv3-fullscreen").addEventListener("click",()=>{root.classList.toggle("cv3-ful
 document.querySelectorAll(".zone").forEach(b=>b.addEventListener("click",()=>teleport(b.dataset.zone)));
 function resize(){const w=root.clientWidth,h=root.clientHeight;if(!w||!h)return;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);}
 new ResizeObserver(resize).observe(root);resize();
+const cinematic=createCinematicCity({scene,city,renderer,root,zones,sky,sun,state});
 const clk=new THREE.Clock();let last=0;
 function loop(){
 requestAnimationFrame(loop);const dt=Math.min(clk.getDelta(),.05),t=clk.elapsedTime;
@@ -191,6 +193,7 @@ if(assetLoaded&&mixer){let clip=moving?(fast?"run":"walk"):"idle";if(clip!==curr
 else{const swing=state.reduced?0:moving?Math.sin(t*(fast?12:8))*.55:0;local.userData.arms[0].rotation.x=swing;local.userData.arms[1].rotation.x=-swing;local.userData.legs[0].rotation.x=-swing;local.userData.legs[1].rotation.x=swing;}
 if(!state.reduced){holo.rotation.y+=dt*.43;holo.rotation.x+=dt*.12;holo.position.y=3.4+Math.sin(t*.8)*.22;holoRing.rotation.z+=dt*.4;for(const o of effects)o.position.y=o.userData.base+Math.sin(t*.6+o.userData.phase)*.15;}
 renderThreat(t);
+cinematic.update(dt,t);
 for(const [id,o]of state.peers){const p=o.userData.net;if(!p)continue;o.visible=p.area===state.area&&(p.area==="city"||p.zone===state.zone);if(o.visible){o.position.lerp(new THREE.Vector3(p.x,0,p.z),Math.min(1,dt*9));o.rotation.y=p.a;}}
 const target=new THREE.Vector3(state.pos.x,1.7,state.pos.z),e=state.camHeight,dist=state.camDist;
 const cameraGoal=new THREE.Vector3(target.x+Math.sin(state.camAngle)*dist*Math.cos(e),target.y+Math.sin(e)*dist,target.z+Math.cos(state.camAngle)*dist*Math.cos(e));
