@@ -30,7 +30,29 @@ line([0,.02,5],[75,.02,-75]);line([0,.02,5],[-75,.02,-75]);
 for(let i=0;i<14;i++){const angle=i/13*Math.PI;const x=Math.cos(angle)*83,z=-20-Math.sin(angle)*75;const stand=mesh(new THREE.BoxGeometry(12,8,9),mat(i%2?0x29465f:0x345b76),x,4.8,z,false);stand.rotation.y=angle+Math.PI/2}
 for(let i=0;i<9;i++){const x=-70+i*17.5;const post=mesh(new THREE.CylinderGeometry(.12,.12,15,8),mat(0x8298a9),x,7,-91,false);mesh(new THREE.BoxGeometry(5,.6,.7),mat(0xf3fbff,1,0x90aaff),x,14,-91,false)}
 const board=mesh(new THREE.BoxGeometry(21,7,1),navy,0,12,-95,false);const boardCanvas=document.createElement('canvas');boardCanvas.width=800;boardCanvas.height=260;const bc=boardCanvas.getContext('2d');bc.fillStyle='#102438';bc.fillRect(0,0,800,260);bc.fillStyle='#52eaf6';bc.font='bold 72px sans-serif';bc.textAlign='center';bc.fillText('NEO BASEBALL',400,110);bc.font='32px sans-serif';bc.fillStyle='#ffffff';bc.fillText('HOMERUN CHALLENGE',400,175);const screen=mesh(new THREE.PlaneGeometry(20,6.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(boardCanvas)}),0,12,-94.43,false);
-function player(x,z,color,batting=false){const group=new THREE.Group();group.position.set(x,0,z);scene.add(group);const add=(g,m,px,py,pz)=>{const o=new THREE.Mesh(g,m);o.position.set(px,py,pz);o.castShadow=true;group.add(o);return o};add(new THREE.CylinderGeometry(.39,.3,1.1,12),mat(color),0,1.55,0);add(new THREE.SphereGeometry(.31,16,12),skin,0,2.37,0);add(new THREE.CylinderGeometry(.33,.35,.14,14),navy,0,2.63,0);for(const s of [-1,1]){add(new THREE.CylinderGeometry(.14,.17,1,10),navy,s*.2,.58,0);add(new THREE.CylinderGeometry(.12,.11,.8,10),mat(color),s*.47,1.61,0)}return group}
+function player(x,z,color,batting=false){
+ const group=new THREE.Group();group.position.set(x,0,z);scene.add(group);
+ const uniform=mat(color,.73),pants=mat(0xd7e0e8,.85),gloves=mat(0xe4edf5,.8),cleats=mat(0x151d2a,.45);
+ const add=(g,m,px,py,pz)=>{const o=new THREE.Mesh(g,m);o.position.set(px,py,pz);o.castShadow=true;o.receiveShadow=true;group.add(o);return o};
+ const body=add(new THREE.CylinderGeometry(.34,.40,1.0,20),uniform,0,1.55,0);body.rotation.z=batting?-.07:0;
+ add(new THREE.SphereGeometry(.33,20,16),skin,0,2.37,0);
+ add(new THREE.CylinderGeometry(.34,.35,.15,22),navy,0,2.65,0);
+ add(new THREE.BoxGeometry(.44,.045,.19),navy,0,2.62,-.29);
+ add(new THREE.CylinderGeometry(.4,.4,.085,20),mat(0x172a3c,.42),0,1.13,0);
+ for(const side of [-1,1]){
+   const shoulder=add(new THREE.SphereGeometry(.23,14,12),uniform,side*.39,1.96,0);
+   const arm=add(new THREE.CylinderGeometry(.13,.13,.66,12),uniform,side*.49,1.61,0);arm.rotation.z=side*.15;
+   add(new THREE.SphereGeometry(.13,12,10),gloves,side*.56,1.24,-.06);
+   const thigh=add(new THREE.CylinderGeometry(.20,.17,.65,14),pants,side*.21,.79,0);
+   thigh.rotation.z=side*.035;
+   add(new THREE.CylinderGeometry(.15,.12,.51,14),pants,side*.22,.29,0);
+   add(new THREE.BoxGeometry(.28,.15,.47),cleats,side*.22,.095,-.1);
+   add(new THREE.BoxGeometry(.045,.58,.04),mat(color,.9),side*.22,.46,-.15);
+ }
+ add(new THREE.BoxGeometry(.08,.72,.42),mat(color,.8),0,1.56,-.35);
+ if(batting){const number=add(new THREE.BoxGeometry(.31,.29,.025),navy,0,1.59,-.41);number.rotation.x=.08}
+ return group;
+}
 const pitcher=player(0,-14,0xeff7fa),batter=player(-1.65,4.65,0x2b89d9,true);batter.rotation.y=Math.PI;
 
 // Catcher, protective equipment and plate umpire (original low-poly placeholder models).
