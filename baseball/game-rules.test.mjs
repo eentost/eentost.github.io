@@ -1,0 +1,22 @@
+// Run: node baseball/game-rules.test.mjs
+import assert from 'node:assert/strict';
+import {newGame,record,offense,upgradeBat,battingSwing,fieldResult} from './game-rules.js';
+const outs=(g,n)=>{for(let i=0;i<n;i++)g=record(g,'strikeout');return g;};
+let g=outs(newGame(),54);
+assert.equal(g.inning,10);assert.equal(g.half,'top');assert.equal(g.over,false);
+g=outs(g,18);assert.equal(g.over,true);assert.equal(g.winner,'draw');
+let h=record(record(newGame(),'single'),'home_run');
+assert.equal(h.scores.cpu,2);assert.deepEqual(h.bases,[false,false,false]);
+let w=newGame();for(let i=0;i<4;i++)w=record(w,'walk');
+assert.equal(w.scores.cpu,1);
+let walkoff=outs(newGame(),51);walkoff=record(walkoff,'home_run');
+assert.equal(walkoff.over,true);assert.equal(walkoff.winner,'user');
+let early=outs(newGame(),48);early=record(early,'home_run');early=outs(early,3);
+assert.equal(early.over,false);assert.equal(early.half,'bottom');
+early=outs(early,3);assert.equal(early.winner,'cpu');
+let u=outs(newGame(),3);for(let i=0;i<3;i++)u=record(u,'home_run');
+const improved=upgradeBat(u);assert.equal(improved.success,true);assert.equal(improved.game.bat.level,2);
+assert.equal(offense(newGame()),'cpu');assert.equal(offense(outs(newGame(),3)),'user');
+assert.equal(battingSwing({progress:.2,ballX:0,batLevel:1}).kind,'strike');
+assert.equal(fieldResult({chosen:'left',lane:'right',trajectory:'fly',power:.8}),'double');
+console.log('PASS 9-inning rules, extra innings, walkoff, mercy-free ending, baserunners, upgrades, CPU fielding');
