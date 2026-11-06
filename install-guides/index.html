@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Ubuntu 26.10 Desktop 및 Server 설치 단계별 가이드: ISO, USB, 디스크, Netplan, SSH, 검증 명령어"><title>설치 매뉴얼 | CyberVerse</title>
+<style>
+:root{color-scheme:light;font-family:system-ui,'Noto Sans KR',sans-serif}*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#17283b}header{background:#10263c;color:#fff;padding:20px max(20px,calc((100vw - 1100px)/2))}header a{color:#fff;text-decoration:none;font-weight:700}main{max-width:1100px;margin:auto;padding:32px 20px 80px}.lead{color:#526579;line-height:1.8}.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0}.tabs button{background:white;border:1px solid #cad7e4;border-radius:10px;padding:12px 20px;cursor:pointer;font-weight:700}.tabs button[aria-selected=true]{background:#125a78;color:white}.panel[hidden]{display:none}.step{background:white;border:1px solid #dce5ed;border-radius:16px;margin:16px 0;padding:22px;box-shadow:0 3px 12px #12283a09}.step h3{margin:0 0 10px}.step p{color:#516477;line-height:1.7}.cmd{position:relative;background:#122538;color:#e8f6ff;border-radius:10px;padding:18px 16px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px;line-height:1.7}.copy{float:right;border:0;border-radius:7px;background:#d8eef4;color:#13455c;padding:6px 12px;cursor:pointer}.notice{background:#fff4e7;border-left:4px solid #db8728;padding:15px;line-height:1.7;border-radius:7px}.anim{background:#11283c;color:white;border-radius:16px;padding:22px;min-height:165px;display:grid;align-content:center;gap:14px}.anim strong{font-size:22px}.anim .bar{height:6px;background:#355064;border-radius:10px;overflow:hidden}.anim .bar i{display:block;background:#f19c38;height:100%;width:0;animation:progress 24s linear infinite}.anim .slide{animation:fade .5s ease}.anim-controls{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px}button{font:inherit}a{color:#0872a2}@keyframes progress{to{width:100%}}@keyframes fade{from{opacity:.2;transform:translateY(5px)}to{opacity:1;transform:none}}@media(max-width:600px){main{padding:20px 14px}.step{padding:16px}}
+</style></head><body><header><a href="/">CYBERVERSE</a>　/　설치 매뉴얼</header><main><h1>설치 매뉴얼</h1><p class="lead">설치 화면의 순서와 실제 실행 명령어를 한곳에 모았습니다. 복사 버튼으로 명령어를 가져갈 수 있습니다. Ubuntu 26.10은 단기 지원 릴리스로 2027년 7월 지원 종료 예정이며, 장기 운영에는 Ubuntu 26.04 LTS를 검토하세요.</p><div class="notice">주의: 설치 화면은 교육용 재구성이며 실제 장비와 설치 옵션에 따라 다를 수 있습니다. USB 기록 및 디스크 초기화는 데이터를 삭제합니다. 예시 IP·장치명은 그대로 실행하지 마세요.</div><div class="tabs" role="tablist"><button role="tab" id="tab-server" aria-controls="server" aria-selected="true">Ubuntu Server 26.10</button><button role="tab" id="tab-desktop" aria-controls="desktop" aria-selected="false">Ubuntu Desktop 26.10</button></div><section class="anim" aria-label="설치 순서 자동 재생"><span id="anim-count">01 / 12</span><strong id="anim-title" class="slide">ISO 다운로드</strong><span id="anim-desc">공식 Ubuntu Server ISO와 체크섬을 받습니다.</span><div class="bar"><i id="progress"></i></div></section><div class="anim-controls"><button id="prev">이전</button><span>단계별 애니메이션 미리보기 · 2초 간격</span><button id="next">다음</button></div><section id="server" class="panel" role="tabpanel" aria-labelledby="tab-server"></section><section id="desktop" class="panel" role="tabpanel" aria-labelledby="tab-desktop" hidden></section><p class="lead">공식 자료: <a href="https://ubuntu.com/download/server">Server 다운로드</a> · <a href="https://ubuntu.com/download/desktop">Desktop 다운로드</a> · <a href="https://documentation.ubuntu.com/server/">Ubuntu Server 문서</a>. 화면별 절차와 명령어는 설치 환경에 맞게 검토하세요.</p></main><script>
+const common=[
+['ISO 다운로드','공식 ISO를 받고 SHA256SUMS로 무결성을 확인합니다.', 'wget https://releases.ubuntu.com/26.10/ubuntu-26.10-live-server-amd64.iso\nwget https://releases.ubuntu.com/26.10/SHA256SUMS\nsha256sum -c SHA256SUMS --ignore-missing'],
+['부팅 USB 생성','대상 USB를 확인한 뒤 기록합니다. /dev/sdX를 실제 USB 장치로 바꾸세요.','lsblk -o NAME,SIZE,MODEL,TRAN,MOUNTPOINTS\nsudo dd if=ubuntu-26.10-live-server-amd64.iso of=/dev/sdX bs=4M status=progress conv=fsync'],
+['언어 선택','설치 화면에서 언어를 선택합니다. 별도 셸 명령은 없습니다.','localectl status'],
+['키보드 설정','설치 화면에서 키보드 레이아웃을 선택합니다.','localectl status'],
+['네트워크 DHCP','인터페이스 및 기본 경로를 확인합니다.','ip -br addr\nip route\nresolvectl status'],
+['고정 IP (선택)','설치 중에는 네트워크 화면에서 지정합니다. 설치 후 Netplan 파일을 백업·편집하고 안전하게 테스트합니다.','ls /etc/netplan/\nsudo netplan generate && sudo netplan try'],
+['프록시·미러','프록시가 없으면 비워 두고, 설치 후 패키지 저장소를 확인합니다.','sudo apt update\ncat /etc/apt/sources.list.d/ubuntu.sources'],
+['디스크·LVM','설치 화면에서 GPT/EFI와 파일시스템을 설정합니다. /boot는 일반 ext4 파티션으로 분리합니다.','lsblk -f\nsudo pvs && sudo vgs && sudo lvs'],
+['디스크 삭제 최종 확인','설치 프로그램의 삭제 대상 디스크와 파티션을 재확인합니다. 이 단계는 클릭으로 승인합니다.','lsblk -o NAME,SIZE,MODEL,MOUNTPOINTS'],
+['호스트명·계정','설치 화면에서 사용자 계정을 생성하고 설치 후 확인합니다.','whoami && id\nhostnamectl\nsudo timedatectl set-timezone Asia/Seoul'],
+['OpenSSH 설치','원격 접속을 사용하려면 SSH 서비스를 설치하고 방화벽에서 허용합니다.','sudo apt update && sudo apt install -y openssh-server\nsudo systemctl enable --now ssh\nsudo sshd -t\nsudo ufw allow OpenSSH'],
+['재부팅·검증','OS, 네트워크, 디스크 및 SSH 서비스 상태를 확인합니다.','cat /etc/os-release\nuname -r\nip -br addr\nlsblk -f\nsystemctl is-active ssh\nsudo ufw status']
+];
+const desktop=[
+['ISO 다운로드','Desktop ISO를 공식 사이트에서 다운로드합니다.','https://ubuntu.com/download/desktop'],
+['USB 생성','Rufus 또는 balenaEtcher로 설치 USB를 만듭니다.','lsblk -o NAME,SIZE,MODEL,TRAN,MOUNTPOINTS'],
+['USB 부팅','UEFI 부팅 메뉴에서 설치 USB를 선택합니다.','설치 화면에서 진행'],
+['언어','설치 프로그램에서 언어를 선택합니다.','localectl status'],
+['접근성·키보드','접근성 및 키보드 설정을 선택합니다.','localectl status'],
+['네트워크','유선 또는 Wi-Fi 네트워크에 연결합니다.','ip -br addr\nip route'],
+['업데이트·코덱','설치 중 업데이트 및 추가 소프트웨어 옵션을 선택합니다.','sudo apt update'],
+['설치 방식','기존 OS 유지 여부와 디스크 초기화 여부를 신중히 선택합니다.','lsblk -f'],
+['디스크 암호화','필요한 경우 설치 화면에서 암호화를 선택합니다.','lsblk -f'],
+['계정·시간대','사용자 계정과 시간대를 설정합니다.','hostnamectl\ntimedatectl'],
+['설치·재부팅','설치 완료 후 USB를 제거하고 재부팅합니다.','sudo reboot'],
+['최종 점검','버전·업데이트·네트워크를 확인합니다.','cat /etc/os-release\nsudo apt update && sudo apt upgrade -y\nip -br addr']
+];
+function render(id,steps){document.getElementById(id).innerHTML=steps.map((s,i)=>'<article class="step"><h3>'+String(i+1).padStart(2,'0')+' · '+s[0]+'</h3><p>'+s[1]+'</p><button class="copy" data-copy="'+id+'-'+i+'">명령어 복사</button><pre class="cmd"><code></code></pre></article>').join('');document.querySelectorAll('#'+id+' .step').forEach((el,i)=>el.querySelector('code').textContent=steps[i][2]);}
+render('server',common);render('desktop',desktop);
+let mode='server',idx=0;const getSteps=()=>mode==='server'?common:desktop;function show(){let s=getSteps()[idx];document.getElementById('anim-count').textContent=String(idx+1).padStart(2,'0')+' / 12';document.getElementById('anim-title').textContent=s[0];document.getElementById('anim-desc').textContent=s[1];}
+function switchMode(m){mode=m;idx=0;['server','desktop'].forEach(x=>{document.getElementById(x).hidden=x!==m;document.getElementById('tab-'+x).setAttribute('aria-selected',String(x===m))});show()}
+document.querySelectorAll('[role=tab]').forEach(b=>b.addEventListener('click',()=>switchMode(b.id.slice(4))));document.getElementById('prev').onclick=()=>{idx=(idx+11)%12;show()};document.getElementById('next').onclick=()=>{idx=(idx+1)%12;show()};setInterval(()=>{idx=(idx+1)%12;show()},2000);
+document.addEventListener('click',async e=>{let b=e.target.closest('[data-copy]');if(!b)return;let [id,i]=b.dataset.copy.split('-');try{await navigator.clipboard.writeText((id==='server'?common:desktop)[Number(i)][2]);b.textContent='복사됨';setTimeout(()=>b.textContent='명령어 복사',1300)}catch{b.textContent='복사 실패'}})
+</script></body></html>
