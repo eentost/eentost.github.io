@@ -107,12 +107,12 @@ for(const [role,node] of [['pitcher',pitcher],['batter',batter],['catcher',catch
  node.add(rigs[role].group);
 }
 
-catcher.rotation.y=0;umpire.rotation.y=0;catcher.scale.set(.92,.68,.92);
-const catchMask=new THREE.Mesh(new THREE.BoxGeometry(.67,.46,.22),mat(0x182538));catchMask.position.set(0,2.35,-.26);catcher.add(catchMask);
-const catchChest=new THREE.Mesh(new THREE.BoxGeometry(.82,.7,.23),mat(0x263a52));catchChest.position.set(0,1.56,-.34);catcher.add(catchChest);
-const mitt=new THREE.Mesh(new THREE.SphereGeometry(.36,18,14),mat(0x95623b));mitt.scale.set(1.1,1.05,.52);catcher.add(mitt);
+catcher.rotation.y=0;umpire.rotation.y=0;catcher.scale.set(1,1,1);
+const catchMask=new THREE.Mesh(new THREE.BoxGeometry(.67,.46,.22),mat(0x182538));catchMask.position.set(0,2.35,-.26);catchMask.visible=false;catcher.add(catchMask);
+const catchChest=new THREE.Mesh(new THREE.BoxGeometry(.82,.7,.23),mat(0x263a52));catchChest.position.set(0,1.56,-.34);catchChest.visible=false;catcher.add(catchChest);
+const mitt=new THREE.Mesh(new THREE.SphereGeometry(.36,18,14),mat(0x95623b));mitt.scale.set(1.1,1.05,.52);mitt.visible=false;catcher.add(mitt);
 const mittRim=new THREE.Mesh(new THREE.TorusGeometry(.30,.055,8,20),mat(0xe1b276));mittRim.position.z=-.20;mitt.add(mittRim);
-const catchHelmet=new THREE.Mesh(new THREE.SphereGeometry(.37,20,16),mat(0x162b46,.42));catchHelmet.position.set(0,2.60,-.04);catcher.add(catchHelmet);
+const catchHelmet=new THREE.Mesh(new THREE.SphereGeometry(.37,20,16),mat(0x162b46,.42));catchHelmet.position.set(0,2.60,-.04);catchHelmet.visible=false;catcher.add(catchHelmet);
 for(let i=-2;i<=2;i++){const bar=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.72,8),mat(0x9daeb9,.3));bar.position.set(i*.13,2.31,-.42);catcher.add(bar)}
 for(let i=0;i<3;i++){const bar=new THREE.Mesh(new THREE.CylinderGeometry(.023,.023,.7,8),mat(0xa9bac4,.3));bar.rotation.z=Math.PI/2;bar.position.set(0,2.12+i*.17,-.44);catcher.add(bar)}
 for(const side of [-1,1]){const shin=new THREE.Mesh(new THREE.BoxGeometry(.33,.63,.24),mat(0x172e4a,.45));shin.position.set(side*.35,.52,-.36);catcher.add(shin);const knee=new THREE.Mesh(new THREE.SphereGeometry(.21,12,10),mat(0x263c58,.45));knee.position.set(side*.35,.87,-.38);catcher.add(knee);const shoulder=new THREE.Mesh(new THREE.SphereGeometry(.26,12,10),mat(0xb9413e,.5));shoulder.position.set(side*.40,1.91,-.17);catcher.add(shoulder)}
@@ -232,7 +232,7 @@ for(const rig of Object.values(rigs))rig.mixer.update(dt);
 const phase=state==='windup'?Math.min(1,(now-windupStart)/1.0):0;
 throwArm.rotation.x=state==='windup'?-Math.sin(phase*Math.PI)*2.1:0;
 liftLeg.rotation.x=state==='windup'?Math.sin(phase*Math.PI)*.95:0;
-pitcher.rotation.y=state==='windup'?Math.sin(phase*Math.PI)*.4:0;
+pitcher.rotation.y=Math.PI+(state==='windup'?Math.sin(phase*Math.PI)*.16:0);
 const mittTargetX=state==='pitch'?THREE.MathUtils.clamp(ball.position.x,-1.6,1.6)/.92:-.43;
 const mittTargetY=state==='pitch'?THREE.MathUtils.clamp(ball.position.y/.68,.78,2.4):1.72;
 mitt.position.x=THREE.MathUtils.lerp(mitt.position.x,mittTargetX,.17);
