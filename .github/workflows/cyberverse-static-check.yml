@@ -34,7 +34,7 @@ jobs:
           coop=(p/"coop.js").read_text()
           required=[
             'href="./scene3d.css"',
-            'src="./scene3d.js"',
+            'src="./scene3d.js',
             'src="./coop.js"',
             '"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"',
             'const scenarios=',
