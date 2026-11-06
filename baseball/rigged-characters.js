@@ -106,6 +106,7 @@ export function createRiggedPlayer(role='batter',color=0xe9eef5){
   knees.L.rotation.x=.16;knees.R.rotation.x=.16;
   makeBat(hands.R);
  }
+ let catcherMitt=null;
  if(role==='catcher'){
   hip.position.y=.73;spine.rotation.x=-.18;
   thighs.L.rotation.set(-1.35,0,-.22);thighs.R.rotation.set(-1.35,0,.22);
@@ -118,7 +119,7 @@ export function createRiggedPlayer(role='batter',color=0xe9eef5){
   for(let i=0;i<3;i++){const bar=mesh(head,new THREE.CylinderGeometry(.019,.019,.64,8),palette.metal,0,-.17+i*.17,-.36);bar.rotation.z=Math.PI/2}
   mesh(chest,new THREE.BoxGeometry(.79,.65,.16),trim,0,-.10,-.28);
   for(const side of ['L','R'])mesh(knees[side],new THREE.BoxGeometry(.32,.52,.18),trim,0,-.18,-.20);
-  const mitt=mesh(hands.L,new THREE.SphereGeometry(.31,18,14),palette.leather,0,-.04,-.12);
+  const mitt=mesh(hands.L,new THREE.SphereGeometry(.31,18,14),palette.leather,0,-.04,-.12);catcherMitt=mitt;
   mitt.scale.set(1.15,1,.55);
   const rim=mesh(mitt,new THREE.TorusGeometry(.28,.05,8,20),palette.wood,0,0,-.56);
   rim.rotation.z=.2;
@@ -134,7 +135,7 @@ export function createRiggedPlayer(role='batter',color=0xe9eef5){
  // Re-bind in a neutral rest pose after hierarchy has been assembled.
  group.updateMatrixWorld(true);
  const idle=buildClip('idle',1.8,[
-  [spine,frames([0,.9,1.8],[[0,0,0],[.025,0,0],[0,0,0]])],
+  [spine,frames([0,.9,1.8],[[role==='catcher'?-.18:0,0,0],[role==='catcher'?-.16:.025,0,0],[role==='catcher'?-.18:0,0,0]])],
   [head,frames([0,.9,1.8],[[0,0,0],[-.025,0,0],[0,0,0]])]
  ]);
  const pitch=buildClip('pitch',1.04,[
@@ -176,5 +177,5 @@ export function createRiggedPlayer(role='batter',color=0xe9eef5){
  }
  mixer.addEventListener('finished',e=>{if(e.action===current&&current!==actions.idle)play('idle')});
  play('idle');
- return {group,mixer,actions,play,bones:{root,hip,spine,chest,head,shoulders,elbows,hands,thighs,knees},skinCount:8};
+ return {group,mixer,actions,play,mitt:catcherMitt,bones:{root,hip,spine,chest,head,shoulders,elbows,hands,thighs,knees},skinCount:8};
 }
