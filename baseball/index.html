@@ -237,50 +237,146 @@ const ball=mesh(new THREE.SphereGeometry(.19,32,24),white,0,1.8,-14);ball.visibl
 for(const side of [-1,1]){const pts=[];for(let i=0;i<=60;i++){const u=-Math.PI/2+i*Math.PI/60;pts.push(new THREE.Vector3(.185*Math.sin(u),side*.135*Math.cos(u),.105*Math.cos(u)))}const seam=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),60,.008,5,false),mat(0xb93435,.55));ball.add(seam)}
 const trail=[];for(let i=0;i<16;i++){const m=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0}));scene.add(m);trail.push(m)}
 const pitches=[{name:'직구',bend:0,drop:0,color:0xffffff},{name:'커브',bend:-1,drop:.8,color:0x70c7ff},{name:'슬라이더',bend:1.3,drop:.23,color:0xa88cff},{name:'포크볼',bend:0,drop:1.2,color:0x7ff0d0},{name:'화염 마구',bend:-1.7,drop:.18,color:0xff6029},{name:'번개 마구',bend:1.8,drop:.46,color:0x55eaff}];
-let balls=0,strikes=0,windupStart=0,catchStart=0,catchText='',umpSignal=0;let pick=0,speed=145,remaining=10,score=0,hits=0,homers=0,best=0,state='idle',pitchStart=0,flight=1.0,swingAt=-10,swingActive=false,hitStart=0,hitType='',hitDistance=0,ballStart=new THREE.Vector3(),ballVel=new THREE.Vector3(),msgTimer=0,shake=0,audio;
-const clock=new THREE.Clock();window.__baseballDiagnostics={engine:'three.js',characters:'skinned-bone-rig',rigs,modelStatus:()=>modelStatus};const characterMixer=[];const gltfLoader=new GLTFLoader();let cameraMode=0;const cameraPositions=[[-3.1,3.3,-23],[0,5.8,20],[-1.4,3.8,-17]];const cameraTargets=[[0,1.48,1.5],[0,1.4,-9],[0,1.5,5.2]];
+let game=newGame(),pick=0,speed=145,zone='strike',state='idle',pitchStart=0,windupStart=0,flight=1.0,catchStart=0,swingAt=-10,hitStart=0,hitType='',hitDistance=0,ballStart=new THREE.Vector3(),ballVel=new THREE.Vector3(),msgTimer=0,shake=0,audio,fieldPending=null,pendingCpuPitch=null,pendingOutcome=null,shotCounter=0,best=0;
+const clock=new THREE.Clock();const characterMixer=[],gltfLoader=new GLTFLoader();let cameraMode=0;const cameraPositions=[[-3.1,3.3,-23],[0,5.8,20],[-1.4,3.8,-17]],cameraTargets=[[0,1.48,1.5],[0,1.4,-9],[0,1.5,5.2]];
+const cpuPitcherRig=rigs.pitcher,cpuBatterRig=rigs.batter;
+window.__baseballDiagnostics={engine:'three.js',characters:'skinned-bone-rig',getGame:()=>game,rigs,modelStatus:()=>modelStatus};
 function sound(freq=230,duration=.12,type='sine',gain=.09){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain();o.type=type;o.frequency.setValueAtTime(freq,audio.currentTime);o.frequency.exponentialRampToValueAtTime(Math.max(70,freq*.55),audio.currentTime+duration);g.gain.setValueAtTime(gain,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}catch(e){}}
 function message(s,t=950){const m=$('message');m.textContent=s;m.classList.add('show');clearTimeout(msgTimer);msgTimer=setTimeout(()=>m.classList.remove('show'),t)}
-function update(){$('count').textContent=balls+' / '+strikes;for(const [id,val] of [['remaining',remaining],['score',score],['hits',hits],['homers',homers],['best',best]])$(id).textContent=val;$('pitch').disabled=state!=='idle'||remaining===0}
-function result(t,points=0){state='result';score+=points;$('log').textContent=t;message(t,1400);update();setTimeout(()=>{if(state==='result'){state='idle';ball.visible=false;trail.forEach(v=>v.visible=false);if(remaining===0)message('챌린지 종료 · '+score+'점',5000);update()}},1550)}
-function throwBall(){if(state!=='idle'||remaining<=0)return;remaining--;state='windup';windupStart=performance.now()/1000;rigs.pitcher.play('pitch');pitchStart=windupStart+1.0;flight=1.55*(145/speed);swingActive=false;swingAt=-10;ball.visible=false;ball.position.set(-1.9,2.04,-13.7);ball.material.color.setHex(pitches[pick].color);ball.material.emissive=new THREE.Color(pick>=4?pitches[pick].color:0x000000);ball.material.emissiveIntensity=pick>=4?.9:0;$('liveSpeed').textContent=speed+' km/h';$('log').textContent=pitches[pick].name+' '+speed+' km/h · 투수 와인드업 중…';sound(240,.12,'sawtooth',.035);update()}
-function swing(){if(state!=='pitch'){if(state==='idle')throwBall();return}if(swingActive)return;swingActive=true;swingAt=performance.now()/1000;rigs.batter.play('swing');const progress=(swingAt-pitchStart)/flight;const delta=Math.abs(1-progress);sound(140,.11,'triangle',.065);if(delta<.155){const quality=1-delta/.155,center=Math.abs(ball.position.x);const contact=quality*(1-Math.min(.65,center*.15));hitDistance=Math.round(40+contact*100+Math.random()*30);hitType=hitDistance>=112?'home':hitDistance>=75?'hit':'out';hits+=hitType==='out'?0:1;homers+=hitType==='home'?1:0;best=Math.max(best,hitDistance);hitStart=swingAt;state='hit';balls=0;strikes=0;ballStart.copy(ball.position);ballVel.set((Math.random()-.5)*13,hitType==='home'?16:9,-(25+quality*25));shake=hitType==='home'?.45:.12;message(hitType==='home'?'HOME RUN!':hitType==='hit'?'NICE HIT!':'타구 비행!',1100);sound(420,.24,'square',.09);update()}else{message(progress<.85?'너무 빠른 스윙!':'스윙 타이밍 미스!',900);$('log').textContent='헛스윙! 공이 홈플레이트에 도착할 때를 노려보세요.'}}
-function resize(){const w=arena.clientWidth,h=arena.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}new ResizeObserver(resize).observe(arena);resize();
-function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.05),now=performance.now()/1000;
-for(const mixer of characterMixer)mixer.update(dt);
-for(const rig of Object.values(rigs))rig.mixer.update(dt);
-const phase=state==='windup'?Math.min(1,(now-windupStart)/1.0):0;
-throwArm.rotation.x=state==='windup'?-Math.sin(phase*Math.PI)*2.1:0;
-liftLeg.rotation.x=state==='windup'?Math.sin(phase*Math.PI)*.95:0;
-pitcher.rotation.y=Math.PI+(state==='windup'?Math.sin(phase*Math.PI)*.16:0);
-const mittTargetX=state==='pitch'?THREE.MathUtils.clamp(ball.position.x,-1.6,1.6)/.92:-.43;
-const mittTargetY=state==='pitch'?THREE.MathUtils.clamp(ball.position.y/.68,.78,2.4):1.72;
-mitt.position.x=THREE.MathUtils.lerp(mitt.position.x,mittTargetX,.17);
-mitt.position.y=THREE.MathUtils.lerp(mitt.position.y,mittTargetY,.17);
-mitt.position.z=-.52;
-umpArm.rotation.z=now<umpSignal?-.95:0;
-if(state==='windup'&&now>=pitchStart){state='pitch';ball.visible=true;$('log').textContent=pitches[pick].name+' '+speed+' km/h · 릴리스!';sound(300,.12,'triangle',.055)}
-if(state==='catch'){
-const target=rigs.catcher.mitt.getWorldPosition(new THREE.Vector3());ball.position.lerp(target,.29);
-if(now-catchStart>.42){ball.visible=false;result(catchText,0)}
+function refresh(){
+ const batting=offense(game)==='user';
+ $('inning').textContent=game.inning+'회 '+(game.half==='top'?'초':'말')+' · '+(batting?'내 공격':'내 수비');
+ $('role').textContent=batting?'USER BATTING':'USER PITCHING';
+ $('cpuScore').textContent=game.scores.cpu;$('userScore').textContent=game.scores.user;
+ $('count').textContent=game.balls+' / '+game.strikes+' / '+game.outs;
+ $('outs').textContent='아웃 '+game.outs+' / 3';
+ game.bases.forEach((occupied,i)=>$('base'+(i+1)).classList.toggle('occupied',occupied));
+ const columns=Array.from({length:Math.max(9,game.inning)},(_,i)=>i+1);
+ $('scoreboard').innerHTML='<table><thead><tr><th>TEAM</th>'+columns.map(i=>'<th class="'+(i===game.inning?'current':'')+'">'+i+'</th>').join('')+'<th>R</th><th>H</th></tr></thead><tbody>'+['cpu','user'].map(team=>'<tr><td>'+(team==='cpu'?'CPU':'USER')+'</td>'+columns.map(i=>'<td>'+(game.line[team][i-1]??(i<game.inning||i===game.inning&&(team==='cpu'||game.half==='bottom')?'0':'-'))+'</td>').join('')+'<td>'+game.scores[team]+'</td><td>'+game.stats[team].hits+'</td></tr>').join('')+'</tbody></table>';
+ $('pitchControls').hidden=batting;$('batControls').hidden=!batting;
+ $('fieldControls').hidden=!fieldPending;
+ $('pitch').hidden=batting;$('pitch').disabled=game.over||state!=='idle';
+ $('swing').hidden=!batting||game.over;
+ $('swingSide').disabled=!batting||state!=='pitch';
+ $('take').disabled=!batting||state!=='pitch';
+ $('batLevel').textContent=game.bat.level;$('batCoins').textContent=game.bat.coins;$('batXp').textContent=game.bat.xp;
+ $('upgrade').textContent=game.bat.level>=10?'배트 최대 레벨':'강화 '+batUpgradeCost(game)+'코인';
+ $('upgrade').disabled=game.over||game.bat.level>=10||game.bat.coins<batUpgradeCost(game);
+ $('hits').textContent=game.stats.user.hits;$('homers').textContent=game.stats.user.hr;$('best').textContent=best;
+ $('log').textContent=game.last;
+ $('events').textContent=game.history.slice(-6).reverse().map(e=>e.inning+'회 '+(e.half==='top'?'초':'말')+' · '+e.kind+(e.runs?' · '+e.runs+'점':'')).join(' | ');
+ $('hint').textContent=game.over?'경기 종료 · 새 경기 시작':batting?'SPACE = 스윙 · T = 지켜보기 · 코인으로 배트 강화':'P = 투구 · 1~6 = 구종 · 좌/중/우 수비';
+ if(game.over)message(game.winner==='user'?'USER 승리!':game.winner==='cpu'?'CPU 승리!':'무승부',4500);
 }
-// The new skeletal character clips own the visible batting animation.
-if(state==='pitch'){const t=(now-pitchStart)/flight,u=Math.max(0,Math.min(1,t));const p=pitches[pick];ball.position.set(-1.9*(1-u)+p.bend*u*u + (pick===5?Math.sin(u*18)*.22*u:0),2.05-.68*u-p.drop*u*u+Math.sin(Math.PI*u)*.55,-13.7+18.4*u);ball.rotation.z+=dt*12;
-if(t>=1.10){
-state='catch';catchStart=now;ball.visible=true;rigs.catcher.play('catch');
-const isStrike=swingAt>0||(ball.position.y>.65&&ball.position.y<2.1&&Math.abs(ball.position.x)<.95);
-if(isStrike){strikes++;catchText=swingAt>0?'포수 포구 · 헛스윙 스트라이크!':'포수 포구 · 스트라이크!';umpSignal=now+1.1;rigs.umpire.play('call')}
-else{balls++;catchText='포수 포구 · 볼!'}
-if(strikes>=3){catchText+=' 삼진!';balls=0;strikes=0}
-if(balls>=4){catchText+=' 볼넷!';balls=0;strikes=0}
-sound(180,.16,'square',.07);$('log').textContent=catchText;message(catchText,1150);update()
-}}
-if(state==='hit'){const t=now-hitStart;ball.position.copy(ballStart).addScaledVector(ballVel,t);ball.position.y+=-13*t*t;ball.rotation.x+=dt*15;if(ball.position.y<0||t>3.4){ball.position.y=Math.max(0,ball.position.y);result(hitType==='home'?'홈런! '+hitDistance+'m · +1000점':hitType==='hit'?'안타! '+hitDistance+'m · +'+(hitDistance>=100?400:250)+'점':'뜬공 아웃 · 0점',hitType==='home'?1000:hitType==='hit'?(hitDistance>=100?400:250):0)}}
-trail.forEach((v,i)=>{const active=ball.visible&&(state==='pitch'||state==='hit')&&pick>=4;v.visible=active;if(active){const offset=(i+1)*.014;v.position.copy(ball.position);if(state==='pitch')v.position.z-=offset*18.4/flight;else v.position.addScaledVector(ballVel,-offset);v.scale.setScalar(1-i/18);v.material.color.setHex(pitches[pick].color);v.material.opacity=.47*(1-i/16)}});
-const cp=cameraPositions[cameraMode];camera.position.x+=(cp[0]-camera.position.x)*.06;camera.position.y+=(cp[1]-camera.position.y)*.08;camera.position.z+=(cp[2]-camera.position.z)*.06;if(shake>0){camera.position.x+=(Math.random()-.5)*shake;camera.position.y+=(Math.random()-.5)*shake;shake=Math.max(0,shake-dt*1.6)}const ct=cameraTargets[cameraMode];camera.lookAt(ct[0],ct[1],ct[2]);renderer.render(scene,camera)}
-for(const button of document.querySelectorAll('[data-pitch]'))button.addEventListener('click',()=>{pick=Number(button.dataset.pitch);document.querySelectorAll('[data-pitch]').forEach(b=>b.classList.toggle('active',b===button));$('log').textContent=pitches[pick].name+' 선택 완료. 속도를 조정하고 투구하세요.'});
-$('view').addEventListener('click',()=>{cameraMode=(cameraMode+1)%3;$('view').textContent=['CAM 01 · 중계','CAM 02 · 타자','CAM 03 · 투수'][cameraMode]});$('speed').addEventListener('input',e=>{speed=+e.target.value;$('speedLabel').textContent=speed+' km/h'});$('pitch').addEventListener('click',throwBall);$('swing').addEventListener('click',swing);renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button===0)swing()});
-$('reset').addEventListener('click',()=>{remaining=10;score=hits=homers=best=balls=strikes=0;state='idle';ball.visible=false;trail.forEach(v=>v.visible=false);$('liveSpeed').textContent='-- km/h';$('log').textContent='새 챌린지가 시작됐습니다. 총 10구에 도전하세요.';message('READY!',850);update()});
-document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();if(!e.repeat)swing()}else if(e.code==='KeyP')throwBall();else if(/^Digit[1-6]$/.test(e.code))document.querySelector('[data-pitch="'+(+e.code.slice(-1)-1)+'"]').click()});
-update();animate();
+function settle(kind){
+ if(game.over)return;
+ const prevHalf=game.half,prevInning=game.inning;
+ game=record(game,kind);fieldPending=null;pendingOutcome=null;state='result';
+ message(game.last,1100);refresh();
+ const ticket=++shotCounter;
+ setTimeout(()=>{if(ticket!==shotCounter||state!=='result')return;state='idle';ball.visible=false;trail.forEach(v=>v.visible=false);
+ if(!game.over&&offense(game)==='user'&&(prevHalf!==game.half||prevInning!==game.inning))message('공수 교대 · 이제 타격!',1500);
+ refresh();if(!game.over&&offense(game)==='user')setTimeout(()=>{if(ticket===shotCounter&&state==='idle')throwBall()},650);
+ },1200);
+}
+function throwBall(){
+ if(game.over||state!=='idle')return;
+ const batting=offense(game)==='user';
+ if(batting){pendingCpuPitch=cpuPitch();pick=pendingCpuPitch.pitch;speed=pendingCpuPitch.speed;zone=pendingCpuPitch.zone;}
+ else pendingCpuPitch={pitch:pick,speed,zone};
+ state='windup';windupStart=performance.now()/1000;pitchStart=windupStart+1.0;
+ flight=1.55*(145/speed);swingAt=-10;ball.visible=false;ball.position.set(-1.9,2.04,-13.7);
+ ball.material.color.setHex(pitches[pick].color);
+ ball.material.emissive=new THREE.Color(pick>=4?pitches[pick].color:0);
+ ball.material.emissiveIntensity=pick>=4?.9:0;
+ rigs.pitcher.play('pitch');$('liveSpeed').textContent=speed+' km/h';
+ game.last=(batting?'CPU':'USER')+' · '+pitches[pick].name+' '+speed+' km/h · 투구 준비';
+ refresh();
+}
+function swing(){
+ if(offense(game)!=='user'||state!=='pitch'||swingAt>0)return;
+ swingAt=performance.now()/1000;rigs.batter.play('swing');
+ const progress=(swingAt-pitchStart)/flight;
+ const outcome=battingSwing({progress,ballX:ball.position.x,batLevel:game.bat.level});
+ if(outcome.kind==='strike'||outcome.kind==='foul'){pendingOutcome=outcome.kind;message(outcome.kind==='foul'?'파울!':'헛스윙!',800);return;}
+ hitDistance=Math.round(55+outcome.quality*85+Math.random()*25);
+ hitType=outcome.kind;hitStart=swingAt;state='hit';ballStart.copy(ball.position);
+ ballVel.set((Math.random()-.5)*12,hitType==='home_run'?17:9,-(25+outcome.quality*20));
+ shake=hitType==='home_run'?.3:.1;message(hitType==='home_run'?'HOME RUN!':'타격!',1000);
+}
+function takePitch(){if(offense(game)!=='user'||state!=='pitch'||swingAt>0)return;swingAt=performance.now()/1000;pendingOutcome=pendingCpuPitch.zone==='ball'?'ball':'strike';message('지켜보기',600)}
+function chooseField(lane){
+ if(!fieldPending||state!=='field')return;
+ const kind=fieldResult({...fieldPending,chosen:lane});
+ settle(kind);
+}
+function startField(contact){
+ state='field';fieldPending=contact;ball.visible=false;
+ game.last='CPU 타구 · '+({left:'좌측',center:'중앙',right:'우측'}[contact.lane])+' '+(contact.trajectory==='fly'?'뜬공':'땅볼')+'! 수비 위치 선택';
+ message('수비 방향을 선택하세요!',1000);refresh();
+ const ticket=++shotCounter;
+ setTimeout(()=>{if(ticket===shotCounter&&state==='field')chooseField('miss')},3500);
+}
+function resize(){const w=arena.clientWidth,h=arena.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}new ResizeObserver(resize).observe(arena);resize();
+function animate(){requestAnimationFrame(animate);
+ const dt=Math.min(clock.getDelta(),.05),now=performance.now()/1000;
+ for(const mixer of characterMixer)mixer.update(dt);
+ for(const rig of Object.values(rigs))rig.mixer.update(dt);
+ pitcher.rotation.y=Math.PI;
+ if(state==='windup'&&now>=pitchStart){state='pitch';ball.visible=true;message('투구!',450);
+ if(offense(game)==='cpu'){
+ const outcome=cpuSwing(pendingCpuPitch);
+ if(outcome.kind==='contact')pendingOutcome=outcome;
+ else pendingOutcome=outcome.kind;
+ }}
+ if(state==='pitch'){
+ const t=(now-pitchStart)/flight,u=Math.max(0,Math.min(1,t)),p=pitches[pick];
+ ball.position.set(-1.9*(1-u)+p.bend*u*u+(pick===5?Math.sin(u*18)*.22*u:0),
+ 2.05-.68*u-p.drop*u*u+Math.sin(Math.PI*u)*.55+(zone==='ball'?.9:0),-13.7+18.4*u);
+ ball.rotation.z+=dt*12;
+ if(t>=1.03){
+  ball.visible=false;rigs.catcher.play('catch');
+  if(offense(game)==='cpu'){
+   if(typeof pendingOutcome==='object')startField(pendingOutcome);
+   else settle(pendingOutcome||'strike');
+  }else settle(pendingOutcome||(pendingCpuPitch.zone==='ball'?'ball':'strike'));
+ }
+ }
+ if(state==='hit'){
+ const t=now-hitStart;ball.position.copy(ballStart).addScaledVector(ballVel,t);ball.position.y-=13*t*t;
+ ball.rotation.x+=dt*15;
+ if(ball.position.y<=0||t>3.4)settle(hitType);
+ }
+ trail.forEach((v,i)=>{const active=ball.visible&&(state==='pitch'||state==='hit')&&pick>=4;v.visible=active;
+ if(active){v.position.copy(ball.position);v.position.z-=(i+1)*.23;v.scale.setScalar(1-i/18);v.material.color.setHex(pitches[pick].color);v.material.opacity=.47*(1-i/16)}});
+ const cp=cameraPositions[cameraMode];camera.position.x+=(cp[0]-camera.position.x)*.06;
+ camera.position.y+=(cp[1]-camera.position.y)*.08;camera.position.z+=(cp[2]-camera.position.z)*.06;
+ if(shake>0){camera.position.x+=(Math.random()-.5)*shake;shake=Math.max(0,shake-dt*1.6)}
+ const ct=cameraTargets[cameraMode];camera.lookAt(ct[0],ct[1],ct[2]);renderer.render(scene,camera);
+}
+for(const button of document.querySelectorAll('[data-pitch]'))button.addEventListener('click',()=>{
+ if(offense(game)==='user')return;pick=Number(button.dataset.pitch);
+ document.querySelectorAll('[data-pitch]').forEach(b=>b.classList.toggle('active',b===button));
+});
+for(const button of document.querySelectorAll('[data-zone]'))button.addEventListener('click',()=>{
+ zone=button.dataset.zone;document.querySelectorAll('[data-zone]').forEach(b=>b.classList.toggle('active',b===button));
+});
+for(const button of document.querySelectorAll('[data-field]'))button.addEventListener('click',()=>chooseField(button.dataset.field));
+$('view').addEventListener('click',()=>{cameraMode=(cameraMode+1)%3;
+ $('view').textContent=['CAM 01 · 중계','CAM 02 · 타자','CAM 03 · 투수'][cameraMode]});
+$('speed').addEventListener('input',e=>{speed=+e.target.value;$('speedLabel').textContent=speed+' km/h'});
+$('pitch').addEventListener('click',throwBall);$('swing').addEventListener('click',swing);
+$('swingSide').addEventListener('click',swing);$('take').addEventListener('click',takePitch);
+$('upgrade').addEventListener('click',()=>{const v=upgradeBat(game);if(v.success){game=v.game;message('배트 Lv.'+game.bat.level+'!',900);refresh()}});
+renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button===0)swing()});
+$('reset').addEventListener('click',()=>{shotCounter++;game=newGame();state='idle';fieldPending=null;pendingOutcome=null;
+ best=0;ball.visible=false;trail.forEach(v=>v.visible=false);$('liveSpeed').textContent='-- km/h';refresh();message('PLAY BALL!',900)});
+document.addEventListener('keydown',e=>{
+ if(e.code==='Space'){e.preventDefault();if(!e.repeat)swing()}
+ else if(e.code==='KeyP')throwBall();
+ else if(e.code==='KeyT')takePitch();
+ else if(/^Digit[1-6]$/.test(e.code)){const b=document.querySelector('[data-pitch="'+(+e.code.slice(-1)-1)+'"]');if(b)b.click()}
+ else if(state==='field'){const lane={ArrowLeft:'left',ArrowUp:'center',ArrowRight:'right'}[e.code];if(lane)chooseField(lane)}
+});
+refresh();animate();
 </script></body></html>
