@@ -1,0 +1,30 @@
+name: SEO metadata and sitemap maintenance
+on:
+  push:
+    branches: [master]
+  pull_request:
+permissions:
+  contents: write
+jobs:
+  seo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate SEO metadata and structured data
+        run: python3 scripts/seo_sitemap.py --validate
+      - name: Regenerate and verify sitemap
+        run: |
+          python3 scripts/seo_sitemap.py --write
+          python3 scripts/seo_sitemap.py --check
+      - name: Save refreshed sitemap on master
+        if: github.event_name == 'push'
+        run: |
+          if ! git diff --quiet -- sitemap.xml; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add sitemap.xml
+            git commit -m "SEO: regenerate sitemap from published HTML pages"
+            git push
+          fi
