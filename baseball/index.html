@@ -116,11 +116,11 @@ const catchHelmet=new THREE.Mesh(new THREE.SphereGeometry(.37,20,16),mat(0x162b4
 for(let i=-2;i<=2;i++){const bar=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.72,8),mat(0x9daeb9,.3));bar.position.set(i*.13,2.31,-.42);catcher.add(bar)}
 for(let i=0;i<3;i++){const bar=new THREE.Mesh(new THREE.CylinderGeometry(.023,.023,.7,8),mat(0xa9bac4,.3));bar.rotation.z=Math.PI/2;bar.position.set(0,2.12+i*.17,-.44);catcher.add(bar)}
 for(const side of [-1,1]){const shin=new THREE.Mesh(new THREE.BoxGeometry(.33,.63,.24),mat(0x172e4a,.45));shin.position.set(side*.35,.52,-.36);catcher.add(shin);const knee=new THREE.Mesh(new THREE.SphereGeometry(.21,12,10),mat(0x263c58,.45));knee.position.set(side*.35,.87,-.38);catcher.add(knee);const shoulder=new THREE.Mesh(new THREE.SphereGeometry(.26,12,10),mat(0xb9413e,.5));shoulder.position.set(side*.40,1.91,-.17);catcher.add(shoulder)}
-const throwArm=new THREE.Group();throwArm.position.set(-.48,2,0);pitcher.add(throwArm);
+const throwArm=new THREE.Group();throwArm.position.set(-.48,2,0);throwArm.visible=false;pitcher.add(throwArm);
 const sleeve=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.8,10),mat(0xe7f0f8));sleeve.position.y=-.37;throwArm.add(sleeve);
-const liftLeg=new THREE.Group();liftLeg.position.set(.22,.98,0);pitcher.add(liftLeg);
+const liftLeg=new THREE.Group();liftLeg.position.set(.22,.98,0);liftLeg.visible=false;pitcher.add(liftLeg);
 const legSleeve=new THREE.Mesh(new THREE.CylinderGeometry(.16,.15,.78,10),navy);legSleeve.position.y=-.4;liftLeg.add(legSleeve);
-const umpArm=new THREE.Group();umpArm.position.set(.46,2.0,0);umpire.add(umpArm);
+const umpArm=new THREE.Group();umpArm.position.set(.46,2.0,0);umpArm.visible=false;umpire.add(umpArm);
 const umpSleeve=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.72,10),mat(0x24354b));umpSleeve.position.y=-.35;umpArm.add(umpSleeve);
 
 // Bat and hands share a single pivot. The barrel points over the back shoulder at rest.
@@ -155,7 +155,7 @@ async function loadCharacter(role,node){
  }catch(e){modelStatus[role]='procedural';}
 }
 for(const item of assetRoles)loadCharacter(item.role,item.node);
-const batPivot=new THREE.Group();batPivot.position.set(-.35,1.88,-.18);batter.add(batPivot);
+const batPivot=new THREE.Group();batPivot.position.set(-.35,1.88,-.18);batPivot.visible=false;batter.add(batPivot);
 const batProfile=[[0,.088],[.045,.09],[.09,.062],[.19,.057],[.34,.061],[.51,.077],[.73,.105],[.94,.137],[1.17,.151],[1.35,.149],[1.48,.132],[1.52,.085],[1.54,.035]];
 const bat=new THREE.Mesh(new THREE.LatheGeometry(batProfile.map(([y,r])=>new THREE.Vector2(r,y)),32),mat(0xc58b4e,.31));
 bat.castShadow=true;batPivot.add(bat);
@@ -171,7 +171,7 @@ for(const side of [-1,1]){
  const fore=new THREE.Mesh(new THREE.CylinderGeometry(.105,.115,1,14),skin);
  const elbow=new THREE.Mesh(new THREE.SphereGeometry(.13,12,10),skin);
  const glove=new THREE.Mesh(new THREE.SphereGeometry(.14,14,12),handMat);glove.scale.set(1.08,.8,.9);
- batter.add(upper,fore,elbow,glove);batArms.push({side,upper,fore,elbow,glove});
+ batter.add(upper,fore,elbow,glove);upper.visible=fore.visible=elbow.visible=glove.visible=false;batArms.push({side,upper,fore,elbow,glove});
 }
 const batAxis=new THREE.Vector3(0,1,0);
 function setSegment(obj,a,b){const delta=b.clone().sub(a);obj.position.copy(a).addScaledVector(delta,.5);obj.scale.y=delta.length();obj.quaternion.setFromUnitVectors(batAxis,delta.normalize())}
