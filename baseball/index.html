@@ -35,6 +35,7 @@
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {createRiggedPlayer} from './rigged-characters.js';
+import {createBaseballVisuals} from './field-animation.js';
 import {newGame,record,offense,upgradeBat,batUpgradeCost,cpuPitch,cpuSwing,battingSwing,fieldResult} from './game-rules.js';
 const $=id=>document.getElementById(id),arena=$('arena'),scene=new THREE.Scene();scene.background=new THREE.Color(0x08192a);scene.fog=new THREE.Fog(0x08192a,70,175);
 let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;arena.prepend(renderer.domElement)}catch(e){arena.insertAdjacentHTML('afterbegin','<div class="error">WebGL을 시작할 수 없습니다. Chrome/Edge의 하드웨어 가속 설정을 확인하세요.</div>');throw e}
@@ -59,8 +60,9 @@ for(const x of [-43,43]){
  for(let i=0;i<7;i++){const lamp=mesh(new THREE.BoxGeometry(.92,1.1,.2),new THREE.MeshBasicMaterial({color:0xffffff}),x-3.6+i*1.2,28,-43.5,false)}
  const stadiumGlow=new THREE.PointLight(0xe1eeff,135,80,2);stadiumGlow.position.set(x,27,-44);scene.add(stadiumGlow);
 }
+const fielders=[];
 for(const [x,z] of [[-12,-18],[12,-18],[-32,-38],[0,-48],[32,-38]]){
- const f=playerMarker(x,z);scene.add(f);
+ const f=playerMarker(x,z);scene.add(f);fielders.push(f);
 }
 function playerMarker(x,z){
  const g=new THREE.Group();g.position.set(x,0,z);
@@ -235,9 +237,10 @@ function animateBatter(now){
 const ball=mesh(new THREE.SphereGeometry(.19,32,24),white,0,1.8,-14);ball.visible=false;
 // Procedural stitch seams: geometry follows the ball rather than floating as a texture.
 for(const side of [-1,1]){const pts=[];for(let i=0;i<=60;i++){const u=-Math.PI/2+i*Math.PI/60;pts.push(new THREE.Vector3(.185*Math.sin(u),side*.135*Math.cos(u),.105*Math.cos(u)))}const seam=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),60,.008,5,false),mat(0xb93435,.55));ball.add(seam)}
+const visuals=createBaseballVisuals({scene,ball,fielders});
 const trail=[];for(let i=0;i<16;i++){const m=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0}));scene.add(m);trail.push(m)}
 const pitches=[{name:'직구',bend:0,drop:0,color:0xffffff},{name:'커브',bend:-1,drop:.8,color:0x70c7ff},{name:'슬라이더',bend:1.3,drop:.23,color:0xa88cff},{name:'포크볼',bend:0,drop:1.2,color:0x7ff0d0},{name:'화염 마구',bend:-1.7,drop:.18,color:0xff6029},{name:'번개 마구',bend:1.8,drop:.46,color:0x55eaff}];
-let game=newGame(),pick=0,speed=145,zone='strike',state='idle',pitchStart=0,windupStart=0,flight=1.0,catchStart=0,swingAt=-10,hitStart=0,hitType='',hitDistance=0,ballStart=new THREE.Vector3(),ballVel=new THREE.Vector3(),msgTimer=0,shake=0,audio,fieldPending=null,pendingCpuPitch=null,pendingOutcome=null,shotCounter=0,best=0;
+let game=newGame(),pitchReleaseAt=0,catchDecision=null,catchReadyAt=0,fieldResultKind=null,pick=0,speed=145,zone='strike',state='idle',pitchStart=0,windupStart=0,flight=1.0,catchStart=0,swingAt=-10,hitStart=0,hitType='',hitDistance=0,ballStart=new THREE.Vector3(),ballVel=new THREE.Vector3(),msgTimer=0,shake=0,audio,fieldPending=null,pendingCpuPitch=null,pendingOutcome=null,shotCounter=0,best=0;
 const clock=new THREE.Clock();const characterMixer=[],gltfLoader=new GLTFLoader();let cameraMode=0;const cameraPositions=[[-3.1,3.3,-23],[0,5.8,20],[-1.4,3.8,-17]],cameraTargets=[[0,1.48,1.5],[0,1.4,-9],[0,1.5,5.2]];
 const cpuPitcherRig=rigs.pitcher,cpuBatterRig=rigs.batter;
 window.__baseballDiagnostics={engine:'three.js',characters:'skinned-bone-rig',getGame:()=>game,rigs,modelStatus:()=>modelStatus};
@@ -251,6 +254,7 @@ function refresh(){
  $('count').textContent=game.balls+' / '+game.strikes+' / '+game.outs;
  $('outs').textContent='아웃 '+game.outs+' / 3';
  game.bases.forEach((occupied,i)=>$('base'+(i+1)).classList.toggle('occupied',occupied));
+ if(state==='idle'||state==='result')visuals.syncBases(game.bases,offense(game));
  const columns=Array.from({length:Math.max(9,game.inning)},(_,i)=>i+1);
  $('scoreboard').innerHTML='<table><thead><tr><th>TEAM</th>'+columns.map(i=>'<th class="'+(i===game.inning?'current':'')+'">'+i+'</th>').join('')+'<th>R</th><th>H</th></tr></thead><tbody>'+['cpu','user'].map(team=>'<tr><td>'+(team==='cpu'?'CPU':'USER')+'</td>'+columns.map(i=>'<td>'+(game.line[team][i-1]??(i<game.inning||i===game.inning&&(team==='cpu'||game.half==='bottom')?'0':'-'))+'</td>').join('')+'<td>'+game.scores[team]+'</td><td>'+game.stats[team].hits+'</td></tr>').join('')+'</tbody></table>';
  $('pitchControls').hidden=batting;$('batControls').hidden=!batting;
@@ -272,6 +276,7 @@ function settle(kind){
  if(game.over)return;
  const prevHalf=game.half,prevInning=game.inning;
  game=record(game,kind);fieldPending=null;pendingOutcome=null;state='result';
+ visuals.syncBases(game.bases,offense(game));
  message(game.last,1100);refresh();
  const ticket=++shotCounter;
  setTimeout(()=>{if(ticket!==shotCounter||state!=='result')return;state='idle';ball.visible=false;trail.forEach(v=>v.visible=false);
@@ -282,9 +287,11 @@ function settle(kind){
 function throwBall(){
  if(game.over||state!=='idle')return;
  const batting=offense(game)==='user';
+ visuals.reset();fieldResultKind=null;catchDecision=null;
  if(batting){pendingCpuPitch=cpuPitch();pick=pendingCpuPitch.pitch;speed=pendingCpuPitch.speed;zone=pendingCpuPitch.zone;}
  else pendingCpuPitch={pitch:pick,speed,zone};
  state='windup';windupStart=performance.now()/1000;pitchStart=windupStart+1.0;
+ pitchReleaseAt=pitchStart;
  flight=1.55*(145/speed);swingAt=-10;ball.visible=false;ball.position.set(-1.9,2.04,-13.7);
  ball.material.color.setHex(pitches[pick].color);
  ball.material.emissive=new THREE.Color(pick>=4?pitches[pick].color:0);
@@ -303,19 +310,31 @@ function swing(){
  hitType=outcome.kind;hitStart=swingAt;state='hit';ballStart.copy(ball.position);
  ballVel.set((Math.random()-.5)*12,hitType==='home_run'?17:9,-(25+outcome.quality*20));
  shake=hitType==='home_run'?.3:.1;message(hitType==='home_run'?'HOME RUN!':'타격!',1000);
+ startBattedBall(hitType,{lane:Math.random()<.33?'left':Math.random()<.5?'right':'center',trajectory:hitType==='home_run'?'fly':Math.random()<.55?'ground':'fly',power:outcome.quality});
+}
+function startBattedBall(kind,contact){
+ state='hit';
+ visuals.startContact({kind,bases:game.bases.slice(),team:offense(game),start:ball.position.clone(),...contact,
+ onBase:({base})=>{if(base===4)message('홈인!',700);else message(base+'루 진루!',550)},
+ done:()=>settle(kind)});
 }
 function takePitch(){if(offense(game)!=='user'||state!=='pitch'||swingAt>0)return;swingAt=performance.now()/1000;pendingOutcome=pendingCpuPitch.zone==='ball'?'ball':'strike';message('지켜보기',600)}
 function chooseField(lane){
  if(!fieldPending||state!=='field')return;
  const kind=fieldResult({...fieldPending,chosen:lane});
- settle(kind);
+ fieldResultKind=kind;fieldPending=null;state='fieldFlight';
+ const resolved=visuals.resolveContact({kind,bases:game.bases.slice(),team:offense(game),
+ onBase:({base})=>message(base===4?'홈인!':base+'루 진루!',650),done:()=>settle(kind)});
+ if(!resolved)settle(kind);
+ refresh();
 }
 function startField(contact){
- state='field';fieldPending=contact;ball.visible=false;
+ state='field';fieldPending=contact;
+ visuals.startContact({kind:'pending',bases:[],team:'cpu',start:ball.position.clone(),...contact,done:()=>{}});
  game.last='CPU 타구 · '+({left:'좌측',center:'중앙',right:'우측'}[contact.lane])+' '+(contact.trajectory==='fly'?'뜬공':'땅볼')+'! 수비 위치 선택';
  message('수비 방향을 선택하세요!',1000);refresh();
  const ticket=++shotCounter;
- setTimeout(()=>{if(ticket===shotCounter&&state==='field')chooseField('miss')},3500);
+ setTimeout(()=>{if(ticket===shotCounter&&state==='field')chooseField('miss')},1400);
 }
 function resize(){const w=arena.clientWidth,h=arena.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}new ResizeObserver(resize).observe(arena);resize();
 function animate(){requestAnimationFrame(animate);
@@ -323,36 +342,48 @@ function animate(){requestAnimationFrame(animate);
  for(const mixer of characterMixer)mixer.update(dt);
  for(const rig of Object.values(rigs))rig.mixer.update(dt);
  pitcher.rotation.y=Math.PI;
- if(state==='windup'&&now>=pitchStart){state='pitch';ball.visible=true;message('투구!',450);
- if(offense(game)==='cpu'){
- const outcome=cpuSwing(pendingCpuPitch);
- if(outcome.kind==='contact')pendingOutcome=outcome;
- else pendingOutcome=outcome.kind;
- }}
- if(state==='pitch'){
- const t=(now-pitchStart)/flight,u=Math.max(0,Math.min(1,t)),p=pitches[pick];
- ball.position.set(-1.9*(1-u)+p.bend*u*u+(pick===5?Math.sin(u*18)*.22*u:0),
- 2.05-.68*u-p.drop*u*u+Math.sin(Math.PI*u)*.55+(zone==='ball'?.9:0),-13.7+18.4*u);
- ball.rotation.z+=dt*12;
- if(t>=1.03){
-  ball.visible=false;rigs.catcher.play('catch');
+ if(state==='windup'&&now>=pitchStart){
+  state='pitch';ball.visible=true;message('릴리스!',420);
   if(offense(game)==='cpu'){
-   if(typeof pendingOutcome==='object')startField(pendingOutcome);
-   else settle(pendingOutcome||'strike');
-  }else settle(pendingOutcome||(pendingCpuPitch.zone==='ball'?'ball':'strike'));
+   const outcome=cpuSwing(pendingCpuPitch);
+   pendingOutcome=outcome.kind==='contact'?outcome:outcome.kind;
+   if(outcome.kind==='contact')rigs.batter.play('swing');
+   else if(outcome.kind==='strike'&&Math.random()<.65)rigs.batter.play('swing');
+  }
  }
+ if(state==='pitch'){
+  const t=(now-pitchStart)/flight,u=Math.max(0,Math.min(1,t)),p=pitches[pick];
+  ball.position.set(-1.9*(1-u)+p.bend*u*u+(pick===5?Math.sin(u*18)*.22*u:0),
+   2.05-.68*u-p.drop*u*u+Math.sin(Math.PI*u)*.55+(zone==='ball'?.9:0),-13.7+18.4*u);
+  ball.rotation.z+=dt*12;
+  // Ball contact happens at the front edge of home plate, not inside the catcher.
+  if(offense(game)==='cpu'&&typeof pendingOutcome==='object'&&t>=.95){
+   startField(pendingOutcome);
+  }else if(t>=1.02){
+   const verdict=offense(game)==='cpu'?(pendingOutcome||'strike'):(pendingOutcome||(pendingCpuPitch.zone==='ball'?'ball':'strike'));
+   catchDecision=verdict;catchReadyAt=now+.37;
+   state='catch';rigs.catcher.play('catch');
+   visuals.catchAtMitt(rigs.catcher.mitt);
+   message(verdict==='ball'?'포수 포구 · 볼':'포수 포구!',650);
+  }
  }
- if(state==='hit'){
- const t=now-hitStart;ball.position.copy(ballStart).addScaledVector(ballVel,t);ball.position.y-=13*t*t;
- ball.rotation.x+=dt*15;
- if(ball.position.y<=0||t>3.4)settle(hitType);
+ if(state==='catch'&&now>=catchReadyAt){
+  const verdict=catchDecision;catchDecision=null;settle(verdict);
  }
- trail.forEach((v,i)=>{const active=ball.visible&&(state==='pitch'||state==='hit')&&pick>=4;v.visible=active;
- if(active){v.position.copy(ball.position);v.position.z-=(i+1)*.23;v.scale.setScalar(1-i/18);v.material.color.setHex(pitches[pick].color);v.material.opacity=.47*(1-i/16)}});
- const cp=cameraPositions[cameraMode];camera.position.x+=(cp[0]-camera.position.x)*.06;
- camera.position.y+=(cp[1]-camera.position.y)*.08;camera.position.z+=(cp[2]-camera.position.z)*.06;
+ if(state==='hit'||state==='field'||state==='fieldFlight')visuals.update(now,dt);
+ if(state==='catch')visuals.update(now,dt);
+ if(state==='idle'||state==='result')visuals.update(now,dt);
+ trail.forEach((v,i)=>{const active=ball.visible&&(state==='pitch'||state==='hit'||state==='field'||state==='fieldFlight')&&pick>=4;v.visible=active;
+  if(active){v.position.copy(ball.position);v.position.z-=(i+1)*.23;v.scale.setScalar(1-i/18);v.material.color.setHex(pitches[pick].color);v.material.opacity=.47*(1-i/16)}});
+ const cp=cameraPositions[cameraMode],follow=visuals.focus;
+ const targetCamera=(state==='hit'||state==='field'||state==='fieldFlight')&&follow;
+ const desired=targetCamera?[follow.x*.38+2,Math.max(6,follow.y+9),follow.z+19]:cp;
+ camera.position.x+=(desired[0]-camera.position.x)*.055;
+ camera.position.y+=(desired[1]-camera.position.y)*.07;
+ camera.position.z+=(desired[2]-camera.position.z)*.06;
  if(shake>0){camera.position.x+=(Math.random()-.5)*shake;shake=Math.max(0,shake-dt*1.6)}
- const ct=cameraTargets[cameraMode];camera.lookAt(ct[0],ct[1],ct[2]);renderer.render(scene,camera);
+ const ct=targetCamera?[follow.x,Math.max(1,follow.y),follow.z]:cameraTargets[cameraMode];
+ camera.lookAt(ct[0],ct[1],ct[2]);renderer.render(scene,camera);
 }
 for(const button of document.querySelectorAll('[data-pitch]'))button.addEventListener('click',()=>{
  if(offense(game)==='user')return;pick=Number(button.dataset.pitch);
@@ -369,7 +400,7 @@ $('pitch').addEventListener('click',throwBall);$('swing').addEventListener('clic
 $('swingSide').addEventListener('click',swing);$('take').addEventListener('click',takePitch);
 $('upgrade').addEventListener('click',()=>{const v=upgradeBat(game);if(v.success){game=v.game;message('배트 Lv.'+game.bat.level+'!',900);refresh()}});
 renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button===0)swing()});
-$('reset').addEventListener('click',()=>{shotCounter++;game=newGame();state='idle';fieldPending=null;pendingOutcome=null;
+$('reset').addEventListener('click',()=>{shotCounter++;visuals.reset();game=newGame();state='idle';fieldPending=null;pendingOutcome=null;
  best=0;ball.visible=false;trail.forEach(v=>v.visible=false);$('liveSpeed').textContent='-- km/h';refresh();message('PLAY BALL!',900)});
 document.addEventListener('keydown',e=>{
  if(e.code==='Space'){e.preventDefault();if(!e.repeat)swing()}
