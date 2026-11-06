@@ -77,8 +77,7 @@ function player(x,z,color,batting=false){
  add(new THREE.CylinderGeometry(.4,.4,.085,20),mat(0x172a3c,.42),0,1.13,0);
  for(const side of [-1,1]){
    const shoulder=add(new THREE.SphereGeometry(.23,14,12),uniform,side*.39,1.96,0);
-   const arm=add(new THREE.CylinderGeometry(.13,.13,.66,12),uniform,side*.49,1.61,0);arm.rotation.z=side*.15;
-   add(new THREE.SphereGeometry(.13,12,10),gloves,side*.56,1.24,-.06);
+   if(!batting){const arm=add(new THREE.CylinderGeometry(.13,.13,.66,12),uniform,side*.49,1.61,0);arm.rotation.z=side*.15;add(new THREE.SphereGeometry(.13,12,10),gloves,side*.56,1.24,-.06)}
    const thigh=add(new THREE.CylinderGeometry(.20,.17,.65,14),pants,side*.21,.79,0);
    thigh.rotation.z=side*.035;
    add(new THREE.CylinderGeometry(.15,.12,.51,14),pants,side*.22,.29,0);
@@ -119,18 +118,19 @@ for(let i=0;i<7;i++){const ring=new THREE.Mesh(new THREE.TorusGeometry(.067,.009
 const knob=new THREE.Mesh(new THREE.CylinderGeometry(.098,.09,.055,20),mat(0x35231d,.6));knob.position.y=.018;bat.add(knob);
 const batDecal=new THREE.Mesh(new THREE.CylinderGeometry(.151,.151,.09,24),mat(0x3e2b25,.48));batDecal.position.y=1.1;bat.add(batDecal);
 const handMat=mat(0xe7eaf0,.78);
-for(const [x,y] of [[-.07,.16],[.08,.31]]){const hand=new THREE.Mesh(new THREE.SphereGeometry(.14,14,12),handMat);hand.scale.set(1.1,.76,.85);hand.position.set(x,y,.035);bat.add(hand)}
 // The bat is driven by a two-hand grip target. Shoulder-to-elbow-to-hand segments follow the grip.
 const batArms=[];
 for(const side of [-1,1]){
  const upper=new THREE.Mesh(new THREE.CylinderGeometry(.125,.145,1,14),mat(0x2b89d9,.78));
  const fore=new THREE.Mesh(new THREE.CylinderGeometry(.105,.115,1,14),skin);
  const elbow=new THREE.Mesh(new THREE.SphereGeometry(.13,12,10),skin);
- batter.add(upper,fore,elbow);batArms.push({side,upper,fore,elbow});
+ const glove=new THREE.Mesh(new THREE.SphereGeometry(.14,14,12),handMat);glove.scale.set(1.08,.8,.9);
+ batter.add(upper,fore,elbow,glove);batArms.push({side,upper,fore,elbow,glove});
 }
 const batAxis=new THREE.Vector3(0,1,0);
 function setSegment(obj,a,b){const delta=b.clone().sub(a);obj.position.copy(a).addScaledVector(delta,.5);obj.scale.y=delta.length();obj.quaternion.setFromUnitVectors(batAxis,delta.normalize())}
 const swingDuration=.72;
+const batterInitialPosition=batter.position.clone();
 function ease(u){u=THREE.MathUtils.clamp(u,0,1);return u*u*(3-2*u)}
 function swingPose(t){
  if(t<=0)return 0;
@@ -143,9 +143,10 @@ function animateBatter(now){
  const t=swingAt>0?now-swingAt:-1;
  const active=t>=0&&t<swingDuration;
  const recovery=t>=swingDuration&&t<swingDuration+.22?1-ease((t-swingDuration)/.22):0;
- const swingWeight=active?1:recovery;
  const turn=active?swingPose(t):2.87*recovery;
  const drive=active?ease((t-.13)/.30):recovery;
+ const load=active?Math.sin(Math.PI*ease(Math.min(t/.44,1))):0;
+ batter.position.copy(batterInitialPosition);batter.position.x+=drive*.12;batter.position.y-=load*.06;
  // Rotate around the hitter's spine; keep the bat grip tied to the same rig.
  batter.children[0].rotation.y=drive*.52;
  batter.children[0].rotation.z=-.07-drive*.12;
@@ -159,9 +160,9 @@ function animateBatter(now){
    const hand=bat.localToWorld(gripLocal.clone());
    batter.worldToLocal(hand);
    const elbow=shoulder.clone().lerp(hand,.48);
-   elbow.x+=side*.20;elbow.z+=.23-drive*.12;elbow.y+=.10;
+   elbow.x+=side*.17;elbow.z+=.23-drive*.12;elbow.y+=.08;
    setSegment(arm.upper,shoulder,elbow);setSegment(arm.fore,elbow,hand);
-   arm.elbow.position.copy(elbow);
+   arm.elbow.position.copy(elbow);arm.glove.position.copy(hand);
  }
  if(swingActive&&t>=swingDuration)swingActive=false;
 }
