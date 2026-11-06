@@ -66,14 +66,14 @@ export function createBaseballVisuals({scene,ball,fielders=[]}){
   active.length=0;sequence=null;focus=null;catchEffect=null;
   for(const f of fielders){if(f.userData.originalPosition)f.position.copy(f.userData.originalPosition)}
  }
- function startContact({kind,bases,team='user',lane='center',trajectory='fly',power=.65,start,done}){
+ function startContact({kind,bases,team='user',lane='center',trajectory='fly',power=.65,start,done,onBase}){
   clearActive();
   const plans=runnerPlans(bases,kind);
   for(const actor of standing)if(actor)actor.group.visible=false;
   for(const plan of plans){
    const a=createRunner(scene,team==='user'?0x4b9bd6:0x199160);
    const route=routeFor(plan.from,plan.steps).map(vec);
-   setRunnerPosition(a,route[0]);active.push({actor:a,route,steps:plan.steps,from:plan.from});
+   setRunnerPosition(a,route[0]);active.push({actor:a,route,steps:plan.steps,from:plan.from,runner:plan.runner,startedAt:performance.now()/1000,lastBase:0});
   }
   const dir={left:-1,center:0,right:1}[lane]??0;
   const homeRun=kind==='home_run',out=['flyout','groundout'].includes(kind);
@@ -86,9 +86,24 @@ export function createBaseballVisuals({scene,ball,fielders=[]}){
   const fielder=fielders.length?fielders.reduce((a,b)=>a.position.distanceToSquared(destination)<b.position.distanceToSquared(destination)?a:b):null;
   if(fielder&&!fielder.userData.originalPosition)fielder.userData.originalPosition=fielder.position.clone();
   ball.visible=true;ball.position.copy(launch);
-  sequence={kind,start:performance.now()/1000,duration,ballDuration,launch,destination,homeRun,out,trajectory,fielder,done,ballLanded:false,fieldCatch:false,relay:false,team};
+  sequence={kind,start:performance.now()/1000,duration,ballDuration,launch,destination,homeRun,out,trajectory,fielder,done,ballLanded:false,fieldCatch:false,relay:false,team,onBase};
   focus=ball.position.clone();
   return sequence;
+ }
+ function resolveContact({kind,bases,team='cpu',done,onBase}){
+  if(!sequence||sequence.kind!=='pending')return false;
+  const s=sequence,now=performance.now()/1000;
+  s.kind=kind;s.out=['groundout','flyout'].includes(kind);s.done=done;s.onBase=onBase;s.team=team;
+  const plans=runnerPlans(bases,kind);
+  for(const actor of standing)if(actor)actor.group.visible=false;
+  for(const plan of plans){
+   const actor=createRunner(scene,team==='user'?0x4b9bd6:0x199160);
+   const route=routeFor(plan.from,plan.steps).map(vec);
+   setRunnerPosition(actor,route[0]);active.push({actor,route,steps:plan.steps,from:plan.from,runner:plan.runner,startedAt:now,lastBase:0});
+  }
+  const maxSteps=active.reduce((m,a)=>Math.max(m,a.steps),0);
+  s.duration=Math.max(s.duration,(now-s.start)+maxSteps*.82+.45,(now-s.start)+.9);
+  return true;
  }
  function catchAtMitt(mitt){
   const target=mitt.getWorldPosition(new THREE.Vector3());
@@ -135,7 +150,7 @@ export function createBaseballVisuals({scene,ball,fielders=[]}){
    }
   }
   for(const a of active){
-   const segmentTime=Math.min(a.steps,Math.max(0,t/.82));
+   const segmentTime=Math.min(a.steps,Math.max(0,(now-a.startedAt)/.82));
    const index=Math.min(a.route.length-2,Math.floor(segmentTime));
    const f=segmentTime-index;
    if(a.route.length>1){
@@ -143,7 +158,9 @@ export function createBaseballVisuals({scene,ball,fielders=[]}){
     a.actor.group.position.lerpVectors(from,to,f);
     const direction=to.clone().sub(from);a.actor.group.rotation.y=Math.atan2(-direction.x,-direction.z);
    }
-   const moving=t<a.steps*.82;
+   const reached=Math.min(a.steps,Math.floor(segmentTime));
+   if(reached>a.lastBase){a.lastBase=reached;if(s.onBase)s.onBase({runner:a.runner,base:(a.from+reached)%4||4})}
+   const moving=(now-a.startedAt)<a.steps*.82;
    const gait=moving?Math.sin(t*16):0;
    a.actor.legs[0].rotation.x=gait*.6;a.actor.legs[1].rotation.x=-gait*.6;
    a.actor.arms[0].rotation.x=-gait*.48;a.actor.arms[1].rotation.x=gait*.48;
@@ -156,5 +173,5 @@ export function createBaseballVisuals({scene,ball,fielders=[]}){
   }
  }
  function reset(){clearActive();for(const a of standing)if(a)a.group.visible=false;ball.visible=false}
- return {startContact,catchAtMitt,syncBases,update,reset,get focus(){return focus},get active(){return !!sequence}};
+ return {startContact,resolveContact,catchAtMitt,syncBases,update,reset,get focus(){return focus},get active(){return !!sequence}};
 }
