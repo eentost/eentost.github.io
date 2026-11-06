@@ -9,7 +9,7 @@ export function routeFor(start,advance){
  return route;
 }
 export function runnerPlans(bases,kind){
- const advance={single:1,double:2,triple:3,home_run:4,walk:1,groundout:1,flyout:0}[kind]??0;
+ const advance={single:1,double:2,triple:3,home_run:4,walk:1,groundout:0,flyout:0}[kind]??0;
  if(kind==='strikeout'||kind==='foul'||kind==='ball'||kind==='strike')return [];
  const plans=[];
  for(let i=2;i>=0;i--){
