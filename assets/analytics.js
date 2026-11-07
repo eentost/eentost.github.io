@@ -64,7 +64,7 @@
  }
  function init(){
    const css=document.createElement('link');css.rel='stylesheet';css.href='/assets/analytics.css';document.head.append(css);
-   const footer=document.querySelector('.foot .wrap');
+   const footer=document.querySelector('.foot .wrap, .cv-footer-inner');
    if(footer){const btn=document.createElement('button');btn.type='button';btn.className='haru-consent-settings';btn.textContent='방문 통계 설정';btn.addEventListener('click',banner);footer.appendChild(btn)}
    if(choice==='accepted')start();else if(choice!=='declined')banner();
    document.addEventListener('input',onInput);document.addEventListener('change',onInput);
