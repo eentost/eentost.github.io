@@ -1,0 +1,3461 @@
+{
+ "version": 8,
+ "fps": 24,
+ "clips": {
+  "idle": {
+   "frames": 60,
+   "first_key_frame": 1,
+   "duration_s": 2.5417,
+   "loop": true
+  },
+  "windup": {
+   "frames": 40,
+   "first_key_frame": 1,
+   "duration_s": 1.7083,
+   "loop": false
+  },
+  "pitch": {
+   "frames": 36,
+   "first_key_frame": 1,
+   "duration_s": 1.5417,
+   "loop": false,
+   "events_frame": {
+    "release": 20
+   },
+   "events_s": {
+    "release": 0.875
+   }
+  },
+  "swing": {
+   "frames": 32,
+   "first_key_frame": 1,
+   "duration_s": 1.375,
+   "loop": false,
+   "events_frame": {
+    "contact": 21
+   },
+   "events_s": {
+    "contact": 0.9167
+   }
+  },
+  "run": {
+   "frames": 16,
+   "first_key_frame": 0,
+   "duration_s": 0.6667,
+   "loop": true,
+   "footSpeed": 5.0,
+   "cycle_s": 0.6667,
+   "distance_per_cycle_m": 3.33,
+   "playbackRate_rule": "rate = groundSpeed / footSpeed (the stance foot then stays planted)"
+  },
+  "field_ready": {
+   "frames": 40,
+   "first_key_frame": 0,
+   "duration_s": 1.6667,
+   "loop": true
+  },
+  "field_catch": {
+   "frames": 24,
+   "first_key_frame": 1,
+   "duration_s": 1.0417,
+   "loop": false
+  },
+  "throw": {
+   "frames": 30,
+   "first_key_frame": 1,
+   "duration_s": 1.2917,
+   "loop": false,
+   "events_frame": {
+    "release": 12
+   },
+   "events_s": {
+    "release": 0.5417
+   }
+  },
+  "slide": {
+   "frames": 34,
+   "first_key_frame": 1,
+   "duration_s": 1.4583,
+   "loop": false
+  },
+  "celebrate": {
+   "frames": 40,
+   "first_key_frame": 1,
+   "duration_s": 1.7083,
+   "loop": true
+  },
+  "catcher_crouch": {
+   "frames": 40,
+   "first_key_frame": 1,
+   "duration_s": 1.7083,
+   "loop": true
+  },
+  "batting_stance": {
+   "frames": 48,
+   "first_key_frame": 0,
+   "duration_s": 2.0,
+   "loop": true
+  },
+  "trot": {
+   "frames": 18,
+   "first_key_frame": 0,
+   "duration_s": 0.75,
+   "loop": true,
+   "footSpeed": 2.2,
+   "cycle_s": 0.75,
+   "distance_per_cycle_m": 1.65,
+   "playbackRate_rule": "rate = groundSpeed / footSpeed (the stance foot then stays planted)"
+  },
+  "run_turn": {
+   "frames": 16,
+   "first_key_frame": 0,
+   "duration_s": 0.6667,
+   "loop": true,
+   "footSpeed": 5.0,
+   "cycle_s": 0.6667,
+   "distance_per_cycle_m": 3.33,
+   "playbackRate_rule": "rate = groundSpeed / footSpeed (the stance foot then stays planted)"
+  },
+  "catch_jump": {
+   "frames": 29,
+   "first_key_frame": 0,
+   "duration_s": 1.2083,
+   "loop": false,
+   "events_frame": {
+    "take_off": 8,
+    "apex": 14,
+    "touch_down": 20
+   },
+   "events_s": {
+    "take_off": 0.3333,
+    "apex": 0.5833,
+    "touch_down": 0.8333
+   }
+  },
+  "pitch_overhand_windup": {
+   "frames": 32,
+   "first_key_frame": 0,
+   "duration_s": 1.3333,
+   "loop": false,
+   "events_frame": {
+    "foot_plant": 11,
+    "release": 14,
+    "hand_break": 8
+   },
+   "events_s": {
+    "foot_plant": 0.4583,
+    "release": 0.5833,
+    "hand_break": 0.3333
+   }
+  },
+  "pitch_three_quarter_windup": {
+   "frames": 32,
+   "first_key_frame": 0,
+   "duration_s": 1.3333,
+   "loop": false,
+   "events_frame": {
+    "foot_plant": 11,
+    "release": 14,
+    "hand_break": 8
+   },
+   "events_s": {
+    "foot_plant": 0.4583,
+    "release": 0.5833,
+    "hand_break": 0.3333
+   }
+  },
+  "pitch_sidearm_windup": {
+   "frames": 32,
+   "first_key_frame": 0,
+   "duration_s": 1.3333,
+   "loop": false,
+   "events_frame": {
+    "foot_plant": 11,
+    "release": 13,
+    "hand_break": 8
+   },
+   "events_s": {
+    "foot_plant": 0.4583,
+    "release": 0.5417,
+    "hand_break": 0.3333
+   }
+  },
+  "pitch_submarine_windup": {
+   "frames": 32,
+   "first_key_frame": 0,
+   "duration_s": 1.3333,
+   "loop": false,
+   "events_frame": {
+    "foot_plant": 11,
+    "release": 14,
+    "hand_break": 8
+   },
+   "events_s": {
+    "foot_plant": 0.4583,
+    "release": 0.5833,
+    "hand_break": 0.3333
+   }
+  },
+  "pitch_overhand_stretch": {
+   "frames": 26,
+   "first_key_frame": 0,
+   "duration_s": 1.0833,
+   "loop": false,
+   "events_frame": {
+    "foot_plant": 7,
+    "release": 9,
+    "hand_break": 5
+   },
+   "events_s": {
+    "foot_plant": 0.2917,
+    "release": 0.375,
+    "hand_break": 0.2083
+   }
+  },
+  "pitch_three_quarter_stretch": {
+   "frames": 26,
+   "first_key_frame": 0,
+   "duration_s": 1.0833,
+   "loop": false,
+   "events_frame": {
+    "foot_plant": 7,
+    "release": 9,
+    "hand_break": 5
+   },
+   "events_s": {
+    "foot_plant": 0.2917,
+    "release": 0.375,
+    "hand_break": 0.2083
+   }
+  },
+  "pitch_sidearm_stretch": {
+   "frames": 26,
+   "first_key_frame": 0,
+   "duration_s": 1.0833,
+   "loop": false,
+   "events_frame": {
+    "foot_plant": 7,
+    "release": 9,
+    "hand_break": 5
+   },
+   "events_s": {
+    "foot_plant": 0.2917,
+    "release": 0.375,
+    "hand_break": 0.2083
+   }
+  },
+  "pitch_submarine_stretch": {
+   "frames": 26,
+   "first_key_frame": 0,
+   "duration_s": 1.0833,
+   "loop": false,
+   "events_frame": {
+    "foot_plant": 7,
+    "release": 9,
+    "hand_break": 5
+   },
+   "events_s": {
+    "foot_plant": 0.2917,
+    "release": 0.375,
+    "hand_break": 0.2083
+   }
+  },
+  "pitcher_set": {
+   "frames": 48,
+   "first_key_frame": 0,
+   "duration_s": 2.0,
+   "loop": true
+  },
+  "pitcher_rock": {
+   "frames": 72,
+   "first_key_frame": 0,
+   "duration_s": 3.0,
+   "loop": true
+  },
+  "jog": {
+   "frames": 18,
+   "first_key_frame": 0,
+   "duration_s": 0.75,
+   "loop": true,
+   "footSpeed": 3.5,
+   "cycle_s": 0.75,
+   "distance_per_cycle_m": 2.62,
+   "playbackRate_rule": "rate = groundSpeed / footSpeed (the stance foot then stays planted)"
+  },
+  "run_sprint": {
+   "frames": 13,
+   "first_key_frame": 0,
+   "duration_s": 0.5417,
+   "loop": true,
+   "footSpeed": 7.0,
+   "cycle_s": 0.5417,
+   "distance_per_cycle_m": 3.79,
+   "playbackRate_rule": "rate = groundSpeed / footSpeed (the stance foot then stays planted)"
+  },
+  "run_turn_sprint": {
+   "frames": 13,
+   "first_key_frame": 0,
+   "duration_s": 0.5417,
+   "loop": true,
+   "footSpeed": 7.0,
+   "cycle_s": 0.5417,
+   "distance_per_cycle_m": 3.79,
+   "playbackRate_rule": "rate = groundSpeed / footSpeed (the stance foot then stays planted)"
+  },
+  "field_ready_infield": {
+   "frames": 40,
+   "first_key_frame": 0,
+   "duration_s": 1.6667,
+   "loop": true
+  },
+  "field_ready_outfield": {
+   "frames": 40,
+   "first_key_frame": 0,
+   "duration_s": 1.6667,
+   "loop": true
+  },
+  "field_ready_hands_knees": {
+   "frames": 40,
+   "first_key_frame": 0,
+   "duration_s": 1.6667,
+   "loop": true
+  },
+  "walk": {
+   "frames": 18,
+   "first_key_frame": 0,
+   "duration_s": 0.75,
+   "loop": true,
+   "footSpeed": 1.42,
+   "cycle_s": 0.75,
+   "distance_per_cycle_m": 1.06,
+   "playbackRate_rule": "rate = groundSpeed / footSpeed (the stance foot then stays planted)"
+  },
+  "catch_throw": {
+   "frames": 14,
+   "first_key_frame": 0,
+   "duration_s": 0.5833,
+   "loop": false,
+   "events_frame": {
+    "catch": 6,
+    "give": 8
+   },
+   "events_s": {
+    "catch": 0.25,
+    "give": 0.3333
+   },
+   "glove_closed_keys": [
+    [
+     3,
+     0.0
+    ],
+    [
+     6,
+     1.0
+    ],
+    [
+     9,
+     1.0
+    ],
+    [
+     14,
+     0.0
+    ]
+   ]
+  },
+  "catch_throw_high": {
+   "frames": 16,
+   "first_key_frame": 0,
+   "duration_s": 0.6667,
+   "loop": false,
+   "events_frame": {
+    "catch": 6,
+    "give": 9
+   },
+   "events_s": {
+    "catch": 0.25,
+    "give": 0.375
+   },
+   "glove_closed_keys": [
+    [
+     3,
+     0.0
+    ],
+    [
+     6,
+     1.0
+    ],
+    [
+     10,
+     1.0
+    ],
+    [
+     15,
+     0.0
+    ]
+   ]
+  },
+  "catch_throw_low": {
+   "frames": 16,
+   "first_key_frame": 0,
+   "duration_s": 0.6667,
+   "loop": false,
+   "events_frame": {
+    "catch": 7,
+    "scoop_up": 10
+   },
+   "events_s": {
+    "catch": 0.2917,
+    "scoop_up": 0.4167
+   },
+   "glove_closed_keys": [
+    [
+     4,
+     0.0
+    ],
+    [
+     7,
+     1.0
+    ],
+    [
+     12,
+     1.0
+    ],
+    [
+     16,
+     0.0
+    ]
+   ]
+  },
+  "catch_stretch": {
+   "frames": 22,
+   "first_key_frame": 0,
+   "duration_s": 0.9167,
+   "loop": false,
+   "events_frame": {
+    "catch": 8,
+    "hold": 12
+   },
+   "events_s": {
+    "catch": 0.3333,
+    "hold": 0.5
+   },
+   "glove_closed_keys": [
+    [
+     5,
+     0.0
+    ],
+    [
+     8,
+     1.0
+    ],
+    [
+     13,
+     1.0
+    ],
+    [
+     18,
+     0.0
+    ]
+   ]
+  },
+  "catch_fly": {
+   "frames": 24,
+   "first_key_frame": 0,
+   "duration_s": 1.0,
+   "loop": false,
+   "events_frame": {
+    "catch": 10,
+    "give": 13
+   },
+   "events_s": {
+    "catch": 0.4167,
+    "give": 0.5417
+   },
+   "glove_closed_keys": [
+    [
+     7,
+     0.0
+    ],
+    [
+     10,
+     1.0
+    ],
+    [
+     14,
+     1.0
+    ],
+    [
+     19,
+     0.0
+    ]
+   ]
+  },
+  "catch_line_drive": {
+   "frames": 12,
+   "first_key_frame": 0,
+   "duration_s": 0.5,
+   "loop": false,
+   "events_frame": {
+    "catch": 5,
+    "give": 8
+   },
+   "events_s": {
+    "catch": 0.2083,
+    "give": 0.3333
+   },
+   "glove_closed_keys": [
+    [
+     2,
+     0.0
+    ],
+    [
+     5,
+     1.0
+    ],
+    [
+     9,
+     1.0
+    ],
+    [
+     12,
+     0.0
+    ]
+   ]
+  },
+  "catch_backhand": {
+   "frames": 20,
+   "first_key_frame": 0,
+   "duration_s": 0.8333,
+   "loop": false,
+   "events_frame": {
+    "catch": 8,
+    "give": 11
+   },
+   "events_s": {
+    "catch": 0.3333,
+    "give": 0.4583
+   },
+   "glove_closed_keys": [
+    [
+     5,
+     0.0
+    ],
+    [
+     8,
+     1.0
+    ],
+    [
+     12,
+     1.0
+    ],
+    [
+     17,
+     0.0
+    ]
+   ]
+  },
+  "catch_fly_run": {
+   "frames": 24,
+   "first_key_frame": 0,
+   "duration_s": 1.0,
+   "loop": false,
+   "events_frame": {
+    "catch": 12,
+    "give": 16
+   },
+   "events_s": {
+    "catch": 0.5,
+    "give": 0.6667
+   },
+   "glove_closed_keys": [
+    [
+     9,
+     0.0
+    ],
+    [
+     12,
+     1.0
+    ],
+    [
+     17,
+     1.0
+    ],
+    [
+     22,
+     0.0
+    ]
+   ]
+  },
+  "field_grounder": {
+   "frames": 30,
+   "first_key_frame": 0,
+   "duration_s": 1.25,
+   "loop": false,
+   "events_frame": {
+    "catch": 11,
+    "funnel": 14,
+    "throw_ready": 24
+   },
+   "events_s": {
+    "catch": 0.4583,
+    "funnel": 0.5833,
+    "throw_ready": 1.0
+   },
+   "glove_closed_keys": [
+    [
+     8,
+     0.0
+    ],
+    [
+     11,
+     1.0
+    ],
+    [
+     15,
+     1.0
+    ],
+    [
+     20,
+     0.0
+    ]
+   ]
+  },
+  "field_grounder_backhand": {
+   "frames": 30,
+   "first_key_frame": 0,
+   "duration_s": 1.25,
+   "loop": false,
+   "events_frame": {
+    "catch": 11,
+    "funnel": 14,
+    "throw_ready": 24
+   },
+   "events_s": {
+    "catch": 0.4583,
+    "funnel": 0.5833,
+    "throw_ready": 1.0
+   },
+   "glove_closed_keys": [
+    [
+     8,
+     0.0
+    ],
+    [
+     11,
+     1.0
+    ],
+    [
+     15,
+     1.0
+    ],
+    [
+     20,
+     0.0
+    ]
+   ]
+  },
+  "catch_comebacker": {
+   "frames": 16,
+   "first_key_frame": 0,
+   "duration_s": 0.6667,
+   "loop": false,
+   "events_frame": {
+    "catch": 7,
+    "give": 10
+   },
+   "events_s": {
+    "catch": 0.2917,
+    "give": 0.4167
+   },
+   "glove_closed_keys": [
+    [
+     4,
+     0.0
+    ],
+    [
+     7,
+     1.0
+    ],
+    [
+     11,
+     1.0
+    ],
+    [
+     16,
+     0.0
+    ]
+   ]
+  },
+  "pitcher_catch_toss": {
+   "frames": 18,
+   "first_key_frame": 0,
+   "duration_s": 0.75,
+   "loop": false,
+   "events_frame": {
+    "catch": 8,
+    "give": 11
+   },
+   "events_s": {
+    "catch": 0.3333,
+    "give": 0.4583
+   },
+   "glove_closed_keys": [
+    [
+     5,
+     0.0
+    ],
+    [
+     8,
+     1.0
+    ],
+    [
+     12,
+     1.0
+    ],
+    [
+     17,
+     0.0
+    ]
+   ]
+  },
+  "throw_casual": {
+   "frames": 28,
+   "first_key_frame": 0,
+   "duration_s": 1.1667,
+   "loop": false,
+   "events_frame": {
+    "release": 10
+   },
+   "events_s": {
+    "release": 0.4167
+   }
+  },
+  "toss_underhand": {
+   "frames": 22,
+   "first_key_frame": 0,
+   "duration_s": 0.9167,
+   "loop": false,
+   "events_frame": {
+    "release": 11
+   },
+   "events_s": {
+    "release": 0.4583
+   }
+  },
+  "roll_ball": {
+   "frames": 26,
+   "first_key_frame": 0,
+   "duration_s": 1.0833,
+   "loop": false,
+   "events_frame": {
+    "release": 14
+   },
+   "events_s": {
+    "release": 0.5833
+   }
+  },
+  "toss_sidearm_short": {
+   "frames": 20,
+   "first_key_frame": 0,
+   "duration_s": 0.8333,
+   "loop": false,
+   "events_frame": {
+    "release": 9
+   },
+   "events_s": {
+    "release": 0.375
+   }
+  },
+  "pickoff": {
+   "frames": 20,
+   "first_key_frame": 0,
+   "duration_s": 0.8333,
+   "loop": false,
+   "events_frame": {
+    "release": 9
+   },
+   "events_s": {
+    "release": 0.375
+   }
+  },
+  "tag_glove": {
+   "frames": 14,
+   "first_key_frame": 0,
+   "duration_s": 0.5833,
+   "loop": false,
+   "events_frame": {
+    "contact": 8,
+    "sweep_end": 10
+   },
+   "events_s": {
+    "contact": 0.3333,
+    "sweep_end": 0.4167
+   }
+  },
+  "tag_hand": {
+   "frames": 14,
+   "first_key_frame": 0,
+   "duration_s": 0.5833,
+   "loop": false,
+   "events_frame": {
+    "contact": 8,
+    "sweep_end": 10
+   },
+   "events_s": {
+    "contact": 0.3333,
+    "sweep_end": 0.4167
+   }
+  },
+  "catcher_block": {
+   "frames": 36,
+   "first_key_frame": 0,
+   "duration_s": 1.5,
+   "loop": false,
+   "events_frame": {
+    "block": 9,
+    "tag_contact": 26
+   },
+   "events_s": {
+    "block": 0.375,
+    "tag_contact": 1.0833
+   }
+  },
+  "catch_pitch": {
+   "frames": 18,
+   "first_key_frame": 0,
+   "duration_s": 0.75,
+   "loop": false,
+   "events_frame": {
+    "catch": 7,
+    "give": 10,
+    "frame": 13
+   },
+   "events_s": {
+    "catch": 0.2917,
+    "give": 0.4167,
+    "frame": 0.5417
+   },
+   "glove_closed_keys": [
+    [
+     4,
+     0.0
+    ],
+    [
+     7,
+     1.0
+    ],
+    [
+     11,
+     1.0
+    ],
+    [
+     16,
+     0.0
+    ]
+   ]
+  },
+  "catch_pitch_low": {
+   "frames": 18,
+   "first_key_frame": 0,
+   "duration_s": 0.75,
+   "loop": false,
+   "events_frame": {
+    "catch": 7,
+    "give": 10,
+    "frame": 13
+   },
+   "events_s": {
+    "catch": 0.2917,
+    "give": 0.4167,
+    "frame": 0.5417
+   },
+   "glove_closed_keys": [
+    [
+     4,
+     0.0
+    ],
+    [
+     7,
+     1.0
+    ],
+    [
+     11,
+     1.0
+    ],
+    [
+     16,
+     0.0
+    ]
+   ]
+  },
+  "catch_pitch_high": {
+   "frames": 18,
+   "first_key_frame": 0,
+   "duration_s": 0.75,
+   "loop": false,
+   "events_frame": {
+    "catch": 7,
+    "give": 10,
+    "frame": 13
+   },
+   "events_s": {
+    "catch": 0.2917,
+    "give": 0.4167,
+    "frame": 0.5417
+   },
+   "glove_closed_keys": [
+    [
+     4,
+     0.0
+    ],
+    [
+     7,
+     1.0
+    ],
+    [
+     11,
+     1.0
+    ],
+    [
+     16,
+     0.0
+    ]
+   ]
+  },
+  "slide_feet": {
+   "frames": 29,
+   "first_key_frame": 0,
+   "duration_s": 1.2083,
+   "loop": false,
+   "events_frame": {
+    "slide_start": 6,
+    "rest": 24
+   },
+   "events_s": {
+    "slide_start": 0.25,
+    "rest": 1.0
+   }
+  },
+  "slide_hook_left": {
+   "frames": 29,
+   "first_key_frame": 0,
+   "duration_s": 1.2083,
+   "loop": false,
+   "events_frame": {
+    "slide_start": 6,
+    "rest": 24
+   },
+   "events_s": {
+    "slide_start": 0.25,
+    "rest": 1.0
+   }
+  },
+  "slide_hook_right": {
+   "frames": 29,
+   "first_key_frame": 0,
+   "duration_s": 1.2083,
+   "loop": false,
+   "events_frame": {
+    "slide_start": 6,
+    "rest": 24
+   },
+   "events_s": {
+    "slide_start": 0.25,
+    "rest": 1.0
+   }
+  },
+  "slide_head": {
+   "frames": 26,
+   "first_key_frame": 0,
+   "duration_s": 1.0833,
+   "loop": false,
+   "events_frame": {
+    "dive_start": 6,
+    "land": 14,
+    "rest": 22
+   },
+   "events_s": {
+    "dive_start": 0.25,
+    "land": 0.5833,
+    "rest": 0.9167
+   }
+  },
+  "dive_back": {
+   "frames": 18,
+   "first_key_frame": 0,
+   "duration_s": 0.75,
+   "loop": false,
+   "events_frame": {
+    "dive_start": 3,
+    "land": 9
+   },
+   "events_s": {
+    "dive_start": 0.125,
+    "land": 0.375
+   }
+  },
+  "pop_up": {
+   "frames": 30,
+   "first_key_frame": 0,
+   "duration_s": 1.25,
+   "loop": false,
+   "events_frame": {
+    "sit_up": 6,
+    "stand": 20
+   },
+   "events_s": {
+    "sit_up": 0.25,
+    "stand": 0.8333
+   }
+  },
+  "pop_up_head": {
+   "frames": 30,
+   "first_key_frame": 0,
+   "duration_s": 1.25,
+   "loop": false,
+   "events_frame": {
+    "push_up": 8,
+    "stand": 16
+   },
+   "events_s": {
+    "push_up": 0.3333,
+    "stand": 0.6667
+   }
+  },
+  "ump_ready": {
+   "frames": 60,
+   "first_key_frame": 0,
+   "duration_s": 2.5,
+   "loop": true
+  },
+  "ump_set_base": {
+   "frames": 48,
+   "first_key_frame": 0,
+   "duration_s": 2.0,
+   "loop": true
+  },
+  "ump_strike": {
+   "frames": 19,
+   "first_key_frame": 0,
+   "duration_s": 0.7917,
+   "loop": false,
+   "events_frame": {
+    "strike": 8
+   },
+   "events_s": {
+    "strike": 0.3333
+   }
+  },
+  "ump_strike_swinging": {
+   "frames": 22,
+   "first_key_frame": 0,
+   "duration_s": 0.9167,
+   "loop": false,
+   "events_frame": {
+    "strike": 9
+   },
+   "events_s": {
+    "strike": 0.375
+   }
+  },
+  "ump_ball": {
+   "frames": 14,
+   "first_key_frame": 0,
+   "duration_s": 0.5833,
+   "loop": false,
+   "events_frame": {
+    "gesture": 6
+   },
+   "events_s": {
+    "gesture": 0.25
+   }
+  },
+  "ump_safe": {
+   "frames": 24,
+   "first_key_frame": 0,
+   "duration_s": 1.0,
+   "loop": false,
+   "events_frame": {
+    "sweep_peak": 9
+   },
+   "events_s": {
+    "sweep_peak": 0.375
+   }
+  },
+  "ump_out": {
+   "frames": 20,
+   "first_key_frame": 0,
+   "duration_s": 0.8333,
+   "loop": false,
+   "events_frame": {
+    "hammer": 9
+   },
+   "events_s": {
+    "hammer": 0.375
+   }
+  },
+  "ump_out_strikeout": {
+   "frames": 22,
+   "first_key_frame": 0,
+   "duration_s": 0.9167,
+   "loop": false,
+   "events_frame": {
+    "punch": 9
+   },
+   "events_s": {
+    "punch": 0.375
+   }
+  },
+  "ump_foul": {
+   "frames": 20,
+   "first_key_frame": 0,
+   "duration_s": 0.8333,
+   "loop": false,
+   "events_frame": {
+    "peak": 7
+   },
+   "events_s": {
+    "peak": 0.2917
+   }
+  },
+  "ump_fair": {
+   "frames": 16,
+   "first_key_frame": 0,
+   "duration_s": 0.6667,
+   "loop": false,
+   "events_frame": {
+    "point": 6
+   },
+   "events_s": {
+    "point": 0.25
+   }
+  },
+  "ump_homerun": {
+   "frames": 32,
+   "first_key_frame": 0,
+   "duration_s": 1.3333,
+   "loop": false,
+   "events_frame": {
+    "twirl_start": 6,
+    "twirl_end": 26
+   },
+   "events_s": {
+    "twirl_start": 0.25,
+    "twirl_end": 1.0833
+   }
+  },
+  "ump_time": {
+   "frames": 18,
+   "first_key_frame": 0,
+   "duration_s": 0.75,
+   "loop": false,
+   "events_frame": {
+    "peak": 6
+   },
+   "events_s": {
+    "peak": 0.25
+   }
+  },
+  "ondeck_ready": {
+   "frames": 60,
+   "first_key_frame": 0,
+   "duration_s": 2.5,
+   "loop": true
+  },
+  "ondeck_swing": {
+   "frames": 44,
+   "first_key_frame": 0,
+   "duration_s": 1.8333,
+   "loop": false,
+   "events_frame": {
+    "load": 9,
+    "contact": 18,
+    "finish": 24
+   },
+   "events_s": {
+    "load": 0.375,
+    "contact": 0.75,
+    "finish": 1.0
+   }
+  },
+  "ondeck_stretch": {
+   "frames": 72,
+   "first_key_frame": 0,
+   "duration_s": 3.0,
+   "loop": true
+  },
+  "bench_sit": {
+   "frames": 72,
+   "first_key_frame": 0,
+   "duration_s": 3.0,
+   "loop": true
+  },
+  "bench_stand_up": {
+   "frames": 28,
+   "first_key_frame": 0,
+   "duration_s": 1.1667,
+   "loop": false,
+   "events_frame": {
+    "rise_start": 5,
+    "standing": 22
+   },
+   "events_s": {
+    "rise_start": 0.2083,
+    "standing": 0.9167
+   }
+  },
+  "bench_cheer": {
+   "frames": 36,
+   "first_key_frame": 0,
+   "duration_s": 1.5,
+   "loop": false,
+   "events_frame": {
+    "clap": [
+     8,
+     16,
+     24
+    ]
+   },
+   "events_s": {
+    "clap": [
+     0.3333,
+     0.6667,
+     1.0
+    ]
+   }
+  },
+  "coach_ready": {
+   "frames": 60,
+   "first_key_frame": 0,
+   "duration_s": 2.5,
+   "loop": true,
+   "events_frame": {
+    "clap": [
+     33,
+     39
+    ]
+   },
+   "events_s": {
+    "clap": [
+     1.375,
+     1.625
+    ]
+   }
+  },
+  "coach_stop": {
+   "frames": 24,
+   "first_key_frame": 0,
+   "duration_s": 1.0,
+   "loop": false,
+   "events_frame": {
+    "hold_start": 8,
+    "hold_end": 20
+   },
+   "events_s": {
+    "hold_start": 0.3333,
+    "hold_end": 0.8333
+   }
+  },
+  "coach_go": {
+   "frames": 36,
+   "first_key_frame": 0,
+   "duration_s": 1.5,
+   "loop": false,
+   "events_frame": {
+    "windmill_start": 5,
+    "windmill_end": 29
+   },
+   "events_s": {
+    "windmill_start": 0.2083,
+    "windmill_end": 1.2083
+   }
+  },
+  "coach_go_loop": {
+   "frames": 12,
+   "first_key_frame": 0,
+   "duration_s": 0.5,
+   "loop": true,
+   "events_frame": {
+    "revolution_frames": 12
+   },
+   "events_s": {
+    "revolution_frames": 0.5
+   }
+  },
+  "coach_advance": {
+   "frames": 32,
+   "first_key_frame": 0,
+   "duration_s": 1.3333,
+   "loop": false,
+   "events_frame": {
+    "wave_start": 8,
+    "wave_end": 24
+   },
+   "events_s": {
+    "wave_start": 0.3333,
+    "wave_end": 1.0
+   }
+  },
+  "coach_slide": {
+   "frames": 24,
+   "first_key_frame": 0,
+   "duration_s": 1.0,
+   "loop": false,
+   "events_frame": {
+    "push_down": [
+     8,
+     16
+    ]
+   },
+   "events_s": {
+    "push_down": [
+     0.3333,
+     0.6667
+    ]
+   }
+  },
+  "coach_signs": {
+   "frames": 72,
+   "first_key_frame": 0,
+   "duration_s": 3.0,
+   "loop": false,
+   "events_frame": {
+    "touch_cap": 8,
+    "touch_belt": 16,
+    "touch_chest": 24,
+    "touch_arm": 32,
+    "touch_cap_2": 42,
+    "touch_belt_2": 50,
+    "touch_ear": 58
+   },
+   "events_s": {
+    "touch_cap": 0.3333,
+    "touch_belt": 0.6667,
+    "touch_chest": 1.0,
+    "touch_arm": 1.3333,
+    "touch_cap_2": 1.75,
+    "touch_belt_2": 2.0833,
+    "touch_ear": 2.4167
+   }
+  },
+  "ballkid_sit": {
+   "frames": 72,
+   "first_key_frame": 0,
+   "duration_s": 3.0,
+   "loop": true
+  },
+  "ballkid_pickup": {
+   "frames": 36,
+   "first_key_frame": 0,
+   "duration_s": 1.5,
+   "loop": false,
+   "events_frame": {
+    "pickup": 13,
+    "standing": 28
+   },
+   "events_s": {
+    "pickup": 0.5417,
+    "standing": 1.1667
+   }
+  },
+  "ballkid_toss": {
+   "frames": 24,
+   "first_key_frame": 0,
+   "duration_s": 1.0,
+   "loop": false,
+   "events_frame": {
+    "release": 10,
+    "backswing_peak": 6
+   },
+   "events_s": {
+    "release": 0.4167,
+    "backswing_peak": 0.25
+   }
+  },
+  "ballkid_wave": {
+   "frames": 36,
+   "first_key_frame": 0,
+   "duration_s": 1.5,
+   "loop": false,
+   "events_frame": {
+    "wave_start": 4,
+    "wave_end": 32
+   },
+   "events_s": {
+    "wave_start": 0.1667,
+    "wave_end": 1.3333
+   }
+  },
+  "batter_step_in": {
+   "frames": 38,
+   "first_key_frame": 0,
+   "duration_s": 1.5833,
+   "loop": false,
+   "events_frame": {
+    "dig_start": 8,
+    "dig_end": 16,
+    "tap_1": 18,
+    "tap_2": 22,
+    "settled": 38
+   },
+   "events_s": {
+    "dig_start": 0.3333,
+    "dig_end": 0.6667,
+    "tap_1": 0.75,
+    "tap_2": 0.9167,
+    "settled": 1.5833
+   }
+  },
+  "batter_practice_swing": {
+   "frames": 40,
+   "first_key_frame": 0,
+   "duration_s": 1.6667,
+   "loop": false,
+   "events_frame": {
+    "load": 7,
+    "contact": 14,
+    "finish": 20,
+    "back_in_stance": 40
+   },
+   "events_s": {
+    "load": 0.2917,
+    "contact": 0.5833,
+    "finish": 0.8333,
+    "back_in_stance": 1.6667
+   }
+  },
+  "batter_adjust": {
+   "frames": 48,
+   "first_key_frame": 0,
+   "duration_s": 2.0,
+   "loop": false,
+   "events_frame": {
+    "strap_tug": [
+     10,
+     18
+    ],
+    "helmet_touch": [
+     28,
+     32,
+     36
+    ]
+   },
+   "events_s": {
+    "strap_tug": [
+     0.4167,
+     0.75
+    ],
+    "helmet_touch": [
+     1.1667,
+     1.3333,
+     1.5
+    ]
+   }
+  },
+  "batter_step_out": {
+   "frames": 34,
+   "first_key_frame": 0,
+   "duration_s": 1.4167,
+   "loop": false,
+   "events_frame": {
+    "foot_out": 13,
+    "tap_cleats": [
+     21,
+     25,
+     29
+    ]
+   },
+   "events_s": {
+    "foot_out": 0.5417,
+    "tap_cleats": [
+     0.875,
+     1.0417,
+     1.2083
+    ]
+   }
+  },
+  "catcher_signs": {
+   "frames": 53,
+   "first_key_frame": 0,
+   "duration_s": 2.2083,
+   "loop": false,
+   "events_frame": {
+    "flash": [
+     9,
+     20
+    ]
+   },
+   "events_s": {
+    "flash": [
+     0.375,
+     0.8333
+    ]
+   },
+   "finger_keys": [
+    [
+     8,
+     0
+    ],
+    [
+     9,
+     1
+    ],
+    [
+     16,
+     1
+    ],
+    [
+     17,
+     0
+    ],
+    [
+     19,
+     0
+    ],
+    [
+     20,
+     2
+    ],
+    [
+     27,
+     2
+    ],
+    [
+     28,
+     0
+    ]
+   ],
+   "finger_keys_note": "[frame, n]: morph fingers_n = 1 (n fingers extended), 0 = fist, from that frame on (linear blend over 1 frame)"
+  },
+  "catcher_signs_runner_on": {
+   "frames": 60,
+   "first_key_frame": 0,
+   "duration_s": 2.5,
+   "loop": false,
+   "events_frame": {
+    "flash": [
+     9,
+     20,
+     31,
+     42
+    ]
+   },
+   "events_s": {
+    "flash": [
+     0.375,
+     0.8333,
+     1.2917,
+     1.75
+    ]
+   },
+   "finger_keys": [
+    [
+     8,
+     0
+    ],
+    [
+     9,
+     1
+    ],
+    [
+     16,
+     1
+    ],
+    [
+     17,
+     0
+    ],
+    [
+     19,
+     0
+    ],
+    [
+     20,
+     3
+    ],
+    [
+     27,
+     3
+    ],
+    [
+     28,
+     0
+    ],
+    [
+     30,
+     0
+    ],
+    [
+     31,
+     2
+    ],
+    [
+     38,
+     2
+    ],
+    [
+     39,
+     0
+    ],
+    [
+     41,
+     0
+    ],
+    [
+     42,
+     1
+    ],
+    [
+     49,
+     1
+    ],
+    [
+     50,
+     0
+    ]
+   ],
+   "finger_keys_note": "[frame, n]: morph fingers_n = 1 (n fingers extended), 0 = fist, from that frame on (linear blend over 1 frame)"
+  },
+  "catcher_signal_infield": {
+   "frames": 36,
+   "first_key_frame": 0,
+   "duration_s": 1.5,
+   "loop": false,
+   "events_frame": {
+    "gesture": [
+     12,
+     20,
+     24
+    ]
+   },
+   "events_s": {
+    "gesture": [
+     0.5,
+     0.8333,
+     1.0
+    ]
+   },
+   "finger_keys": [
+    [
+     0,
+     0
+    ],
+    [
+     11,
+     0
+    ],
+    [
+     12,
+     2
+    ],
+    [
+     20,
+     2
+    ],
+    [
+     21,
+     1
+    ],
+    [
+     25,
+     1
+    ],
+    [
+     26,
+     0
+    ]
+   ],
+   "finger_keys_note": "[frame, n]: morph fingers_n = 1 (n fingers extended), 0 = fist, from that frame on (linear blend over 1 frame)"
+  },
+  "bullpen_catcher_ready": {
+   "frames": 48,
+   "first_key_frame": 0,
+   "duration_s": 2.0,
+   "loop": true
+  },
+  "pitcher_shake_off": {
+   "frames": 24,
+   "first_key_frame": 0,
+   "duration_s": 1.0,
+   "loop": false,
+   "events_frame": {
+    "shake": [
+     4,
+     8,
+     12,
+     16
+    ]
+   },
+   "events_s": {
+    "shake": [
+     0.1667,
+     0.3333,
+     0.5,
+     0.6667
+    ]
+   }
+  },
+  "pitcher_nod": {
+   "frames": 19,
+   "first_key_frame": 0,
+   "duration_s": 0.7917,
+   "loop": false,
+   "events_frame": {
+    "nod": [
+     4,
+     12
+    ]
+   },
+   "events_s": {
+    "nod": [
+     0.1667,
+     0.5
+    ]
+   }
+  },
+  "pitcher_step_off": {
+   "frames": 36,
+   "first_key_frame": 0,
+   "duration_s": 1.5,
+   "loop": false,
+   "events_frame": {
+    "back_foot_off": 8,
+    "stepped_off": 26
+   },
+   "events_s": {
+    "back_foot_off": 0.3333,
+    "stepped_off": 1.0833
+   }
+  },
+  "pitcher_step_on": {
+   "frames": 36,
+   "first_key_frame": 0,
+   "duration_s": 1.5,
+   "loop": false,
+   "events_frame": {
+    "stepping_on": 10,
+    "on_rubber": 36
+   },
+   "events_s": {
+    "stepping_on": 0.4167,
+    "on_rubber": 1.5
+   }
+  },
+  "pitcher_rosin": {
+   "frames": 43,
+   "first_key_frame": 0,
+   "duration_s": 1.7917,
+   "loop": false,
+   "events_frame": {
+    "rosin_touch": [
+     9,
+     16
+    ],
+    "clap": [
+     23,
+     29
+    ]
+   },
+   "events_s": {
+    "rosin_touch": [
+     0.375,
+     0.6667
+    ],
+    "clap": [
+     0.9583,
+     1.2083
+    ]
+   }
+  },
+  "pitcher_adjust": {
+   "frames": 38,
+   "first_key_frame": 0,
+   "duration_s": 1.5833,
+   "loop": false,
+   "events_frame": {
+    "cap_touch": [
+     8,
+     12
+    ],
+    "rub_ball": [
+     20,
+     26
+    ]
+   },
+   "events_s": {
+    "cap_touch": [
+     0.3333,
+     0.5
+    ],
+    "rub_ball": [
+     0.8333,
+     1.0833
+    ]
+   }
+  },
+  "pitcher_look_runner": {
+   "frames": 24,
+   "first_key_frame": 0,
+   "duration_s": 1.0,
+   "loop": false,
+   "events_frame": {
+    "look_peak": 8,
+    "look_end": 15
+   },
+   "events_s": {
+    "look_peak": 0.3333,
+    "look_end": 0.625
+   }
+  },
+  "pitcher_handoff": {
+   "frames": 30,
+   "first_key_frame": 0,
+   "duration_s": 1.25,
+   "loop": false,
+   "events_frame": {
+    "handoff": 13
+   },
+   "events_s": {
+    "handoff": 0.5417
+   }
+  },
+  "warmup_pitch": {
+   "frames": 29,
+   "first_key_frame": 0,
+   "duration_s": 1.2083,
+   "loop": false,
+   "events_frame": {
+    "hand_break": 7,
+    "plant": 10,
+    "release": 13
+   },
+   "events_s": {
+    "hand_break": 0.2917,
+    "plant": 0.4167,
+    "release": 0.5417
+   },
+   "pairs_with": "catch_pitch (catch f7 = ball arrival ~0.4 s after release)"
+  },
+  "bullpen_throw": {
+   "frames": 34,
+   "first_key_frame": 0,
+   "duration_s": 1.4167,
+   "loop": false,
+   "events_frame": {
+    "release": 14
+   },
+   "events_s": {
+    "release": 0.5833
+   }
+  },
+  "mound_talk": {
+   "frames": 72,
+   "first_key_frame": 0,
+   "duration_s": 3.0,
+   "loop": true
+  },
+  "mound_talk_listen": {
+   "frames": 72,
+   "first_key_frame": 0,
+   "duration_s": 3.0,
+   "loop": true
+  },
+  "mound_talk_cover": {
+   "frames": 60,
+   "first_key_frame": 0,
+   "duration_s": 2.5,
+   "loop": true
+  },
+  "manager_walk": {
+   "frames": 20,
+   "first_key_frame": 0,
+   "duration_s": 0.8333,
+   "loop": true,
+   "footSpeed": 1.2,
+   "cycle_s": 0.8333,
+   "distance_per_cycle_m": 1.0,
+   "playbackRate_rule": "rate = groundSpeed / footSpeed (the stance foot then stays planted)"
+  },
+  "manager_signal": {
+   "frames": 43,
+   "first_key_frame": 0,
+   "duration_s": 1.7917,
+   "loop": false,
+   "events_frame": {
+    "arm_up": 11,
+    "point_start": 20,
+    "point_hold": [
+     24,
+     32
+    ]
+   },
+   "events_s": {
+    "arm_up": 0.4583,
+    "point_start": 0.8333,
+    "point_hold": [
+     1.0,
+     1.3333
+    ]
+   }
+  },
+  "manager_challenge": {
+   "frames": 29,
+   "first_key_frame": 0,
+   "duration_s": 1.2083,
+   "loop": false,
+   "events_frame": {
+    "tap": [
+     9,
+     13,
+     17
+    ]
+   },
+   "events_s": {
+    "tap": [
+     0.375,
+     0.5417,
+     0.7083
+    ]
+   }
+  },
+  "ump_brush_plate": {
+   "frames": 60,
+   "first_key_frame": 0,
+   "duration_s": 2.5,
+   "loop": false,
+   "events_frame": {
+    "bend_done": 8,
+    "strokes": [
+     16,
+     24,
+     32,
+     40
+    ],
+    "upright": 50
+   },
+   "events_s": {
+    "bend_done": 0.3333,
+    "strokes": [
+     0.6667,
+     1.0,
+     1.3333,
+     1.6667
+    ],
+    "upright": 2.0833
+   }
+  },
+  "ump_new_ball": {
+   "frames": 36,
+   "first_key_frame": 0,
+   "duration_s": 1.5,
+   "loop": false,
+   "events_frame": {
+    "ball_taken": 13,
+    "release": 21,
+    "tossed": 24
+   },
+   "events_s": {
+    "ball_taken": 0.5417,
+    "release": 0.875,
+    "tossed": 1.0
+   }
+  },
+  "ump_huddle": {
+   "frames": 72,
+   "first_key_frame": 0,
+   "duration_s": 3.0,
+   "loop": true
+  }
+ },
+ "files": {
+  "player_base": "everything (all optional nodes, all four gloves, both hands per side)",
+  "player_home / player_away": "fielder, infield glove",
+  "player_home_of / player_away_of": "outfielder, larger outfield glove",
+  "player_home_1b / player_away_1b": "first baseman, long 1B mitt",
+  "player_catcher": "catcher, big round mitt + gear",
+  "player_batter": "batter (helmet, batting gloves, fist hands)",
+  "player_coach": "base coach (1B/3B): uniform, helmet visible by default (Gear_Cap and Gear_LineupCard optional), wristbands, no glove",
+  "player_manager": "manager: older face (default morphs build_stocky .55, cheeks_full .6, brow_heavy .5, eyes_deep .5, jaw_square .3, nose_large .3), gray hair, team jacket `Gear_Jacket` over the uniform, `Gear_Beard_Stubble` (gray) visible, optional `Gear_Beard_Full` / `Gear_Mustache` / `Gear_Hair_Buzz`",
+  "player_ballkid": "ball kid: polo, shorts, cap, 1.55 m (Armature node scale 0.838, extras cb_height_m), slimmer build default (build_lean 0.55), no glove; `bat_donut.glb`: weighted warm-up donut `Bat_Donut` (bat frame, sits at 0.50 m from the knob)",
+  "player_umpire": "plate umpire (navy, mask, chest protector, shin guards)",
+  "player_umpire_base": "base umpire (navy uniform and cap only)",
+  "note": "in the glove files the node `Gear_Glove` is that role's glove, `Glove_Pocket` its pocket, `Hand_L` the open hand that lives inside it and `Hand_R` the ball-ready claw hand; each lod1/optimized/plain variant of a file has the same content"
+ },
+ "morph_targets": {
+  "body": [
+   "build_lean",
+   "build_stocky",
+   "build_muscular",
+   "build_heavy"
+  ],
+  "head": [
+   "head_narrow",
+   "head_wide"
+  ],
+  "head_only": [
+   "jaw_square",
+   "nose_large",
+   "ears_large",
+   "brow_heavy",
+   "chin_strong",
+   "cheeks_full",
+   "nose_narrow",
+   "eyes_deep"
+  ],
+  "expressions": [
+   "eyes_blink",
+   "mouth_open",
+   "smile",
+   "brow_raise",
+   "brow_furrow",
+   "mouth_pucker"
+  ],
+  "eyes_only": [
+   "eyes_look_left",
+   "eyes_look_right",
+   "eyes_look_up",
+   "eyes_look_down"
+  ],
+  "hair_only": [
+   "hair_under_cap"
+  ],
+  "glove": [
+   "glove_open",
+   "glove_closed"
+  ],
+  "hand": [
+   "fingers_1",
+   "fingers_2",
+   "fingers_3",
+   "fingers_4"
+  ],
+  "note": "influence 0..1 (mouth_open: 1 = a natural talking / shouting opening, larger openings would expose the jagged MPFB mouth interior). body keys on every skinned body/clothing mesh; head keys on the Head and every head-attached mesh (hair, caps, helmet, mask, beards, brows, lashes, teeth; the key set per node differs: expressions only on Head / Eyebrows / Eyelashes / Teeth / Tongue / beards); eyes_look_* on `Eyes` and `Eyes_Cornea` (both globes turn together, 22 deg left/right, 18 deg up/down); fingers_n on Hand_R (n fingers extended, index first); glove_open/closed on the glove, its laces and the hand inside; hair_under_cap squashes hair under a cap. All head / face keys are MPFB2 (CC0) targets re-fitted to our rig, see CREDITS.md"
+ },
+ "grips": {
+  "Bat_Grip": "RightHand, origin = knob, +Y = barrel",
+  "Ball_Grip": "RightHand, 4-seam (ball symmetry axis toward the thumb side); show the claw hand",
+  "Ball_Grip_2Seam": "RightHand, ball turned 90 deg",
+  "Elbow_Pole_L / Elbow_Pole_R": "Spine1, origin = where each elbow sits in the batting stance (swivel target for hand IK)",
+  "Glove_Pocket": "LeftHand, origin = pocket centre (where the ball sits, 5-8 mm clearance from the leather), glTF +Y = pocket opening normal, +X along the fingers; Glove_Pocket_Outfield / _FirstBase / _Catcher in player_base"
+ },
+ "node_groups": {
+  "jersey": [
+   "Jersey (default, elbow sleeves)",
+   "Jersey_ShortSleeve",
+   "Jersey_Sleeveless"
+  ],
+  "pants": [
+   "Pants (default, knee)",
+   "Pants_Long"
+  ],
+  "hair": [
+   "Gear_Hair (default short crop)",
+   "Gear_Hair_Buzz",
+   "Gear_Hair_Curly",
+   "Gear_Hair_Long",
+   "Gear_Hair_SidePart",
+   "Gear_Hair_SlickBack",
+   "Gear_Hair_Bob",
+   "Gear_Hair_Ponytail",
+   "Gear_Hair_Receding",
+   "Gear_Hair_Balding"
+  ],
+  "face_parts": [
+   "Eyes",
+   "Eyes_Cornea",
+   "Gear_Eyebrows",
+   "Gear_Eyelashes",
+   "Gear_Teeth (base only)",
+   "Gear_Tongue (base only)"
+  ],
+  "facial_hair": [
+   "Gear_Beard_Stubble",
+   "Gear_Beard_Full",
+   "Gear_Mustache",
+   "Gear_Goatee"
+  ],
+  "headwear": [
+   "Gear_Cap",
+   "Gear_CapLogo (stitched logo on the cap front, own material cap_logo)",
+   "Gear_Helmet"
+  ],
+  "accessory": [
+   "Gear_EyeBlack",
+   "Gear_BattingGlove_L/R (fist, on the bat)",
+   "Gear_BattingGlove_L/R_Relaxed (same glove on the relaxed hand: runners, base coaches; player_base only)",
+   "Gear_Wristband_L/R",
+   "Gear_ArmSleeve_L/R",
+   "Gear_Glove(+_Outfield/_FirstBase/_Catcher) and *_Laces"
+  ],
+  "trim": [
+   "Gear_Piping",
+   "Gear_Buttons"
+  ],
+  "belt": [
+   "Gear_Belt",
+   "Gear_BeltBuckle"
+  ],
+  "shoe": [
+   "Cleats",
+   "Gear_Soles",
+   "Gear_Spikes (metal cleat spikes, material spikes)",
+   "Gear_Laces"
+  ],
+  "guide": [
+   "Elbow_Pole_L",
+   "Elbow_Pole_R"
+  ],
+  "hand": [
+   "Hand_R (fist for the bat in player_batter; claw holding the ball in the glove files; relaxed otherwise)",
+   "Hand_R_Ball (claw, base file)",
+   "Hand_L (fist / relaxed / the open hand inside the glove)",
+   "Hand_L_Open (inside the glove, base file)",
+   "Hand_L_Relaxed / Hand_R_Relaxed (base file)"
+  ],
+  "note": "every node carries glTF extras {cb_group, cb_default}; cb_default = 1 means visible in that file's pre-configured look. Optional variants exist only in player_base.glb"
+ },
+ "jersey_decals": {
+  "note": "Four thin patches that conform to the jersey (1 mm above it), skinned like the jersey, own UV 0-1 and own material; the engine replaces the material's baseColorTexture with a canvas texture per player (RGBA, straight alpha, alphaMode MASK cutoff 0.5: draw fill + outline in the team colours, leave the rest transparent). Text is written STRAIGHT: the arch of the name is baked into the mesh. Texture aspect = patch aspect (no stretching). Placeholder textures (white text, navy outline: PLAYER / 27) ship in the files; the old baked numbers (Gear_Number_Tens/Ones, material jersey_number) stay in the files, hidden by default (cb_default 0), as fallbacks. LOD1 files keep only Jersey_BackNumberDecal.",
+  "nodes": {
+   "Jersey_BackNameDecal": {
+    "material": "jersey_decal_name",
+    "patch_m": [
+     0.36,
+     0.09
+    ],
+    "aspect": 4.0,
+    "texture": [
+     1024,
+     256
+    ],
+    "min_texture": [
+     512,
+     128
+    ],
+    "text": "LAST NAME in capitals, block letters ~7.5 cm cap height (3 in) in a 9 cm band, max width 0.36 m including the outline: scale the font down for long names (up to 14 letters: letters ~2.3 cm wide at 36 cm); u runs left to right as seen from behind (wearer's left to right), v up; arch radius 0.45 m (ends 3.6 cm lower than the centre, letters fan out radially, +-11 % width top vs bottom)",
+    "centre_model_m": [
+     0.0,
+     1.41
+    ]
+   },
+   "Jersey_BackNumberDecal": {
+    "material": "jersey_decal_backnum",
+    "patch_m": [
+     0.25,
+     0.25
+    ],
+    "aspect": 1.0,
+    "texture": [
+     512,
+     512
+    ],
+    "min_texture": [
+     256,
+     256
+    ],
+    "text": "1-2 digits, 24 cm (9.5 in) tall, centred; two digits ~11 cm wide each; u left to right as seen from behind",
+    "centre_model_m": [
+     0.0,
+     1.185
+    ]
+   },
+   "Jersey_FrontNumberDecal": {
+    "material": "jersey_decal_frontnum",
+    "patch_m": [
+     0.14,
+     0.14
+    ],
+    "aspect": 1.0,
+    "texture": [
+     256,
+     256
+    ],
+    "min_texture": [
+     128,
+     128
+    ],
+    "text": "1-2 digits ~11 cm (4.5 in) tall, on the wearer's right chest (viewer's left), u left to right as seen from the front",
+    "centre_model_m": [
+     -0.085,
+     1.365
+    ]
+   },
+   "Jersey_SleeveNumberDecal": {
+    "material": "jersey_decal_sleevenum",
+    "patch_m": [
+     0.085,
+     0.085
+    ],
+    "aspect": 1.0,
+    "texture": [
+     128,
+     128
+    ],
+    "min_texture": [
+     64,
+     64
+    ],
+    "text": "1-2 digits ~7.5 cm (3 in) tall on the left upper sleeve, v points toward the shoulder, u runs toward the back (as seen from outside)",
+    "centre_model_m": "52 % along the left upper arm"
+   }
+  }
+ },
+ "headwear_nodes": {
+  "Gear_Helmet": "batting helmet (round ABS shell, short moulded bill, ear flaps over BOTH ears with a small ear hole each) + Gear_HelmetLogo (front patch, material cap_logo); player_catcher exports the hockey-style catcher's helmet under the name Gear_Helmet (Gear_Helmet_Catcher in player_base)",
+  "Gear_CatcherMask": "catcher's wire cage (hockey style, 4 horizontal + 3 vertical bars, forehead pad); player_umpire exports the traditional umpire mask (6 + 5 bars, forehead / chin pads, two straps) under the same name (Gear_UmpireMask in player_base)",
+  "material_mask": "mask = coated steel bars; mask_pad (second material slot) = pads and straps"
+ },
+ "skin_tones_baseColorFactor_linear": {
+  "#f4d2b8": [
+   0.9047,
+   0.6445,
+   0.4793,
+   1
+  ],
+  "#e8bb98": [
+   0.807,
+   0.4969,
+   0.314,
+   1
+  ],
+  "#d8a276": [
+   0.6867,
+   0.3613,
+   0.1812,
+   1
+  ],
+  "#c48858": [
+   0.552,
+   0.2462,
+   0.0976,
+   1
+  ],
+  "#a96c44": [
+   0.3968,
+   0.15,
+   0.0578,
+   1
+  ],
+  "#8c5836": [
+   0.2623,
+   0.0976,
+   0.0369,
+   1
+  ],
+  "#6f4229": [
+   0.159,
+   0.0545,
+   0.0222,
+   1
+  ],
+  "#573220": [
+   0.0953,
+   0.0319,
+   0.0144,
+   1
+  ],
+  "#f0c8ad": [
+   0.8714,
+   0.5776,
+   0.4179,
+   1
+  ],
+  "#dcaa84": [
+   0.7157,
+   0.402,
+   0.2307,
+   1
+  ]
+ },
+ "hair_colors_baseColorFactor_linear": {
+  "black": [
+   0.0033,
+   0.0027,
+   0.0024,
+   1
+  ],
+  "dark_brown": [
+   0.0232,
+   0.0103,
+   0.0052,
+   1
+  ],
+  "brown": [
+   0.0685,
+   0.0284,
+   0.0116,
+   1
+  ],
+  "chestnut": [
+   0.147,
+   0.0497,
+   0.016,
+   1
+  ],
+  "auburn": [
+   0.1946,
+   0.0423,
+   0.013,
+   1
+  ],
+  "blond": [
+   0.4621,
+   0.2582,
+   0.0685,
+   1
+  ],
+  "light_blond": [
+   0.6724,
+   0.4793,
+   0.1845,
+   1
+  ],
+  "gray": [
+   0.2542,
+   0.2423,
+   0.2307,
+   1
+  ],
+  "white": [
+   0.6867,
+   0.6654,
+   0.6308,
+   1
+  ],
+  "red": [
+   0.2747,
+   0.0423,
+   0.0103,
+   1
+  ]
+ },
+ "materials_recolor": [
+  "skin",
+  "face (same atlas as skin: recolour both with the same baseColorFactor)",
+  "hair (+ hair_short01, hair_short03, hair_short04, hair_bob01, hair_afro01, hair_long01, hair_ponytail01: luminance-normalised strand textures, recolour all `hair*`; `hair_beard` = opaque fibre texture of Gear_Beard_Full / Gear_Mustache / Gear_Goatee)",
+  "eyebrow",
+  "eyelash",
+  "eye (iris colour is in the texture; alternative iris colours: players/textures/eyes_<colour>.webp)",
+  "cornea",
+  "stubble",
+  "uniform_jersey",
+  "uniform_undershirt",
+  "uniform_pants",
+  "uniform_socks",
+  "piping",
+  "cap",
+  "helmet",
+  "glove",
+  "glove_laces",
+  "batting_glove",
+  "wristband",
+  "arm_sleeve",
+  "belt",
+  "buckle",
+  "cleats",
+  "laces",
+  "sole",
+  "spikes",
+  "cap_logo (own colours; do not recolour)",
+  "jersey_number",
+  "eyeblack",
+  "button",
+  "catcher_gear"
+ ],
+ "extra_textures": {
+  "eyes_<colour>.webp": "optimized/players/textures/eyes_brown|hazel|green|blue|gray.webp: equirect iris textures to swap onto material `eye`",
+  "skin_sss.webp": "optimized/players/textures/skin_sss.webp: R = skin thickness (0..4 cm), G = curvature, same UV layout as the skin atlas (materials skin / face)"
+ },
+ "elbow_guides": {
+  "file": "players/elbow_guides.json",
+  "node": "Elbow_Pole_L / Elbow_Pole_R (children of Spine1: elbow position in the batting stance)",
+  "clips": [
+   "batting_stance",
+   "swing",
+   "ondeck_swing"
+  ]
+ },
+ "swing_bat_path": {
+  "file": "players/swing_bat_path.json",
+  "note": "Bat_Grip of `swing` per frame in sim world coordinates (right-handed batter)"
+ },
+ "locomotion_footSpeed_mps": {
+  "manager_walk": 1.2,
+  "walk": 1.42,
+  "trot": 2.2,
+  "jog": 3.5,
+  "run": 5.0,
+  "run_sprint": 7.0,
+  "run_turn": 5.0,
+  "run_turn_sprint": 7.0
+ },
+ "budgets": {
+  "note": "measured by src/perf_budget.mjs on optimized/players (lod0) and optimized/lod1 (lod1): triangles / draw calls of the nodes visible by default, morph memory (vertices x targets x 12 B), texture bytes in the file, estimated GPU texture memory (KTX2 ETC1S/UASTC counted as 8 bpp x 4/3 mips = worst case; 4 bpp on ETC2 / opaque ETC1S devices). `_texture_sharing`: identical textures (same sha1) across the files",
+  "files": {
+   "lod0/player_away": {
+    "size_mb": 7.28,
+    "lod1": false,
+    "visible_meshes": 29,
+    "draw_calls_default": 29,
+    "materials_default": [
+     "belt",
+     "buckle",
+     "button",
+     "cap",
+     "cap_logo",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "glove",
+     "glove_laces",
+     "hair",
+     "jersey_decal_backnum",
+     "jersey_decal_frontnum",
+     "jersey_decal_name",
+     "jersey_decal_sleevenum",
+     "piping",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_jersey",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 70311,
+    "vertices_default": 45221,
+    "morph_targets_total": 146,
+    "morph_memory_mb": 6.14,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 33,
+    "texture_file_kb": 3515,
+    "gpu_texture_mb_worst": 40.4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 20.2,
+    "gpu_texture_mb_used_by_visible": 40.1
+   },
+   "lod0/player_away_1b": {
+    "size_mb": 7.22,
+    "lod1": false,
+    "visible_meshes": 29,
+    "draw_calls_default": 29,
+    "materials_default": [
+     "belt",
+     "buckle",
+     "button",
+     "cap",
+     "cap_logo",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "glove",
+     "glove_laces",
+     "hair",
+     "jersey_decal_backnum",
+     "jersey_decal_frontnum",
+     "jersey_decal_name",
+     "jersey_decal_sleevenum",
+     "piping",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_jersey",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 68270,
+    "vertices_default": 43171,
+    "morph_targets_total": 146,
+    "morph_memory_mb": 6.05,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 33,
+    "texture_file_kb": 3515,
+    "gpu_texture_mb_worst": 40.4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 20.2,
+    "gpu_texture_mb_used_by_visible": 40.1
+   },
+   "lod0/player_away_of": {
+    "size_mb": 7.3,
+    "lod1": false,
+    "visible_meshes": 29,
+    "draw_calls_default": 29,
+    "materials_default": [
+     "belt",
+     "buckle",
+     "button",
+     "cap",
+     "cap_logo",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "glove",
+     "glove_laces",
+     "hair",
+     "jersey_decal_backnum",
+     "jersey_decal_frontnum",
+     "jersey_decal_name",
+     "jersey_decal_sleevenum",
+     "piping",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_jersey",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 72047,
+    "vertices_default": 46140,
+    "morph_targets_total": 146,
+    "morph_memory_mb": 6.19,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 33,
+    "texture_file_kb": 3515,
+    "gpu_texture_mb_worst": 40.4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 20.2,
+    "gpu_texture_mb_used_by_visible": 40.1
+   },
+   "lod0/player_ballkid": {
+    "size_mb": 5.69,
+    "lod1": false,
+    "visible_meshes": 19,
+    "draw_calls_default": 19,
+    "materials_default": [
+     "cap",
+     "cap_logo",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "hair",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 54887,
+    "vertices_default": 32607,
+    "morph_targets_total": 108,
+    "morph_memory_mb": 5.34,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 21,
+    "texture_file_kb": 2343,
+    "gpu_texture_mb_worst": 23.3,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 11.7,
+    "gpu_texture_mb_used_by_visible": 23.3
+   },
+   "lod0/player_base": {
+    "size_mb": 12.89,
+    "lod1": false,
+    "visible_meshes": 29,
+    "draw_calls_default": 29,
+    "materials_default": [
+     "belt",
+     "buckle",
+     "button",
+     "cap",
+     "cap_logo",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "glove",
+     "glove_laces",
+     "hair",
+     "jersey_decal_backnum",
+     "jersey_decal_frontnum",
+     "jersey_decal_name",
+     "jersey_decal_sleevenum",
+     "piping",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_jersey",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 70311,
+    "vertices_default": 45221,
+    "morph_targets_total": 144,
+    "morph_memory_mb": 6.06,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 47,
+    "texture_file_kb": 5290,
+    "gpu_texture_mb_worst": 57,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 28.5,
+    "gpu_texture_mb_used_by_visible": 40.1
+   },
+   "lod0/player_batter": {
+    "size_mb": 6.97,
+    "lod1": false,
+    "visible_meshes": 27,
+    "draw_calls_default": 27,
+    "materials_default": [
+     "batting_glove",
+     "belt",
+     "buckle",
+     "button",
+     "cap_logo",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "hair",
+     "helmet",
+     "jersey_decal_backnum",
+     "jersey_decal_frontnum",
+     "jersey_decal_name",
+     "jersey_decal_sleevenum",
+     "piping",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_jersey",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 64479,
+    "vertices_default": 41057,
+    "morph_targets_total": 140,
+    "morph_memory_mb": 6.21,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 30,
+    "texture_file_kb": 3200,
+    "gpu_texture_mb_worst": 36.4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 18.2,
+    "gpu_texture_mb_used_by_visible": 36.1
+   },
+   "lod0/player_catcher": {
+    "size_mb": 7.89,
+    "lod1": false,
+    "visible_meshes": 32,
+    "draw_calls_default": 33,
+    "materials_default": [
+     "belt",
+     "buckle",
+     "button",
+     "catcher_gear",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "glove",
+     "glove_laces",
+     "hair",
+     "helmet",
+     "jersey_decal_backnum",
+     "jersey_decal_frontnum",
+     "jersey_decal_name",
+     "jersey_decal_sleevenum",
+     "mask",
+     "mask_pad",
+     "piping",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_jersey",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 84997,
+    "vertices_default": 55046,
+    "morph_targets_total": 165,
+    "morph_memory_mb": 7.38,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 34,
+    "texture_file_kb": 3704,
+    "gpu_texture_mb_worst": 43.7,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 21.9,
+    "gpu_texture_mb_used_by_visible": 43.4
+   },
+   "lod0/player_coach": {
+    "size_mb": 7.01,
+    "lod1": false,
+    "visible_meshes": 28,
+    "draw_calls_default": 28,
+    "materials_default": [
+     "belt",
+     "buckle",
+     "button",
+     "cap_logo",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "hair",
+     "helmet",
+     "jersey_decal_backnum",
+     "jersey_decal_frontnum",
+     "jersey_decal_name",
+     "jersey_decal_sleevenum",
+     "piping",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_jersey",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 64279,
+    "vertices_default": 39101,
+    "morph_targets_total": 147,
+    "morph_memory_mb": 6.39,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 30,
+    "texture_file_kb": 3200,
+    "gpu_texture_mb_worst": 36.4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 18.2,
+    "gpu_texture_mb_used_by_visible": 36.1
+   },
+   "lod0/player_home": {
+    "size_mb": 7.28,
+    "lod1": false,
+    "visible_meshes": 29,
+    "draw_calls_default": 29,
+    "materials_default": [
+     "belt",
+     "buckle",
+     "button",
+     "cap",
+     "cap_logo",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "glove",
+     "glove_laces",
+     "hair",
+     "jersey_decal_backnum",
+     "jersey_decal_frontnum",
+     "jersey_decal_name",
+     "jersey_decal_sleevenum",
+     "piping",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_jersey",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 70311,
+    "vertices_default": 45221,
+    "morph_targets_total": 146,
+    "morph_memory_mb": 6.14,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 33,
+    "texture_file_kb": 3515,
+    "gpu_texture_mb_worst": 40.4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 20.2,
+    "gpu_texture_mb_used_by_visible": 40.1
+   },
+   "lod0/player_home_1b": {
+    "size_mb": 7.22,
+    "lod1": false,
+    "visible_meshes": 29,
+    "draw_calls_default": 29,
+    "materials_default": [
+     "belt",
+     "buckle",
+     "button",
+     "cap",
+     "cap_logo",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "glove",
+     "glove_laces",
+     "hair",
+     "jersey_decal_backnum",
+     "jersey_decal_frontnum",
+     "jersey_decal_name",
+     "jersey_decal_sleevenum",
+     "piping",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_jersey",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 68270,
+    "vertices_default": 43171,
+    "morph_targets_total": 146,
+    "morph_memory_mb": 6.05,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 33,
+    "texture_file_kb": 3515,
+    "gpu_texture_mb_worst": 40.4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 20.2,
+    "gpu_texture_mb_used_by_visible": 40.1
+   },
+   "lod0/player_home_of": {
+    "size_mb": 7.3,
+    "lod1": false,
+    "visible_meshes": 29,
+    "draw_calls_default": 29,
+    "materials_default": [
+     "belt",
+     "buckle",
+     "button",
+     "cap",
+     "cap_logo",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "glove",
+     "glove_laces",
+     "hair",
+     "jersey_decal_backnum",
+     "jersey_decal_frontnum",
+     "jersey_decal_name",
+     "jersey_decal_sleevenum",
+     "piping",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_jersey",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 72047,
+    "vertices_default": 46140,
+    "morph_targets_total": 146,
+    "morph_memory_mb": 6.19,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 33,
+    "texture_file_kb": 3515,
+    "gpu_texture_mb_worst": 40.4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 20.2,
+    "gpu_texture_mb_used_by_visible": 40.1
+   },
+   "lod0/player_manager": {
+    "size_mb": 7.68,
+    "lod1": false,
+    "visible_meshes": 29,
+    "draw_calls_default": 29,
+    "materials_default": [
+     "belt",
+     "buckle",
+     "button",
+     "cap",
+     "cap_logo",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "hair",
+     "jacket",
+     "jersey_decal_backnum",
+     "jersey_decal_frontnum",
+     "jersey_decal_name",
+     "jersey_decal_sleevenum",
+     "skin",
+     "sole",
+     "spikes",
+     "stubble",
+     "uniform_jersey",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 66051,
+    "vertices_default": 40721,
+    "morph_targets_total": 156,
+    "morph_memory_mb": 6.34,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 33,
+    "texture_file_kb": 3557,
+    "gpu_texture_mb_worst": 38.4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 19.2,
+    "gpu_texture_mb_used_by_visible": 36.1
+   },
+   "lod0/player_umpire": {
+    "size_mb": 7.17,
+    "lod1": false,
+    "visible_meshes": 28,
+    "draw_calls_default": 29,
+    "materials_default": [
+     "belt",
+     "buckle",
+     "button",
+     "cap",
+     "cap_logo",
+     "catcher_gear",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "hair",
+     "mask",
+     "mask_pad",
+     "piping",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 69691,
+    "vertices_default": 45638,
+    "morph_targets_total": 142,
+    "morph_memory_mb": 6.36,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 27,
+    "texture_file_kb": 3342,
+    "gpu_texture_mb_worst": 39.3,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 19.7,
+    "gpu_texture_mb_used_by_visible": 39.3
+   },
+   "lod0/player_umpire_base": {
+    "size_mb": 6.59,
+    "lod1": false,
+    "visible_meshes": 23,
+    "draw_calls_default": 23,
+    "materials_default": [
+     "belt",
+     "buckle",
+     "button",
+     "cap",
+     "cap_logo",
+     "cleats",
+     "cornea",
+     "eye",
+     "eyebrow",
+     "eyelash",
+     "hair",
+     "piping",
+     "skin",
+     "sole",
+     "spikes",
+     "uniform_pants",
+     "uniform_socks",
+     "uniform_undershirt"
+    ],
+    "triangles_default": 58055,
+    "vertices_default": 35454,
+    "morph_targets_total": 124,
+    "morph_memory_mb": 5.6,
+    "joints": 22,
+    "animations": 118,
+    "animation_mb": 1.07,
+    "textures": 24,
+    "texture_file_kb": 3121,
+    "gpu_texture_mb_worst": 35.3,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 17.7,
+    "gpu_texture_mb_used_by_visible": 35.3
+   },
+   "lod1/player_away": {
+    "size_mb": 0.8,
+    "lod1": true,
+    "visible_meshes": 4,
+    "draw_calls_default": 4,
+    "materials_default": [
+     "hair",
+     "jersey_decal_backnum",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 11377,
+    "vertices_default": 8306,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 6,
+    "texture_file_kb": 636,
+    "gpu_texture_mb_worst": 4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3.3,
+    "gpu_texture_mb_used_by_visible": 1.3
+   },
+   "lod1/player_away_1b": {
+    "size_mb": 0.79,
+    "lod1": true,
+    "visible_meshes": 4,
+    "draw_calls_default": 4,
+    "materials_default": [
+     "hair",
+     "jersey_decal_backnum",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 11266,
+    "vertices_default": 8169,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 6,
+    "texture_file_kb": 636,
+    "gpu_texture_mb_worst": 4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3.3,
+    "gpu_texture_mb_used_by_visible": 1.3
+   },
+   "lod1/player_away_of": {
+    "size_mb": 0.8,
+    "lod1": true,
+    "visible_meshes": 4,
+    "draw_calls_default": 4,
+    "materials_default": [
+     "hair",
+     "jersey_decal_backnum",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 11500,
+    "vertices_default": 8431,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 6,
+    "texture_file_kb": 636,
+    "gpu_texture_mb_worst": 4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3.3,
+    "gpu_texture_mb_used_by_visible": 1.3
+   },
+   "lod1/player_ballkid": {
+    "size_mb": 0.68,
+    "lod1": true,
+    "visible_meshes": 3,
+    "draw_calls_default": 3,
+    "materials_default": [
+     "hair",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 10140,
+    "vertices_default": 6839,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 4,
+    "texture_file_kb": 554,
+    "gpu_texture_mb_worst": 3.3,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3,
+    "gpu_texture_mb_used_by_visible": 0.7
+   },
+   "lod1/player_base": {
+    "size_mb": 0.8,
+    "lod1": true,
+    "visible_meshes": 4,
+    "draw_calls_default": 4,
+    "materials_default": [
+     "hair",
+     "jersey_decal_backnum",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 11377,
+    "vertices_default": 8308,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 6,
+    "texture_file_kb": 636,
+    "gpu_texture_mb_worst": 4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3.3,
+    "gpu_texture_mb_used_by_visible": 1.3
+   },
+   "lod1/player_batter": {
+    "size_mb": 0.81,
+    "lod1": true,
+    "visible_meshes": 4,
+    "draw_calls_default": 4,
+    "materials_default": [
+     "hair",
+     "jersey_decal_backnum",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 12800,
+    "vertices_default": 9251,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 6,
+    "texture_file_kb": 636,
+    "gpu_texture_mb_worst": 4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3.3,
+    "gpu_texture_mb_used_by_visible": 1.3
+   },
+   "lod1/player_catcher": {
+    "size_mb": 0.87,
+    "lod1": true,
+    "visible_meshes": 4,
+    "draw_calls_default": 4,
+    "materials_default": [
+     "hair",
+     "jersey_decal_backnum",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 16497,
+    "vertices_default": 12477,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 6,
+    "texture_file_kb": 636,
+    "gpu_texture_mb_worst": 4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3.3,
+    "gpu_texture_mb_used_by_visible": 1.3
+   },
+   "lod1/player_coach": {
+    "size_mb": 0.81,
+    "lod1": true,
+    "visible_meshes": 4,
+    "draw_calls_default": 4,
+    "materials_default": [
+     "hair",
+     "jersey_decal_backnum",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 13082,
+    "vertices_default": 9042,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 6,
+    "texture_file_kb": 636,
+    "gpu_texture_mb_worst": 4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3.3,
+    "gpu_texture_mb_used_by_visible": 1.3
+   },
+   "lod1/player_home": {
+    "size_mb": 0.8,
+    "lod1": true,
+    "visible_meshes": 4,
+    "draw_calls_default": 4,
+    "materials_default": [
+     "hair",
+     "jersey_decal_backnum",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 11377,
+    "vertices_default": 8306,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 6,
+    "texture_file_kb": 636,
+    "gpu_texture_mb_worst": 4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3.3,
+    "gpu_texture_mb_used_by_visible": 1.3
+   },
+   "lod1/player_home_1b": {
+    "size_mb": 0.79,
+    "lod1": true,
+    "visible_meshes": 4,
+    "draw_calls_default": 4,
+    "materials_default": [
+     "hair",
+     "jersey_decal_backnum",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 11266,
+    "vertices_default": 8169,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 6,
+    "texture_file_kb": 636,
+    "gpu_texture_mb_worst": 4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3.3,
+    "gpu_texture_mb_used_by_visible": 1.3
+   },
+   "lod1/player_home_of": {
+    "size_mb": 0.8,
+    "lod1": true,
+    "visible_meshes": 4,
+    "draw_calls_default": 4,
+    "materials_default": [
+     "hair",
+     "jersey_decal_backnum",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 11500,
+    "vertices_default": 8431,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 6,
+    "texture_file_kb": 636,
+    "gpu_texture_mb_worst": 4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3.3,
+    "gpu_texture_mb_used_by_visible": 1.3
+   },
+   "lod1/player_manager": {
+    "size_mb": 0.8,
+    "lod1": true,
+    "visible_meshes": 4,
+    "draw_calls_default": 4,
+    "materials_default": [
+     "hair",
+     "jersey_decal_backnum",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 12030,
+    "vertices_default": 8590,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 6,
+    "texture_file_kb": 636,
+    "gpu_texture_mb_worst": 4,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3.3,
+    "gpu_texture_mb_used_by_visible": 1.3
+   },
+   "lod1/player_umpire": {
+    "size_mb": 0.77,
+    "lod1": true,
+    "visible_meshes": 3,
+    "draw_calls_default": 3,
+    "materials_default": [
+     "hair",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 15164,
+    "vertices_default": 12090,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 4,
+    "texture_file_kb": 551,
+    "gpu_texture_mb_worst": 3.3,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3,
+    "gpu_texture_mb_used_by_visible": 0.7
+   },
+   "lod1/player_umpire_base": {
+    "size_mb": 0.7,
+    "lod1": true,
+    "visible_meshes": 3,
+    "draw_calls_default": 3,
+    "materials_default": [
+     "hair",
+     "lod_cloth",
+     "skin"
+    ],
+    "triangles_default": 10946,
+    "vertices_default": 7732,
+    "morph_targets_total": 0,
+    "morph_memory_mb": 0,
+    "joints": 22,
+    "animations": 0,
+    "animation_mb": 0,
+    "textures": 4,
+    "texture_file_kb": 551,
+    "gpu_texture_mb_worst": 3.3,
+    "gpu_texture_mb_etc1s_opaque_4bpp": 3,
+    "gpu_texture_mb_used_by_visible": 0.7
+   }
+  },
+  "texture_sharing": {
+   "lod0": {
+    "texture_references": 444,
+    "unique_textures": 134,
+    "gpu_mb_worst_if_every_file_uploads_its_own": 551,
+    "gpu_mb_worst_if_unique_textures_are_shared": 166
+   },
+   "lod1": {
+    "texture_references": 78,
+    "unique_textures": 11,
+    "gpu_mb_worst_if_every_file_uploads_its_own": 54,
+    "gpu_mb_worst_if_unique_textures_are_shared": 8
+   }
+  }
+ },
+ "lod1": {
+  "files": "optimized/lod1/<file>.glb",
+  "contents": "Body (material skin: Body_Skin + Head + hands merged, no morphs, no normal / ORM), Cloth (material lod_cloth: every garment / gear piece merged, colours in COLOR_0, per-vertex region id in the custom attribute _REGION), Gear_Hair (material hair), Jersey_BackNumberDecal (own material) + the armature and the grip / pole empties. No eyes / brows / lashes / teeth / beards / front or sleeve decals / animations (bone names are identical to the LOD0 file: drive them with the LOD0 clips).",
+  "region_palette_linear_rgb": {
+   "0": {
+    "name": "jersey / jacket",
+    "default": [
+     0.8,
+     0.8,
+     0.8
+    ]
+   },
+   "1": {
+    "name": "pants",
+    "default": [
+     0.75,
+     0.75,
+     0.75
+    ]
+   },
+   "2": {
+    "name": "socks",
+    "default": [
+     0.05,
+     0.08,
+     0.3
+    ]
+   },
+   "3": {
+    "name": "undershirt",
+    "default": [
+     0.05,
+     0.08,
+     0.3
+    ]
+   },
+   "4": {
+    "name": "cap / helmet",
+    "default": [
+     0.05,
+     0.08,
+     0.3
+    ]
+   },
+   "5": {
+    "name": "piping",
+    "default": [
+     0.05,
+     0.08,
+     0.3
+    ]
+   },
+   "6": {
+    "name": "black leather, belt, soles, masks, catcher gear",
+    "default": [
+     0.02,
+     0.02,
+     0.02
+    ]
+   },
+   "7": {
+    "name": "glove",
+    "default": [
+     0.28,
+     0.14,
+     0.07
+    ]
+   },
+   "8": {
+    "name": "buttons / laces (white)",
+    "default": [
+     0.9,
+     0.9,
+     0.85
+    ]
+   },
+   "9": {
+    "name": "buckle / spikes (metal)",
+    "default": [
+     0.6,
+     0.6,
+     0.62
+    ]
+   },
+   "10": {
+    "name": "batting gloves",
+    "default": [
+     0.03,
+     0.03,
+     0.035
+    ]
+   },
+   "11": {
+    "name": "wristbands / arm sleeves",
+    "default": [
+     0.9,
+     0.9,
+     0.9
+    ]
+   },
+   "12": {
+    "name": "logo",
+    "default": [
+     0.96,
+     0.96,
+     0.96
+    ]
+   }
+  },
+  "recolor": "rewrite COLOR_0 of the Cloth mesh once per team from _REGION (e.g. team palette for regions 0 jersey, 1 pants, 2 socks, 3 undershirt, 4 cap / helmet, 5 piping); skin / hair are tinted with baseColorFactor like LOD0"
+ }
+}

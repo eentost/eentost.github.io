@@ -1,0 +1,3 @@
+let e=null;const t=self;t.onmessage=async n=>{let r=n.data;if(r.type===`init`)try{e=await(await import(
+/* @vite-ignore */
+`https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/+esm`)).KokoroTTS.from_pretrained(`onnx-community/Kokoro-82M-v1.0-ONNX`,{dtype:r.dtype,device:r.device,progress_callback:e=>t.postMessage({type:`progress`,p:e})}),t.postMessage({type:`ready`})}catch(e){t.postMessage({type:`error`,message:String(e?.message??e)})}else if(r.type===`gen`)try{if(!e)throw Error(`not ready`);let n=await e.generate(r.text,{voice:r.voice,speed:r.speed??1}),i=new Float32Array(n.audio);t.postMessage({type:`audio`,id:r.id,samples:i,sr:n.sampling_rate},[i.buffer])}catch(e){t.postMessage({type:`audio`,id:r.id,error:String(e?.message??e)})}};
