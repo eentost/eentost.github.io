@@ -19,33 +19,36 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: true
-      - name: Checkout pinned Claudeball source
+      - name: Checkout pinned Claudeball source with history
         uses: actions/checkout@v4
         with:
           repository: TaylorBeeston/claudeball
           ref: 424b1b512fd34a28d5078c9f644988b64e67b4ec
+          fetch-depth: 0
           path: .claudeball
           persist-credentials: false
+      - name: Restore original 3D assets from upstream Git history
+        working-directory: .claudeball
+        shell: bash
+        run: |
+          set -euo pipefail
+          ASSET_COMMIT=66ca30dfcf3af2e56d517a38a61e2d2814a2830a
+          git cat-file -e "$ASSET_COMMIT^{commit}"
+          git checkout "$ASSET_COMMIT" -- assets/field_layout.json assets/players/player_manifest.json assets/optimized
+          test -s assets/field_layout.json
+          test -s assets/players/player_manifest.json
+          test -s assets/optimized/players/player_base.glb
+          test -s assets/optimized/players/player_ballkid.glb
+          test -s assets/optimized/players/player_coach.glb
+          test -s assets/optimized/players/player_umpire.glb
+          test -s assets/optimized/players/player_umpire_base.glb
+          echo "Restored asset files from upstream commit $ASSET_COMMIT"
+          du -sh assets
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: .claudeball/package-lock.json
-      - name: Restore original 3D assets (SHA-256 verified, 201 MiB)
-        working-directory: .claudeball
-        shell: bash
-        run: |
-          set -euo pipefail
-          node -e "const l=require('./assets/intermediates.lock.json'); console.log('Asset archive:',l.url,'bytes:',l.bytes)"
-          URL="$(node -p "require('./assets/intermediates.lock.json').url")"
-          EXPECTED="$(node -p "require('./assets/intermediates.lock.json').sha256")"
-          mkdir -p /tmp/cb-assets
-          curl --fail --location --retry 4 --retry-all-errors "$URL" -o /tmp/cb-assets/assets.tar.gz
-          echo "$EXPECTED  /tmp/cb-assets/assets.tar.gz" | sha256sum --check -
-          tar -xzf /tmp/cb-assets/assets.tar.gz -C .
-          test -s assets/field_layout.json
-          test -d assets/optimized
-          test -s assets/optimized/players/player_base.glb
       - name: Install dependencies
         working-directory: .claudeball
         run: npm ci
@@ -83,7 +86,7 @@ jobs:
       - name: Commit replacement to homepage
         run: |
           git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.email '41898282+eentost@users.noreply.github.com'
           git add -A -- baseball
           git commit -m 'Replace NEO BASEBALL with playable Claudeball 3D'
           git push origin HEAD:master
@@ -91,7 +94,7 @@ jobs:
         run: |
           {
             echo '## Claudeball deployment'
-            echo '- Original 3D asset archive SHA-256 verified'
+            echo '- 3D assets restored from upstream Git history commit 66ca30d'
             echo '- TypeScript and unit tests passed'
             echo '- Production build uses /baseball/ base path'
             echo '- Default human control: Both (pitch and bat)'
