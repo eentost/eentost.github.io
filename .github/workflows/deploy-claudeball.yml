@@ -1,10 +1,11 @@
-name: Build and publish playable Claudeball
+name: Build and publish Claudeball 3D simulation
 on:
   workflow_dispatch:
   push:
     branches: [master]
     paths:
       - '.github/workflows/deploy-claudeball.yml'
+      - 'scripts/prepare_claudeball_seo.py'
 permissions:
   contents: write
 concurrency:
@@ -16,11 +17,12 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout homepage
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: true
+          fetch-depth: 0
       - name: Checkout pinned Claudeball source with history
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: TaylorBeeston/claudeball
           ref: 424b1b512fd34a28d5078c9f644988b64e67b4ec
@@ -44,7 +46,8 @@ jobs:
           test -s assets/optimized/players/player_umpire_base.glb
           echo "Restored asset files from upstream commit $ASSET_COMMIT"
           du -sh assets
-      - uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -55,7 +58,7 @@ jobs:
       - name: TypeScript check
         working-directory: .claudeball
         run: npm run typecheck
-      - name: Unit tests
+      - name: Unit tests including deferred decision-provider contract
         working-directory: .claudeball
         run: npm test
       - name: Build browser game for homepage subpath
@@ -63,16 +66,13 @@ jobs:
         env:
           CB_BASE: /baseball/
         run: |
+          set -euo pipefail
           npm run build
           test -s dist/index.html
           test -s dist/assets/field_layout.json
           test -s dist/assets/optimized/players/player_base.glb
           grep -q '/baseball/' dist/index.html
-      - name: Verify human-play default
-        working-directory: .claudeball
-        run: |
-          grep -q "control: 'both'" src/ui/settings.ts
-          grep -q "mode: PlayAs = 'both'" src/ui/human.ts
+          python3 ../scripts/prepare_claudeball_seo.py "$PWD/dist/index.html"
       - name: Replace only /baseball with verified production build
         run: |
           set -euo pipefail
@@ -83,21 +83,31 @@ jobs:
           test -s baseball/index.html
           test -s baseball/assets/field_layout.json
           test -s baseball/assets/optimized/players/player_base.glb
+      - name: Validate repository SEO metadata and sitemap inputs
+        run: python3 scripts/seo_sitemap.py --validate
       - name: Commit replacement to homepage
         run: |
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+eentost@users.noreply.github.com'
           git add -A -- baseball
-          git commit -m 'Replace NEO BASEBALL with playable Claudeball 3D'
-          git push origin HEAD:master
+          if git diff --cached --quiet; then
+            echo 'No generated baseball files changed; deployment commit skipped.'
+          else
+            git commit -m 'Publish Claudeball 3D baseball simulation'
+            git push origin HEAD:master
+          fi
       - name: Publish summary
         run: |
           {
-            echo '## Claudeball deployment'
-            echo '- 3D assets restored from upstream Git history commit 66ca30d'
-            echo '- TypeScript and unit tests passed'
-            echo '- Production build uses /baseball/ base path'
-            echo '- Default human control: Both (pitch and bat)'
+            echo '## Claudeball 3D simulation deployment'
+            echo '- 3D assets restored from pinned upstream Git history and checked for required files'
+            echo '- TypeScript check and the full unit-test suite passed'
+            echo '- Deferred decision-provider contract is covered by upstream simulation tests'
+            echo '- Production build uses the /baseball/ base path'
+            echo '- SEO canonical, Open Graph, Twitter Card and VideoGame JSON-LD metadata were injected and validated'
             echo '- Replaced only the baseball/ directory'
             echo '- URL: https://eentost.github.io/baseball/'
+            echo ''
+            echo 'Scope note: the pinned upstream source is an AI-vs-AI simulation. The decision-provider API is tested, but browser-level human controls and online multiplayer are not implemented or certified by this workflow.'
           } >> "$GITHUB_STEP_SUMMARY"
