@@ -1,0 +1,8 @@
+diff --git a/src/ui/human.ts b/src/ui/human.ts
+--- a/src/ui/human.ts
++++ b/src/ui/human.ts
+@@
+-  mode: PlayAs = 'watch';
++  // Manual play is the default. AI-vs-AI remains available only when the user
++  // explicitly selects Watch in the Play as setting.
++  mode: PlayAs = 'both';
