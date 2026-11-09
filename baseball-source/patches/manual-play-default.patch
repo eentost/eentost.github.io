@@ -1,8 +1,41 @@
-diff --git a/src/ui/human.ts b/src/ui/human.ts
+--- a/src/ui/settings.ts
++++ b/src/ui/settings.ts
+@@ -71,7 +71,7 @@
+   tod: 'day',
+   innings: 9,
+   tempo: 'broadcast',
+-  control: 'watch',
++  control: 'both',
+   camera: 'auto',
+   replays: true,
+   speed: 1,
+@@ -88,7 +88,7 @@
+ /** The seed the game has always used when none is given: automation (and tests, other threads' scripts) rely on it being fixed. */
+ export const LEGACY_SEED = 20260928;
+ export const CLUB_COUNT = 30;
+-export const STORAGE_KEY = 'claudeball.settings.v1';
++export const STORAGE_KEY = 'claudeball.settings.v2';
+
 --- a/src/ui/human.ts
 +++ b/src/ui/human.ts
-@@
+@@ -27,7 +27,7 @@
+ }
+ 
+ export class HumanControl {
 -  mode: PlayAs = 'watch';
-+  // Manual play is the default. AI-vs-AI remains available only when the user
-+  // explicitly selects Watch in the Play as setting.
 +  mode: PlayAs = 'both';
+
+--- a/src/ui/__tests__/settings.test.ts
++++ b/src/ui/__tests__/settings.test.ts
+@@ -31,6 +31,13 @@
+     const broken = { getItem: () => { throw new Error('blocked'); } };
+     expect(loadSaved(broken)).toEqual({});
+     expect(loadSaved(mem({ [STORAGE_KEY]: '{not json' }))).toEqual({});
++  });
++
++  it('defaults to manual play and ignores legacy saved auto-watch preference', () => {
++    expect(DEFAULT_SETTINGS.control).toBe('both');
++    const legacy = mem({ 'claudeball.settings.v1': JSON.stringify({ control: 'watch', tod: 'night' }) });
++    expect(resolve('', legacy, false, ABBRS).settings.control).toBe('both');
++    expect(resolve('?play=watch', null, false, ABBRS).settings.control).toBe('watch');
+   });
