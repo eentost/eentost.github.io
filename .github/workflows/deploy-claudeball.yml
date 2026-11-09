@@ -1,0 +1,100 @@
+name: Build and publish playable Claudeball
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/deploy-claudeball.yml'
+permissions:
+  contents: write
+concurrency:
+  group: claudeball-publish
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout homepage
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Checkout pinned Claudeball source
+        uses: actions/checkout@v4
+        with:
+          repository: TaylorBeeston/claudeball
+          ref: 424b1b512fd34a28d5078c9f644988b64e67b4ec
+          path: .claudeball
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: .claudeball/package-lock.json
+      - name: Restore original 3D assets (SHA-256 verified, 201 MiB)
+        working-directory: .claudeball
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e "const l=require('./assets/intermediates.lock.json'); console.log('Asset archive:',l.url,'bytes:',l.bytes)"
+          URL="$(node -p "require('./assets/intermediates.lock.json').url")"
+          EXPECTED="$(node -p "require('./assets/intermediates.lock.json').sha256")"
+          mkdir -p /tmp/cb-assets
+          curl --fail --location --retry 4 --retry-all-errors "$URL" -o /tmp/cb-assets/assets.tar.gz
+          echo "$EXPECTED  /tmp/cb-assets/assets.tar.gz" | sha256sum --check -
+          tar -xzf /tmp/cb-assets/assets.tar.gz -C .
+          test -s assets/field_layout.json
+          test -d assets/optimized
+          test -s assets/optimized/players/player_base.glb
+      - name: Install dependencies
+        working-directory: .claudeball
+        run: npm ci
+      - name: TypeScript check
+        working-directory: .claudeball
+        run: npm run typecheck
+      - name: Unit tests
+        working-directory: .claudeball
+        run: npm test
+      - name: Build browser game for homepage subpath
+        working-directory: .claudeball
+        env:
+          CB_BASE: /baseball/
+        run: |
+          npm run build
+          test -s dist/index.html
+          test -s dist/assets/field_layout.json
+          test -s dist/assets/optimized/players/player_base.glb
+          grep -q '/baseball/' dist/index.html
+      - name: Verify human-play default
+        working-directory: .claudeball
+        run: |
+          grep -q "control: 'both'" src/ui/settings.ts
+          grep -q "mode: PlayAs = 'both'" src/ui/human.ts
+      - name: Replace only /baseball with verified production build
+        run: |
+          set -euo pipefail
+          rm -rf baseball
+          mkdir -p baseball
+          cp -a .claudeball/dist/. baseball/
+          touch baseball/.nojekyll
+          test -s baseball/index.html
+          test -s baseball/assets/field_layout.json
+          test -s baseball/assets/optimized/players/player_base.glb
+      - name: Commit replacement to homepage
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A -- baseball
+          git commit -m 'Replace NEO BASEBALL with playable Claudeball 3D'
+          git push origin HEAD:master
+      - name: Publish summary
+        run: |
+          {
+            echo '## Claudeball deployment'
+            echo '- Original 3D asset archive SHA-256 verified'
+            echo '- TypeScript and unit tests passed'
+            echo '- Production build uses /baseball/ base path'
+            echo '- Default human control: Both (pitch and bat)'
+            echo '- Replaced only the baseball/ directory'
+            echo '- URL: https://eentost.github.io/baseball/'
+          } >> "$GITHUB_STEP_SUMMARY"
