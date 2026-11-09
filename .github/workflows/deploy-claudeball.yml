@@ -1,4 +1,4 @@
-name: Build and publish Claudeball 3D simulation
+name: Publish Claudeball only after manual-play gate
 on:
   workflow_dispatch:
   push:
@@ -73,6 +73,16 @@ jobs:
           test -s dist/assets/optimized/players/player_base.glb
           grep -q '/baseball/' dist/index.html
           python3 ../scripts/prepare_claudeball_seo.py "$PWD/dist/index.html"
+      - name: Gate manual controls before publishing
+        working-directory: .claudeball
+        run: |
+          set -euo pipefail
+          test -s src/ui/human.ts
+          grep -q "control: 'both'" src/ui/settings.ts
+          grep -q "mode: PlayAs = 'both'" src/ui/human.ts
+          grep -q "HumanControl" src/ui/app.ts
+          grep -q "humanSwing" src/sim/game.ts
+          echo 'Verified human control source and default mode.'
       - name: Replace only /baseball with verified production build
         run: |
           set -euo pipefail
