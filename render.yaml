@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: claudeball-relay
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: ALLOWED_ORIGINS
+        value: https://eentost.github.io
