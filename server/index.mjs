@@ -17,7 +17,7 @@ server.on('upgrade', (req, socket, head) => {
 });
 const send = (ws, value) => { if (ws.readyState === 1) ws.send(JSON.stringify(value)); };
 wss.on('connection', ws => {
-  ws.room = null; ws.side = null; ws.lastMessageAt = 0; ws.messageCount = 0;
+  ws.room = null; ws.side = null; ws.lastMessageAt = 0; ws.messageCount = 0; ws.lastMessageAt = 0; ws.messageCount = 0;
   ws.on('message', raw => {
     const now = Date.now();
     if (now - ws.lastMessageAt > 1000) { ws.lastMessageAt = now; ws.messageCount = 0; }
