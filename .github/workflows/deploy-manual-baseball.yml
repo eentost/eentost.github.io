@@ -26,21 +26,21 @@ jobs:
           set -euo pipefail
           gh release download manual-play-build \
             --repo eentost/eentost.github.io \
-            --pattern claudeball-manual-play-ready-for-deploy.zip \
+            --pattern claudeball-manual-play-ready-for-deploy-v2.zip \
             --dir /tmp/claudeball-release
-          test -s /tmp/claudeball-release/claudeball-manual-play-ready-for-deploy.zip
+          test -s /tmp/claudeball-release/claudeball-manual-play-ready-for-deploy-v2.zip
       - name: Extract and validate manual-play build
         run: |
           set -euo pipefail
           mkdir -p /tmp/claudeball-dist
-          unzip -q /tmp/claudeball-release/claudeball-manual-play-ready-for-deploy.zip -d /tmp/claudeball-dist
+          unzip -q /tmp/claudeball-release/claudeball-manual-play-ready-for-deploy-v2.zip -d /tmp/claudeball-dist
           test -s /tmp/claudeball-dist/index.html
-          test -s /tmp/claudeball-dist/bundle/index-C2wpCMyl.js
+          test -s /tmp/claudeball-dist/bundle/index-manual-play-v2.js
           test -s /tmp/claudeball-dist/bundle/index-8lbdQXEN.css
           test -s /tmp/claudeball-dist/assets/field_layout.json
           test -s /tmp/claudeball-dist/assets/optimized/players/player_base.glb
-          grep -q '/baseball/bundle/index-C2wpCMyl.js' /tmp/claudeball-dist/index.html
-          node -e "const fs=require('fs');const s=fs.readFileSync('/tmp/claudeball-dist/bundle/index-C2wpCMyl.js','utf8');for(const x of ['humanView','humanSwing','control:`both`','value:`both`,label:`Both`','value:`watch`,label:`Watch`','claudeball.settings.v2'])if(!s.includes(x))throw new Error('Manual-play gate failed: '+x);if(s.includes('claudeball.settings.v1'))throw new Error('Legacy Watch preference key remains');"
+          grep -q '/baseball/bundle/index-manual-play-v2.js' /tmp/claudeball-dist/index.html
+          node -e "const fs=require('fs');const s=fs.readFileSync('/tmp/claudeball-dist/bundle/index-manual-play-v2.js','utf8');for(const x of ['humanView','humanSwing','control:`both`','value:`both`,label:`Both`','value:`watch`,label:`Watch`','claudeball.settings.v2'])if(!s.includes(x))throw new Error('Manual-play gate failed: '+x);if(s.includes('claudeball.settings.v1'))throw new Error('Legacy Watch preference key remains');"
       - name: Replace only baseball directory
         run: |
           set -euo pipefail
@@ -49,7 +49,7 @@ jobs:
           cp -a /tmp/claudeball-dist/. baseball/
           touch baseball/.nojekyll
           test -s baseball/index.html
-          test -s baseball/bundle/index-C2wpCMyl.js
+          test -s baseball/bundle/index-manual-play-v2.js
       - name: Commit and push website replacement
         run: |
           set -euo pipefail
