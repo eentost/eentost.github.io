@@ -1,0 +1,75 @@
+name: Deploy Claudeball manual-play build
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: baseball-manual-deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.event_name != 'release' || github.event.release.tag_name == 'manual-play-build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout homepage
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          persist-credentials: true
+      - name: Download uploaded manual-play build release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release download manual-play-build \
+            --repo eentost/eentost.github.io \
+            --pattern claudeball-manual-play-ready-for-deploy.zip \
+            --dir /tmp/claudeball-release
+          test -s /tmp/claudeball-release/claudeball-manual-play-ready-for-deploy.zip
+      - name: Extract and validate manual-play build
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/claudeball-dist
+          unzip -q /tmp/claudeball-release/claudeball-manual-play-ready-for-deploy.zip -d /tmp/claudeball-dist
+          test -s /tmp/claudeball-dist/index.html
+          test -s /tmp/claudeball-dist/bundle/index-C2wpCMyl.js
+          test -s /tmp/claudeball-dist/bundle/index-8lbdQXEN.css
+          test -s /tmp/claudeball-dist/assets/field_layout.json
+          test -s /tmp/claudeball-dist/assets/optimized/players/player_base.glb
+          grep -q '/baseball/bundle/index-C2wpCMyl.js' /tmp/claudeball-dist/index.html
+          node -e "const fs=require('fs');const s=fs.readFileSync('/tmp/claudeball-dist/bundle/index-C2wpCMyl.js','utf8');for(const x of ['humanView','humanSwing','control:`both`','value:`both`,label:`Both`','value:`watch`,label:`Watch`','claudeball.settings.v2'])if(!s.includes(x))throw new Error('Manual-play gate failed: '+x);if(s.includes('claudeball.settings.v1'))throw new Error('Legacy Watch preference key remains');"
+      - name: Replace only baseball directory
+        run: |
+          set -euo pipefail
+          rm -rf baseball
+          mkdir baseball
+          cp -a /tmp/claudeball-dist/. baseball/
+          touch baseball/.nojekyll
+          test -s baseball/index.html
+          test -s baseball/bundle/index-C2wpCMyl.js
+      - name: Commit and push website replacement
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A -- baseball
+          if git diff --cached --quiet; then
+            echo 'Manual-play build already deployed.'
+            exit 0
+          fi
+          git commit -m 'Replace baseball page with manual-play Claudeball'
+          git push origin HEAD:master
+      - name: Deployment summary
+        run: |
+          {
+            echo '## Claudeball manual-play deployment'
+            echo '- Replaced only /baseball/'
+            echo '- Default mode: Both (human pitching and batting)'
+            echo '- Watch remains an optional AI-vs-AI spectator mode'
+            echo '- Legacy localStorage key is migrated to v2'
+            echo '- User-vs-user online multiplayer is not included in this build'
+            echo '- URL: https://eentost.github.io/baseball/'
+          } >> "$GITHUB_STEP_SUMMARY"
