@@ -7,7 +7,7 @@ const ieumRoot = resolve(siteRoot, "ieumoffice");
 
 export default {
   root: siteRoot,
-  base: "/",
+  base: "/tools/doc2hwpx-assets/",
   resolve: {
     alias: [
       { find: "@genoffice/docx2hwp", replacement: resolve(ieumRoot, "packages/docx2hwp/src/index.ts") },
