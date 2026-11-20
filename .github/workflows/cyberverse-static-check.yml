@@ -24,6 +24,7 @@ jobs:
           node --check cyberverse/animations.js
           node --check cyberverse/coop.js
           node --check cyberverse/scene3d.js
+          node --check cyberverse/browser-range.js
       - name: HTML links and feature anchors
         run: |
           python3 - <<'PY'
@@ -38,10 +39,15 @@ jobs:
             'src="./coop.js"',
             '"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"',
             'const scenarios=',
+            'href="./browser-range.css"',
+            'src="./browser-range.js',
           ]
           for token in required:assert token in html,token
-          for token in ("function enter(id)","function leave()","function renderThreat(t)","setDefense:defenseFeedback","function peers(players)"):
+          for token in ("function enter(id)","function leave()","function renderThreat(t)","setDefense:defenseFeedback","function peers(players)",'"wargame"',"window.CVRange?.open()"):
             assert token in three,token
+          range_js=(p/"browser-range.js").read_text()
+          for token in ("https://lsszz2100.github.io/VibeHacking/wargame/","allow-scripts allow-same-origin","referrerPolicy","window.CVRange","lab=vibehacking"):
+            assert token in range_js,token
           for token in ("cv3:move","type:\"vote\"","vote_status","case \"feedback\""):
             assert token in coop,token
           print("PASS: CyberVerse static structure assertions")
