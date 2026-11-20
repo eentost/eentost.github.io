@@ -1,13 +1,17 @@
 /**
- * Browser worker bridge for IeumOffice's DOCX -> HWPX conversion package.
- * Upstream: https://github.com/pblsketch/ieumoffice
- * Pinned upstream revision: 18cfc7150a2028487a2ae669a324d02bae93570a
- * This adapter is original eentost integration code. Upstream source notices
- * and licenses are shipped beside the generated browser bundle.
+ * Browser bridge for the pinned IeumOffice conversion engine.
+ * Upstream revision: 18cfc7150a2028487a2ae669a324d02bae93570a
  */
+type Block =
+  | { kind: "p"; text: string }
+  | { kind: "h"; level: number; text: string }
+  | { kind: "table"; rows: string[][] };
+
 type ConversionReply = {
   bytes: Uint8Array;
   losses: Array<{ feature: string; kind: "dropped" | "changed"; count: number }>;
+  warnings: string[];
+  pages?: number;
   verified: boolean;
   engine: string;
 };
@@ -21,7 +25,7 @@ declare global {
   interface Window {
     doc2hwpxIeumOffice?: {
       version: string;
-      convertDocxToHwpx(input: ArrayBuffer | Uint8Array): Promise<ConversionReply>;
+      convertFile(fileName: string, input: ArrayBuffer | Uint8Array, blocks?: Block[]): Promise<ConversionReply>;
     };
   }
 }
@@ -36,6 +40,8 @@ worker.addEventListener("message", (event: MessageEvent) => {
     ok: boolean;
     bytes?: ArrayBuffer;
     losses?: ConversionReply["losses"];
+    warnings?: string[];
+    pages?: number;
     verified?: boolean;
     error?: string;
   };
@@ -43,12 +49,14 @@ worker.addEventListener("message", (event: MessageEvent) => {
   if (!task) return;
   pending.delete(data.id);
   if (!data.ok || !data.bytes) {
-    task.reject(new Error(data.error || "IeumOffice 변환 엔진에서 오류가 발생했습니다."));
+    task.reject(new Error(data.error || "문서 변환 엔진에서 오류가 발생했습니다."));
     return;
   }
   task.resolve({
     bytes: new Uint8Array(data.bytes),
     losses: data.losses || [],
+    warnings: data.warnings || [],
+    pages: data.pages,
     verified: data.verified === true,
     engine: "IeumOffice docx2hwp + rhwp WebAssembly",
   });
@@ -61,13 +69,16 @@ worker.addEventListener("error", (event) => {
 });
 
 window.doc2hwpxIeumOffice = {
-  version: "ieumoffice-18cfc715",
-  convertDocxToHwpx(input) {
+  version: "ieumoffice-18cfc715-multiformat",
+  convertFile(fileName, input, blocks) {
     const bytes = input instanceof Uint8Array ? input.slice() : new Uint8Array(input.slice(0));
     const id = ++sequence;
     return new Promise<ConversionReply>((resolve, reject) => {
       pending.set(id, { resolve, reject });
-      worker.postMessage({ id, docx: bytes.buffer }, [bytes.buffer as ArrayBuffer]);
+      const payload: { id: number; fileName: string; data?: ArrayBuffer; blocks?: Block[] } = { id, fileName };
+      if (bytes.byteLength) payload.data = bytes.buffer as ArrayBuffer;
+      if (blocks?.length) payload.blocks = blocks;
+      worker.postMessage(payload, payload.data ? [payload.data] : []);
     });
   },
 };
