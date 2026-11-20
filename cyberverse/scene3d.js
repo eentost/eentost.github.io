@@ -3,6 +3,7 @@ import * as THREE from "three";
 import {createCinematicCity} from "./scene-cinematic.js";
 import {createCombatTraining} from "./scene-combat.js";
 import {createFpsArena} from "./scene-fps.js?v=bot-guard-20261105-3";
+import {createWorldRoomRuntime} from "./world-room-runtime.js";
 const root=document.querySelector(".world-wrap");
 if(!root)throw Error("CyberVerse world container not found");
 const zones=[
@@ -109,6 +110,7 @@ const local=humanoid(0x4cc4bd);scene.add(local);const me=sign("나","#faffff");m
 // have validated skinned bounds across all animations. No remote Soldier.glb.
 let mixer=null,clips={},currentClip="idle",assetLoaded=false;
 let stationPoints=[];
+const worldRooms=createWorldRoomRuntime({THREE,scene,camera,canvas:renderer.domElement,announce});
 function buildInterior(id){
 while(interior.children.length){const o=interior.children[0];interior.remove(o);o.traverse(n=>n.geometry?.dispose?.());}
 const zone=zones.find(z=>z.id===id),accent=M(zone.col,.4,.3,zone.col);
@@ -127,11 +129,12 @@ return {x,z,title:row[0],desc:row[1],action:row[2]};
 });
 for(let i=0;i<6;i++){const x=-9+i%3*9,z=-5-Math.floor(i/3)*4;box(interior,1.5,2.8,1.4,x,1.5,z,desk);for(let r=0;r<4;r++)box(interior,1.2,.06,.045,x,.7+r*.58,z-.72,accent);}
 const exitSign=sign("↩ EXIT");exitSign.position.set(0,3.5,-11);interior.add(exitSign);
+worldRooms.mount(id,interior);
 }
 function announce(s){const el=$("cv3-center-label");el.textContent=s;el.classList.add("cv3-show");clearTimeout(el._timeout);el._timeout=setTimeout(()=>el.classList.remove("cv3-show"),2300);}
 function syncPosition(force=false){const t=performance.now();if(!force&&t-state.lastSend<100)return;state.lastSend=t;window.dispatchEvent(new CustomEvent("cv3:move",{detail:{x:+state.pos.x.toFixed(2),z:+state.pos.z.toFixed(2),angle:+state.pos.a.toFixed(2),area:state.area,zone:state.zone}}));}
 function enter(id){if(id==="plaza"||!zones.some(z=>z.id===id))return;state.area="interior";state.zone=id;state.pos.x=0;state.pos.z=-7;state.target=null;city.visible=false;interior.visible=true;buildInterior(id);$("cv3-location").textContent=zones.find(z=>z.id===id).name+" · 실내";$("cv3-room-label").textContent="INTERIOR / "+id.toUpperCase();$("cv3-exit").style.display="block";announce("실내 입장 · E로 장비를 조사하세요");syncPosition(true);}
-function leave(){const z=zones.find(z=>z.id===state.zone)||zones[0];state.area="city";state.pos.x=z.x;state.pos.z=z.z-8;state.target=null;city.visible=true;interior.visible=false;$("cv3-location").textContent="사이버 도시 · 외부";$("cv3-room-label").textContent="CYBER CITY";$("cv3-exit").style.display="none";announce("사이버 도시로 돌아왔습니다");syncPosition(true);}
+function leave(){const z=zones.find(z=>z.id===state.zone)||zones[0];state.area="city";state.pos.x=z.x;state.pos.z=z.z-8;state.target=null;city.visible=true;interior.visible=false;worldRooms.clearRoom();$("cv3-location").textContent="사이버 도시 · 외부";$("cv3-room-label").textContent="CYBER CITY";$("cv3-exit").style.display="none";announce("사이버 도시로 돌아왔습니다");syncPosition(true);}
 function teleport(id){const z=zones.find(z=>z.id===id);if(!z)return;if(state.area!=="city")leave();state.zone=id;state.target={x:z.x,z:z.z-8};announce(z.name+"으로 이동합니다");}
 function nearby(){
 const p=state.pos,btn=$("cv3-action");let nearest=null,dist=4.6;
@@ -149,9 +152,9 @@ const controls=new Set(["KeyW","KeyS","KeyA","KeyD","KeyE","ArrowUp","ArrowDown"
 addEventListener("keydown",e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||""))return;if(fps.keyDown(e)){e.preventDefault();return;}if(combat.onKeyDown(e)){e.preventDefault();return;}if(controls.has(e.code)){state.keys.add(e.code);if(e.code.startsWith("Arrow"))e.preventDefault();}if(e.repeat)return;if(e.code==="KeyE")interact();if(e.code==="Escape"){if(!$("cv3-popup").hidden)$("cv3-popup").hidden=true;else if(state.area==="interior")leave();}});
 addEventListener("keyup",e=>{fps.keyUp(e);state.keys.delete(e.code);});
 for(const b of ui.querySelectorAll(".cv3-dpad button")){const d=b.dataset.dir;b.addEventListener("pointerdown",e=>{e.preventDefault();b.setPointerCapture?.(e.pointerId);state.pad.add(d);});for(const name of ["pointerup","pointercancel","lostpointercapture"])b.addEventListener(name,()=>state.pad.delete(d));}
-renderer.domElement.addEventListener("pointerdown",e=>{if(fps.pointerDown(e)||combat.onPointerDown(e))return;state.mouse.drag=true;state.mouse.x=e.clientX;state.mouse.y=e.clientY;renderer.domElement.setPointerCapture?.(e.pointerId);});
-renderer.domElement.addEventListener("pointermove",e=>{if(fps.isActive()||combat.onPointerMove(e))return;if(!state.mouse.drag)return;state.camAngle-=(e.clientX-state.mouse.x)*.006;state.camHeight=Math.max(.25,Math.min(1.37,state.camHeight+(e.clientY-state.mouse.y)*.004));state.mouse.x=e.clientX;state.mouse.y=e.clientY;});
-renderer.domElement.addEventListener("pointerup",e=>{fps.pointerUp(e);combat.onPointerUp(e);state.mouse.drag=false;});
+renderer.domElement.addEventListener("pointerdown",e=>{if(fps.pointerDown(e)||combat.onPointerDown(e))return;if(state.area==="interior"&&worldRooms.pointerDown(e)){e.preventDefault();renderer.domElement.setPointerCapture?.(e.pointerId);return;}state.mouse.drag=true;state.mouse.x=e.clientX;state.mouse.y=e.clientY;renderer.domElement.setPointerCapture?.(e.pointerId);});
+renderer.domElement.addEventListener("pointermove",e=>{if(fps.isActive()||combat.onPointerMove(e))return;if(worldRooms.pointerMove(e))return;if(!state.mouse.drag)return;state.camAngle-=(e.clientX-state.mouse.x)*.006;state.camHeight=Math.max(.25,Math.min(1.37,state.camHeight+(e.clientY-state.mouse.y)*.004));state.mouse.x=e.clientX;state.mouse.y=e.clientY;});
+renderer.domElement.addEventListener("pointerup",e=>{if(worldRooms.pointerUp(e)){e.preventDefault();return;}fps.pointerUp(e);combat.onPointerUp(e);state.mouse.drag=false;});
 renderer.domElement.addEventListener("wheel",e=>{state.camDist=Math.max(6,Math.min(24,state.camDist+Math.sign(e.deltaY)*1.5));e.preventDefault();},{passive:false});
 $("cv3-action").addEventListener("click",interact);$("cv3-exit").addEventListener("click",leave);$("cv3-close").addEventListener("click",()=>$("cv3-popup").hidden=true);
 $("cv3-popup-cta").addEventListener("click",()=>{const act=state.currentStation?.action;$("cv3-popup").hidden=true;if(["phishing","ransomware","ddos"].includes(act)){if(window.CVCOOP?.connected())window.CVCOOP.start(act);else document.querySelector('[data-scenario="'+act+'"]')?.click();document.querySelector(".panel")?.scrollIntoView({behavior:"smooth",block:"nearest"});}else if(act==="community")$("community")?.scrollIntoView({behavior:"smooth"});else if(act==="incident"){leave();teleport("incident");}else if(act==="wargame"){window.CVRange?.open();}else if(act.startsWith("course:")){window.CVRange?.openCourse(act.slice(7));}else announce("전시 장비를 관찰하며 위협 대응을 익혀보세요");});
@@ -184,13 +187,14 @@ if(state.area==="city"){
 }else{
  for(const p of stationPoints)if(Math.abs(nx-p.x)<2.05&&Math.abs(nz-1)<1.7){blocked=true;break;}
 }
-if(!blocked){state.pos.x=nx;state.pos.z=nz;}
+if(!blocked&&!(state.area==="interior"&&worldRooms.collidesPlayer(nx,nz))){state.pos.x=nx;state.pos.z=nz;}
 const a=Math.atan2(-dx,-dz),delta=Math.atan2(Math.sin(a-state.pos.a),Math.cos(a-state.pos.a));state.pos.a+=delta*Math.min(1,dt*11);syncPosition();}
 local.position.set(state.pos.x,.04+(moving&&!state.reduced?Math.abs(Math.sin(t*8))*.04:0),state.pos.z);local.rotation.y=state.pos.a;
 if(assetLoaded&&mixer){let clip=moving?(fast?"run":"walk"):"idle";if(clip!==currentClip){clips[currentClip]?.fadeOut(.2);clips[clip]?.reset().fadeIn(.2).play();currentClip=clip;}mixer.update(state.reduced?0:dt);}
 else{const swing=state.reduced?0:moving?Math.sin(t*(fast?12:8))*.55:0;local.userData.arms[0].rotation.x=swing;local.userData.arms[1].rotation.x=-swing;local.userData.legs[0].rotation.x=-swing;local.userData.legs[1].rotation.x=swing;}
 if(!state.reduced){holo.rotation.y+=dt*.43;holo.rotation.x+=dt*.12;holo.position.y=3.4+Math.sin(t*.8)*.22;holoRing.rotation.z+=dt*.4;for(const o of effects)o.position.y=o.userData.base+Math.sin(t*.6+o.userData.phase)*.15;}
 renderThreat(t);
+worldRooms.update(dt);
 cinematic.update(dt,t);
 for(const [id,o]of state.peers){const p=o.userData.net;if(!p)continue;o.visible=p.area===state.area&&(p.area==="city"||p.zone===state.zone);if(o.visible){o.position.lerp(new THREE.Vector3(p.x,0,p.z),Math.min(1,dt*9));o.rotation.y=p.a;}}
 const target=new THREE.Vector3(state.pos.x,1.7,state.pos.z),e=state.camHeight,dist=state.camDist;

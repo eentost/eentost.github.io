@@ -25,6 +25,7 @@ jobs:
           node --check cyberverse/coop.js
           node --check cyberverse/scene3d.js
           node --check cyberverse/browser-range.js
+          node --check cyberverse/world-room-runtime.js
       - name: HTML links and feature anchors
         run: |
           python3 - <<'PY'
@@ -51,5 +52,10 @@ jobs:
           assert range_js.count('["') >= 75, "expected 75 VibeHacking topics"
           for token in ("cv3:move","type:\"vote\"","vote_status","case \"feedback\""):
             assert token in coop,token
+          world=(p/"world-room-runtime.js").read_text()
+          for token in ("ROOM_CONFIG","buildArchitecture","createProp","collidesPlayer","collideSupport","collideProps","pointerDown","pointerMove","pointerUp","browser-native"):
+            assert token in world,token
+          assert "@sparkjsdev/spark" not in html
+          assert "scenario-room-runtime" not in three
           print("PASS: CyberVerse static structure assertions")
           PY
