@@ -26,6 +26,7 @@ jobs:
           node --check cyberverse/scene3d.js
           node --check cyberverse/browser-range.js
           node --check cyberverse/world-room-runtime.js
+          node --check cyberverse/scene3d.js
       - name: HTML links and feature anchors
         run: |
           python3 - <<'PY'
@@ -57,5 +58,12 @@ jobs:
             assert token in world,token
           assert "@sparkjsdev/spark" not in html
           assert "scenario-room-runtime" not in three
+          for token in ("VRButton","renderer.xr.enabled=true","renderer.setAnimationLoop(loop)","cameraMode","cv3:prop-inspect","worldRooms.interact","worldRooms.pointerCancel"):
+            assert token in three,token
+          for token in ("doorOpen","doorNearby","pointerCancel","cv3:prop-inspect","collidesPlayer"):
+            assert token in world,token
+          css=(p/"scene3d.css").read_text()
+          for token in (".cv3-inspector",".cv3-vr-button",'.cv3-top button[aria-pressed'):
+            assert token in css,token
           print("PASS: CyberVerse static structure assertions")
           PY

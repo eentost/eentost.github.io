@@ -21,7 +21,7 @@ export function createWorldRoomRuntime({THREE,scene,camera,canvas,announce=()=>{
   const props=[];
   const supports=[];
   const playerSolids=[];
-  let rootGroup=null,roomId=null,drag=null,hovered=null,audioContext=null,hoverRing=null;
+  let rootGroup=null,roomId=null,drag=null,hovered=null,audioContext=null,hoverRing=null,doorPanels=[],doorOpen=false;
 
   const mats={
     steel:new THREE.MeshStandardMaterial({color:0x728d9e,metalness:.82,roughness:.27}),
@@ -96,13 +96,27 @@ export function createWorldRoomRuntime({THREE,scene,camera,canvas,announce=()=>{
       meshBox(rootGroup,[.018,.012,22],[i,.0,0],mat(0x31536a,.2,.72));
       meshBox(rootGroup,[22,.012,.018],[0,.0,i],mat(0x31536a,.2,.72));
     }
-    // Three closed walls and a deliberately open entrance toward the city.
+    // Three closed walls and a framed, animated sliding entrance toward the city.
     meshBox(rootGroup,[23.2,7.2,.34],[0,3.55,-11.55],wallMat);
     meshBox(rootGroup,[.34,7.2,23.2],[-11.55,3.55,0],wallMat);
     meshBox(rootGroup,[.34,7.2,23.2],[11.55,3.55,0],wallMat);
     meshBox(rootGroup,[23.2,.28,.5],[0,7.05,-11.5],trim);
     meshBox(rootGroup,[.5,.28,23.2],[-11.5,7.05,0],trim);
     meshBox(rootGroup,[.5,.28,23.2],[11.5,7.05,0],trim);
+    meshBox(rootGroup,[6.5,.18,.42],[0,3.62,11.18],mats.darkMetal);
+    for(const side of [-1,1]){
+      meshBox(rootGroup,[.24,3.55,.42],[side*3.18,1.78,11.18],trim);
+      meshBox(rootGroup,[.12,3.3,.12],[side*3.18,1.78,10.92],mats.steel);
+    }
+    doorPanels=[];doorOpen=false;
+    for(const side of [-1,1]){
+      const panel=new THREE.Group();panel.position.set(side*1.48,0,11.18);rootGroup.add(panel);
+      meshBox(panel,[2.88,3.25,.16],[0,1.64,0],mats.darkMetal);
+      meshBox(panel,[2.58,2.48,.035],[0,1.78,.105],mats.glass);
+      meshBox(panel,[2.35,.055,.025],[0,2.78,.13],trim);
+      meshBox(panel,[.08,.42,.08],[side*.98,1.55,.16],mats.steel);
+      doorPanels.push({mesh:panel,closedX:side*1.48,openX:side*3.08});
+    }
     // Rear glazing, structural ribs and ceiling light rails.
     for(let x=-9;x<=9;x+=3){
       meshBox(rootGroup,[.08,5.3,.12],[x,3.45,-11.31],trim);
@@ -241,7 +255,11 @@ export function createWorldRoomRuntime({THREE,scene,camera,canvas,announce=()=>{
     root.userData.worldProp=true;root.userData.kind=kind;
     root.position.set(x,top+half[1]+.018,z);
     root.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;}});
-    const prop={mesh:root,kind,half,label:({laptop:"학습용 노트북",tablet:"분석 태블릿",usb:"USB 증거 매체",book:"보안 교재",monitor:"관제 모니터",keyboard:"입력 장치",router:"네트워크 라우터",drive:"저장 장치",beacon:"경보 비콘",evidence:"디지털 증거 상자",badge:"보안 배지"})[kind]||kind,velocity:new THREE.Vector3(),angular:new THREE.Vector3(),cooldown:0,held:false};
+    const label=({laptop:"학습용 노트북",tablet:"분석 태블릿",usb:"USB 증거 매체",book:"보안 교재",monitor:"관제 모니터",keyboard:"입력 장치",router:"네트워크 라우터",drive:"저장 장치",beacon:"경보 비콘",evidence:"디지털 증거 상자",badge:"보안 배지"})[kind]||kind;
+    const details={
+      laptop:["학습 장비","웹 보안, 스크립트, 코드 분석과 실습 환경을 다루는 노트북입니다."],tablet:["분석 장비","학습 자료와 조사 결과를 확인하는 휴대형 분석 장치입니다."],usb:["디지털 증거","이동식 매체의 파일, 해시, 자동 실행 흔적을 조사하는 증거 매체입니다."],book:["학습 자료","보안 개념과 실습 절차를 정리한 참고 교재입니다."],monitor:["관제 장비","경보, 로그, 네트워크 흐름과 시스템 상태를 확인하는 관제 화면입니다."],keyboard:["입력 장치","분석 단말과 관제 시스템을 조작하는 입력 장치입니다."],router:["네트워크 장비","라우팅, 연결 상태, 세그먼트와 트래픽 흐름을 확인하는 장비입니다."],drive:["저장 장치","로그, 이미지, 백업과 포렌식 데이터를 보관하는 저장 매체입니다."],beacon:["경보 장비","보안 이벤트와 사고 대응 단계의 경보 상태를 표시합니다."],evidence:["사고 증거","분석 과정에서 확보한 파일과 기록을 보존하는 증거 컨테이너입니다."],badge:["접근 통제","시설과 시스템 접근 권한을 나타내는 보안 배지입니다."]
+    }[kind]||["가상 장비","가상 실습 공간에 배치된 상호작용 객체입니다."];
+    const prop={mesh:root,kind,half,label,category:details[0],description:details[1],velocity:new THREE.Vector3(),angular:new THREE.Vector3(),cooldown:0,held:false};
     props.push(prop);rootGroup.add(root);return prop;
   }
   function ensureAudio(){
@@ -262,7 +280,7 @@ export function createWorldRoomRuntime({THREE,scene,camera,canvas,announce=()=>{
   }
   function clearRoom(){
     if(rootGroup){rootGroup.parent?.remove(rootGroup);rootGroup.traverse(o=>{if(o.geometry)o.geometry.dispose();});}
-    rootGroup=null;roomId=null;props.length=0;supports.length=0;playerSolids.length=0;
+    rootGroup=null;roomId=null;props.length=0;supports.length=0;playerSolids.length=0;doorPanels=[];doorOpen=false;
     drag=null;hovered=null;if(hoverRing){scene.remove(hoverRing);hoverRing.geometry.dispose();hoverRing.material.dispose();hoverRing=null;}
   }
   function mount(id,interiorGroup){
@@ -392,11 +410,26 @@ export function createWorldRoomRuntime({THREE,scene,camera,canvas,announce=()=>{
   function pointerUp(event){
     if(!drag||event.pointerId!==drag.id)return false;
     const d=drag;drag=null;d.prop.held=false;
-    if(!d.moved){d.prop.velocity.set(0,0,0);announce(d.prop.label+" · 클릭하여 장비를 조사했습니다");return true;}
+    if(!d.moved){
+      d.prop.velocity.set(0,0,0);
+      window.dispatchEvent(new CustomEvent("cv3:prop-inspect",{detail:{room:roomId,label:d.prop.label,kind:d.prop.kind,category:d.prop.category,description:d.prop.description,position:{x:+d.prop.mesh.position.x.toFixed(2),y:+d.prop.mesh.position.y.toFixed(2),z:+d.prop.mesh.position.z.toFixed(2)}}}));
+      announce(d.prop.label+" · 상세 조사 패널을 열었습니다");return true;
+    }
     d.prop.velocity.copy(d.velocity).multiplyScalar(1.12);
     d.prop.velocity.x=clamp(d.prop.velocity.x,-8,8);d.prop.velocity.y=clamp(Math.max(1.2,d.prop.velocity.y*.7),.8,5);d.prop.velocity.z=clamp(d.prop.velocity.z,-8,8);
     d.prop.angular.set(d.velocity.z*.12,0,-d.velocity.x*.12);
     impactSound(d.prop);announce(d.prop.label+" 던지기 · 충돌과 반동을 확인하세요");return true;
+  }
+  function pointerCancel(event){
+    if(!drag||event.pointerId!==drag.id)return false;
+    drag.prop.held=false;drag.prop.velocity.set(0,0,0);drag=null;return true;
+  }
+  function doorNearby(position){return !!roomId&&position.z>7.2&&position.z<10.8&&Math.abs(position.x)<4.4;}
+  function interact(position){
+    if(!doorNearby(position))return false;
+    doorOpen=!doorOpen;
+    announce(doorOpen?"출입문이 열렸습니다":"출입문이 닫혔습니다");
+    return true;
   }
   function overlapsXZ(a,b){
     return Math.abs(a.mesh.position.x-b.cx)<a.half[0]+b.hx&&Math.abs(a.mesh.position.z-b.cz)<a.half[2]+b.hz;
@@ -433,6 +466,7 @@ export function createWorldRoomRuntime({THREE,scene,camera,canvas,announce=()=>{
   function update(dt){
     if(!roomId)return;
     const step=Math.min(dt,.033);
+    for(const panel of doorPanels){const target=doorOpen?panel.openX:panel.closedX;panel.mesh.position.x+=(target-panel.mesh.position.x)*Math.min(1,step*7);}
     for(const p of props){
       if(p.cooldown>0)p.cooldown=Math.max(0,p.cooldown-step);
       if(p.held)continue;
@@ -454,6 +488,7 @@ export function createWorldRoomRuntime({THREE,scene,camera,canvas,announce=()=>{
     if(!roomId)return false;
     for(const s of playerSolids)if(Math.abs(x-s.cx)<s.hx+radius&&Math.abs(z-s.cz)<s.hz+radius)return true;
     for(const p of props)if(Math.abs(x-p.mesh.position.x)<p.half[0]+radius*.65&&Math.abs(z-p.mesh.position.z)<p.half[2]+radius*.65)return true;
+    if(!doorOpen&&z>9.12&&z<10.6&&Math.abs(x)<2.82)return true;
     return false;
   }
   function makeLabel(text,color){
@@ -464,5 +499,5 @@ export function createWorldRoomRuntime({THREE,scene,camera,canvas,announce=()=>{
     const texture=new THREE.CanvasTexture(c);texture.colorSpace=THREE.SRGBColorSpace;
     return new THREE.Mesh(new THREE.PlaneGeometry(8,1.25),new THREE.MeshBasicMaterial({map:texture,transparent:true,side:THREE.DoubleSide}));
   }
-  return {mount,clearRoom,pointerDown,pointerMove,pointerUp,update,collidesPlayer,getStatus:()=>({room:roomId,physics:"browser-native",props:props.length,held:!!drag})};
+  return {mount,clearRoom,pointerDown,pointerMove,pointerUp,pointerCancel,update,collidesPlayer,doorNearby,interact,getStatus:()=>({room:roomId,physics:"browser-native",props:props.length,held:!!drag,doorOpen})};
 }
