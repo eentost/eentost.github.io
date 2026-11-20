@@ -166,7 +166,6 @@ export function createWorldRoomRuntime({THREE,scene,camera,canvas,announce=()=>{
     }else{
       for(let i=0;i<4;i++)addScreen(rootGroup,-7.2+i*4.8,2.9,-10.65,3.3,1.55,config.accent);
     }
-    scene.add(rootGroup.parent?new THREE.Group():new THREE.Group()); // keep the room group independent of the city scene
     return stations;
   }
   function makeLabel(text,color){
