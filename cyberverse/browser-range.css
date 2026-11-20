@@ -1,0 +1,19 @@
+.cv-range-overlay{position:fixed;inset:0;z-index:1600;display:grid;place-items:center;padding:16px;background:#020b13ed;backdrop-filter:blur(12px);color:#eafaff}
+.cv-range-overlay[hidden]{display:none}
+.cv-range-shell{width:min(1600px,100%);height:min(960px,calc(100vh - 32px));display:flex;flex-direction:column;overflow:hidden;border:1px solid #3a7080;border-radius:18px;background:#071a28;box-shadow:0 28px 100px #000b}
+.cv-range-header{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:15px 19px;background:linear-gradient(100deg,#12384b,#0a2538);border-bottom:1px solid #31596b}
+.cv-range-heading{min-width:0}
+.cv-range-kicker{font-size:9px;font-weight:900;letter-spacing:.15em;color:#82ead9}
+.cv-range-heading h2{margin:5px 0 2px;font-size:20px;letter-spacing:-.03em}
+.cv-range-heading p{margin:0;color:#a9c5d1;font-size:11px}
+.cv-range-header-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.cv-range-open-new{color:#a8f2e3;font-size:11px;font-weight:800;text-decoration:underline;text-underline-offset:4px}
+.cv-range-close{width:38px;height:38px;border:1px solid #52798a;border-radius:10px;background:#14394c;color:#e9ffff;font-size:25px;line-height:1}
+.cv-range-disclosure{padding:9px 16px;background:#102c3a;color:#c3d9e1;border-bottom:1px solid #244b5d;font-size:11px;line-height:1.6}
+.cv-range-frame-wrap{flex:1;min-height:0;background:#020805}
+.cv-range-frame{display:block;width:100%;height:100%;min-height:0;border:0;background:#020805}
+.cv-range-footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:9px 15px;background:#0a2130;border-top:1px solid #274a5d;color:#91afbd;font-size:10px}
+.cv-range-footer a{color:#9cebdc;text-decoration:underline;text-underline-offset:3px}
+.cv-range-close:focus-visible,.cv-range-open-new:focus-visible{outline:3px solid #9af7ef;outline-offset:3px}
+@media(max-width:700px){.cv-range-overlay{padding:0}.cv-range-shell{width:100%;height:100dvh;border-radius:0;border:0}.cv-range-header{padding:11px 12px;align-items:flex-start}.cv-range-heading h2{font-size:16px}.cv-range-heading p{font-size:9px;line-height:1.4}.cv-range-header-actions{gap:7px}.cv-range-open-new{font-size:10px}.cv-range-close{width:34px;height:34px}.cv-range-disclosure{font-size:10px;padding:8px 11px}.cv-range-footer{font-size:9px;padding:8px 10px}}
+@media(prefers-reduced-motion:reduce){.cv-range-overlay{backdrop-filter:none}}
