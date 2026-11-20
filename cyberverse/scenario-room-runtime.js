@@ -93,3 +93,108 @@ export function createScenarioRoomRuntime({THREE,scene,renderer,camera,canvas,an
     gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.12,now+.008);gain.gain.exponentialRampToValueAtTime(.0001,now+.2);
     pan.pan.value=clamp((position?.x||0)/12,-1,1);osc.connect(gain);gain.connect(pan);pan.connect(ctx.destination);osc.start(now);osc.stop(now+.21);
   }
+
+  async function ensurePhysics(){
+    if(physicsPromise)return physicsPromise;
+    physicsPromise=(async()=>{
+      try{const mod=await import(RAPIER_URL);rapier=mod.default||mod;await rapier.init();physicsReady=true;}
+      catch(error){physicsFailed=true;console.warn("[CyberVerse] Rapier unavailable; using lightweight fallback.",error);}
+      return physicsReady;
+    })();
+    return physicsPromise;
+  }
+  function clearRoom(){
+    activeRoom=null;drag=null;props.forEach(p=>p.mesh.parent?.remove(p.mesh));props.length=0;
+    colliderToProp.clear();
+    if(eventQueue){eventQueue.free();eventQueue=null;}
+    if(physicsWorld){physicsWorld.free();physicsWorld=null;}
+    if(activeSplat){scene.remove(activeSplat);activeSplat.dispose?.();activeSplat=null;}
+  }
+  function addCollider(center,half){
+    const body=physicsWorld.createRigidBody(rapier.RigidBodyDesc.fixed().setTranslation(center[0],center[1],center[2]));
+    physicsWorld.createCollider(rapier.ColliderDesc.cuboid(half[0],half[1],half[2]).setFriction(.8),body);
+  }
+  function buildPhysics(){
+    if(!physicsReady||!activeRoom)return;
+    if(physicsWorld)physicsWorld.free();
+    if(eventQueue)eventQueue.free();
+    colliderToProp.clear();
+    physicsWorld=new rapier.World({x:0,y:-9.81,z:0});eventQueue=new rapier.EventQueue(true);
+    addCollider([0,-.18,0],[12,.18,12]);
+    addCollider([0,3.5,-11.6],[12,3.5,.2]);addCollider([0,3.5,11.6],[12,3.5,.2]);
+    addCollider([-11.6,3.5,0],[.2,3.5,12]);addCollider([11.6,3.5,0],[.2,3.5,12]);
+    props.forEach(p=>{
+      const body=physicsWorld.createRigidBody(rapier.RigidBodyDesc.dynamic().setTranslation(p.mesh.position.x,p.mesh.position.y,p.mesh.position.z).setLinearDamping(.45).setAngularDamping(.6));
+      const c=physicsWorld.createCollider(rapier.ColliderDesc.cuboid(...p.half).setDensity(.7).setFriction(.75).setRestitution(.2).setActiveEvents(rapier.ActiveEvents.COLLISION_EVENTS),body);
+      p.body=body;p.collider=c;colliderToProp.set(c.handle,p);
+    });
+  }
+  async function loadSplatWorld(roomId){
+    const config=SCENARIO_WORLD_ASSETS[roomId]?.world;if(!config?.url)return false;
+    try{
+      const spark=await import("@sparkjsdev/spark");
+      if(!sparkRenderer){sparkRenderer=new spark.SparkRenderer({renderer,onDirty:()=>{if(sparkFrameQueued||document.hidden)return;sparkFrameQueued=true;requestAnimationFrame(()=>{sparkFrameQueued=false;if(!document.hidden)renderer.render(scene,camera);});}});scene.add(sparkRenderer);}
+      const mesh=new spark.SplatMesh({url:config.url,paged:true});
+      const t=config.transform||{},p=t.position||[0,0,0],q=t.quaternion||[0,0,0,1];
+      mesh.position.set(p[0],p[1],p[2]);mesh.quaternion.set(q[0],q[1],q[2],q[3]);mesh.scale.setScalar(t.scale||1);
+      scene.add(mesh);await mesh.initialized;activeSplat=mesh;return true;
+    }catch(error){console.warn("[CyberVerse] Splat world unavailable; using procedural room.",error);return false;}
+  }
+  async function mount(roomId,group){
+    clearRoom();activeRoom={id:roomId,group};
+    const color=({academy:0x7ed9a8,soc:0x83c7ff,incident:0xffa67d,forensics:0xc6a2ff,community:0x6fe0bd})[roomId]||0x72dfd0;
+    (ROOM_FALLBACKS[roomId]||ROOM_FALLBACKS.academy).forEach(([kind,label,position])=>{
+      const prop=makeProp(kind,color);prop.label=label;prop.mesh.position.set(...position);group.add(prop.mesh);props.push(prop);
+    });
+    await ensurePhysics();
+    if(activeRoom?.id===roomId&&physicsReady)buildPhysics();
+    return loadSplatWorld(roomId);
+  }
+  function setRay(event){
+    const rect=canvas.getBoundingClientRect();pointer.x=(event.clientX-rect.left)/rect.width*2-1;pointer.y=-(event.clientY-rect.top)/rect.height*2+1;raycaster.setFromCamera(pointer,camera);
+  }
+  function findProp(object){while(object&&!object.userData.scenarioProp)object=object.parent;return props.find(p=>p.mesh===object)||null;}
+  function pointerDown(event){
+    if(!activeRoom||drag)return false;setRay(event);
+    const hits=raycaster.intersectObjects(props.map(p=>p.mesh),true);if(!hits.length)return false;
+    const prop=findProp(hits[0].object);if(!prop)return false;
+    ensureAudio();const point=hits[0].point;dragPlane.set(new THREE.Vector3(0,1,0),-point.y);dragOffset.copy(prop.mesh.position).sub(point);
+    drag={prop,id:event.pointerId,last:point.clone(),velocity:new THREE.Vector3(),time:performance.now()};prop.held=true;
+    if(prop.body){prop.body.setBodyType(rapier.RigidBodyType.KinematicPositionBased,true);prop.body.setLinvel(vec(),true);prop.body.wakeUp();}
+    announce("장비를 잡았습니다 · 드래그해서 이동하고 놓으면 던집니다");return true;
+  }
+  function pointerMove(event){
+    if(!drag||drag.id!==event.pointerId)return false;setRay(event);
+    if(!raycaster.ray.intersectPlane(dragPlane,dragPoint))return true;
+    const target=dragPoint.clone().add(dragOffset);target.x=clamp(target.x,-10,10);target.z=clamp(target.z,-10,10);target.y=clamp(target.y,.2,2.8);
+    const now=performance.now(),dt=Math.max(.01,(now-drag.time)/1000);drag.velocity.copy(target).sub(drag.last).multiplyScalar(1/dt);
+    drag.velocity.clamp(new THREE.Vector3(-7,-5,-7),new THREE.Vector3(7,5,7));drag.last.copy(target);drag.time=now;
+    if(drag.prop.body)drag.prop.body.setNextKinematicTranslation({x:target.x,y:target.y,z:target.z});else drag.prop.mesh.position.copy(target);
+    return true;
+  }
+  function pointerUp(event){
+    if(!drag||drag.id!==event.pointerId)return false;
+    const p=drag.prop,v=drag.velocity;drag=null;p.held=false;
+    if(p.body){p.body.setBodyType(rapier.RigidBodyType.Dynamic,true);p.body.setLinvel({x:v.x,y:Math.max(1,v.y*.6),z:v.z},true);p.body.wakeUp();}
+    else{p.velocity.copy(v);p.velocity.y=Math.max(1,p.velocity.y*.6);}
+    impactSound(p,p.mesh.position);return true;
+  }
+  function update(dt,state){
+    if(!activeRoom)return;
+    if(physicsWorld){
+      props.forEach(p=>{if(p.body){const v=p.body.linvel();p.speed=Math.hypot(v.x,v.y,v.z);}});
+      physicsWorld.timestep=clamp(dt,1/120,1/30);physicsWorld.step(eventQueue);
+      eventQueue?.drainCollisionEvents((a,b,started)=>{
+        if(!started)return;const p=colliderToProp.get(a)||colliderToProp.get(b);
+        if(p&&!p.held&&p.speed>.5&&p.cooldown<=0){impactSound(p,p.mesh.position);p.cooldown=.18;}
+      });
+      props.forEach(p=>{if(p.cooldown>0)p.cooldown=Math.max(0,p.cooldown-dt);if(!p.body)return;const t=p.body.translation(),q=p.body.rotation();p.mesh.position.set(t.x,t.y,t.z);p.mesh.quaternion.set(q.x,q.y,q.z,q.w);});
+    }else if(physicsFailed){
+      props.forEach(p=>{if(p.held)return;p.velocity.y-=9.81*dt;p.mesh.position.addScaledVector(p.velocity,dt);
+        if(p.mesh.position.y<p.half[1]){p.mesh.position.y=p.half[1];if(p.velocity.y<-.6)impactSound(p,p.mesh.position);p.velocity.y=Math.abs(p.velocity.y)*.2;p.velocity.x*=.8;p.velocity.z*=.8;}
+        p.mesh.rotation.x+=p.velocity.z*dt*.07;p.mesh.rotation.z-=p.velocity.x*dt*.07;
+      });
+    }
+  }
+  return {mount,clearRoom,pointerDown,pointerMove,pointerUp,update,getStatus:()=>({room:activeRoom?.id||null,physics:physicsReady?"rapier":physicsFailed?"fallback":"loading",splats:!!activeSplat,props:props.length})};
+}
