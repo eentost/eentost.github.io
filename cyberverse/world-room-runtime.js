@@ -74,6 +74,7 @@ export function createWorldRoomRuntime({THREE,scene,camera,canvas,announce=()=>{
       meshBox(parent,[.12,.86,.12],[x+sx*(w/2-.12),.45,z+sz*(d/2-.12)],mats.darkMetal);
     meshBox(parent,[w*.72,.52,.09],[x,.58,z+d/2-.1],mats.darkMetal);
     addSupport(x,z,w/2,d/2,top+.04);
+    addSolid(x,z,w/2,d/2,top,0);
     meshBox(parent,[.78,.62,.07],[x,.47,z+d/2+.12],mats.black);
     meshBox(parent,[.64,.45,.025],[x,.49,z+d/2+.16],mats.glass);
     for(let k=0;k<3;k++)meshBox(parent,[.14,.018,.012],[x-.2+k*.2,.49,z+d/2+.18],mat(accent,.1,.2,accent));
@@ -260,7 +261,7 @@ export function createWorldRoomRuntime({THREE,scene,camera,canvas,announce=()=>{
     osc.connect(gain);gain.connect(pan);pan.connect(ctx.destination);osc.start(now);osc.stop(now+.23);
   }
   function clearRoom(){
-    if(rootGroup){scene.remove(rootGroup);rootGroup.traverse(o=>{if(o.geometry)o.geometry.dispose();});}
+    if(rootGroup){rootGroup.parent?.remove(rootGroup);rootGroup.traverse(o=>{if(o.geometry)o.geometry.dispose();});}
     rootGroup=null;roomId=null;props.length=0;supports.length=0;playerSolids.length=0;
     drag=null;hovered=null;if(hoverRing){scene.remove(hoverRing);hoverRing.geometry.dispose();hoverRing.material.dispose();hoverRing=null;}
   }
