@@ -25,6 +25,8 @@ jobs:
           node --check cyberverse/coop.js
           node --check cyberverse/scene3d.js
           node --check cyberverse/browser-range.js
+          node --check cyberverse/scenario-room-runtime.js
+          node --check cyberverse/scenario-world-assets.js
       - name: HTML links and feature anchors
         run: |
           python3 - <<'PY'
