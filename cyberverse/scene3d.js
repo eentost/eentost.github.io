@@ -176,6 +176,8 @@ new ResizeObserver(resize).observe(root);resize();
 const cinematic=createCinematicCity({scene,city,renderer,root,zones,sky,sun,state});
 const combat=createCombatTraining({city,camera,renderer,root,state,local,zones,announce});
 const fps=createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat,cinematic});
+renderer.xr.addEventListener("sessionstart",()=>{local.visible=false;announce("VR 체험 모드 · 왼쪽 컨트롤러 스틱으로 이동하세요");});
+renderer.xr.addEventListener("sessionend",()=>{local.visible=state.cameraMode!=="first";});
 const clk=new THREE.Clock();let last=0;
 function loop(){
 const dt=Math.min(clk.getDelta(),.05),t=clk.elapsedTime;
