@@ -1,12 +1,7 @@
 /**
- * Browser bridge for the pinned IeumOffice conversion engine.
+ * Worker bridge for the IeumOffice HWP/HWPX, PDF and DOCX conversion engine.
  * Upstream revision: 18cfc7150a2028487a2ae669a324d02bae93570a
  */
-type Block =
-  | { kind: "p"; text: string }
-  | { kind: "h"; level: number; text: string }
-  | { kind: "table"; rows: string[][] };
-
 type ConversionReply = {
   bytes: Uint8Array;
   losses: Array<{ feature: string; kind: "dropped" | "changed"; count: number }>;
@@ -25,7 +20,7 @@ declare global {
   interface Window {
     doc2hwpxIeumOffice?: {
       version: string;
-      convertFile(fileName: string, input: ArrayBuffer | Uint8Array, blocks?: Block[]): Promise<ConversionReply>;
+      convertFile(fileName: string, input: ArrayBuffer | Uint8Array): Promise<ConversionReply>;
     };
   }
 }
@@ -69,16 +64,14 @@ worker.addEventListener("error", (event) => {
 });
 
 window.doc2hwpxIeumOffice = {
-  version: "ieumoffice-18cfc715-multiformat",
-  convertFile(fileName, input, blocks) {
+  version: "ieumoffice-18cfc715-hwp-pdf-docx",
+  convertFile(fileName, input) {
     const bytes = input instanceof Uint8Array ? input.slice() : new Uint8Array(input.slice(0));
     const id = ++sequence;
     return new Promise<ConversionReply>((resolve, reject) => {
       pending.set(id, { resolve, reject });
-      const payload: { id: number; fileName: string; data?: ArrayBuffer; blocks?: Block[] } = { id, fileName };
-      if (bytes.byteLength) payload.data = bytes.buffer as ArrayBuffer;
-      if (blocks?.length) payload.blocks = blocks;
-      worker.postMessage(payload, payload.data ? [payload.data] : []);
+      const buffer = bytes.buffer as ArrayBuffer;
+      worker.postMessage({ id, fileName, data: buffer }, [buffer]);
     });
   },
 };
