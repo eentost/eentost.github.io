@@ -30,3 +30,18 @@
 
 /* Scenario room interaction affordance */
 .cv3-prop-hint{position:absolute;right:16px;bottom:74px;padding:9px 12px;border:1px solid #4d8d89;border-radius:9px;background:#082d36e8;color:#cffff4;font-size:10px;pointer-events:none}
+
+/* CyberVerse interaction and immersive controls */
+.cv3-top{z-index:8}
+.cv3-top button[aria-pressed="true"]{background:#79ead8;color:#062b32;border-color:#a5fff0}
+.cv3-vr-button{position:absolute!important;left:50%!important;right:auto!important;bottom:16px!important;top:auto!important;transform:translateX(-50%);z-index:9!important;border:1px solid #6adbc8!important;border-radius:10px!important;background:#0a2d40dd!important;color:#eaffff!important;font:800 11px system-ui!important;padding:9px 14px!important;backdrop-filter:blur(12px)}
+.cv3-inspector{pointer-events:auto;position:absolute;right:16px;top:66px;z-index:7;width:min(340px,calc(100% - 32px));max-height:calc(100% - 145px);overflow:auto;padding:19px;background:linear-gradient(145deg,#12394ef5,#061b2df7);border:1px solid #5aabb0;border-radius:15px;box-shadow:0 18px 55px #0009;backdrop-filter:blur(18px);color:#eafaff}
+.cv3-inspector[hidden]{display:none}
+.cv3-inspector-close{position:absolute;right:10px;top:7px;border:0;background:transparent;color:#d8f4f4;font-size:24px}
+.cv3-inspector-kicker{display:block;font-size:9px;font-weight:900;letter-spacing:.14em;color:#80ead9}
+.cv3-inspector h3{font-size:19px;margin:8px 24px 8px 0}
+.cv3-inspector p{font-size:12px;line-height:1.8;color:#c2dce5;margin:0 0 15px}
+.cv3-inspector dl{display:grid;gap:8px;margin:0}
+.cv3-inspector dl>div{display:grid;grid-template-columns:58px 1fr;gap:8px;border-top:1px solid #2b5265;padding-top:8px;font-size:10px}
+.cv3-inspector dt{color:#83d9d0}.cv3-inspector dd{margin:0;color:#e1f5f8;overflow-wrap:anywhere}
+@media(max-width:970px){.cv3-inspector{right:10px;top:58px;width:min(310px,calc(100% - 20px));max-height:48%}.cv3-vr-button{bottom:8px!important}.cv3-top{max-width:calc(100% - 16px);left:8px;right:8px;justify-content:flex-end}.cv3-chip{margin-right:auto}.cv3-top button{font-size:9px;padding:7px}}
