@@ -43,11 +43,12 @@ jobs:
             'src="./browser-range.js',
           ]
           for token in required:assert token in html,token
-          for token in ("function enter(id)","function leave()","function renderThreat(t)","setDefense:defenseFeedback","function peers(players)",'"wargame"',"window.CVRange?.open()"):
+          for token in ("function enter(id)","function leave()","function renderThreat(t)","setDefense:defenseFeedback","function peers(players)",'"course:foundation"',"window.CVRange?.openCourse("):
             assert token in three,token
           range_js=(p/"browser-range.js").read_text()
-          for token in ("https://lsszz2100.github.io/VibeHacking/wargame/","allow-scripts allow-same-origin","referrerPolicy","window.CVRange",'get("lab")==="vibehacking"'):
+          for token in ("https://lsszz2100.github.io/VibeHacking/wargame/","allow-scripts allow-same-origin","referrerPolicy","window.CVRange","openCourse","TOPICS=","STORAGE_KEY","completedTopics"):
             assert token in range_js,token
+          assert range_js.count('["') >= 75, "expected 75 VibeHacking topics"
           for token in ("cv3:move","type:\"vote\"","vote_status","case \"feedback\""):
             assert token in coop,token
           print("PASS: CyberVerse static structure assertions")
