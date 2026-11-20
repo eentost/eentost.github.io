@@ -13,7 +13,7 @@
   const zoomOut = $("nativeViewerZoomOut");
   const zoomIn = $("nativeViewerZoomIn");
   const fit = $("nativeViewerFit");
-  let session = 0, pageCount = 0, pageIndex = 0, zoom = 1, currentFile = "";
+  let session = 0, pageCount = 0, pageIndex = 0, zoom = 1, currentFile = "", fitMode = true;
   let imageUrl = null, busy = false;
   const buttons = [prev,next,pageInput,zoomOut,zoomIn,fit];
   function setBusy(value){busy=value;buttons.forEach(x=>x.disabled=value||!session);}
@@ -60,7 +60,7 @@
     const url=URL.createObjectURL(blob);
     const img=document.createElement("img");
     img.alt=currentFile+" · "+(pageIndex+1)+"페이지";
-    img.style.width="min(100%, "+Math.round(794*zoom)+"px)";
+    img.style.width=Math.round(794*zoom)+"px";img.style.maxWidth="100%";
     img.onload=()=>{if(imageUrl)URL.revokeObjectURL(imageUrl);imageUrl=url;};
     img.onerror=()=>{URL.revokeObjectURL(url);status.textContent="페이지 이미지를 표시하지 못했습니다.";};
     img.src=url;
@@ -73,7 +73,7 @@
     if(bytes.byteLength>50*1024*1024) throw new Error("파일당 50 MiB 제한을 초과했습니다.");
     setBusy(true);status.textContent="문서 열기 및 페이지 레이아웃 계산 중…";
     const reply=await window.doc2hwpxIeumOffice.openViewer(fileName,bytes);
-    session=reply.session;pageCount=reply.pageCount;pageIndex=reply.pageIndex;currentFile=fileName;zoom=1;
+    session=reply.session;pageCount=reply.pageCount;pageIndex=reply.pageIndex;currentFile=fileName;fitMode=true;fitToWidth();
     showSvg(reply.svg);
     status.textContent=currentFile+" · "+pageCount+"페이지 · rhwp WASM 직접 렌더링";
     setBusy(false);
@@ -98,9 +98,23 @@
   prev.addEventListener("click",()=>render(pageIndex-1));
   next.addEventListener("click",()=>render(pageIndex+1));
   pageInput.addEventListener("change",()=>{const n=Number(pageInput.value);if(Number.isInteger(n))render(n-1);});
-  zoomOut.addEventListener("click",()=>{zoom=Math.max(.5,zoom-.1);zoomLabel.textContent=Math.round(zoom*100)+"%";const img=stage.querySelector("img");if(img)img.style.width="min(100%, "+Math.round(794*zoom)+"px)";updateControls();});
-  zoomIn.addEventListener("click",()=>{zoom=Math.min(2,zoom+.1);zoomLabel.textContent=Math.round(zoom*100)+"%";const img=stage.querySelector("img");if(img)img.style.width="min(100%, "+Math.round(794*zoom)+"px)";updateControls();});
-  fit.addEventListener("click",()=>{zoom=1;const img=stage.querySelector("img");if(img)img.style.width="min(100%, 794px)";updateControls();});
+  function applyZoom(){
+    const img=stage.querySelector("img");
+    if(img){img.style.width=Math.round(794*zoom)+"px";img.style.maxWidth="100%";}
+    updateControls();
+  }
+  function fitToWidth(){
+    const available=Math.max(320,stage.clientWidth-48);
+    zoom=Math.min(1.5,Math.max(.5,available/794));
+    applyZoom();
+  }
+  zoomOut.addEventListener("click",()=>{fitMode=false;zoom=Math.max(.5,zoom-.1);applyZoom();});
+  zoomIn.addEventListener("click",()=>{fitMode=false;zoom=Math.min(2,zoom+.1);applyZoom();});
+  fit.addEventListener("click",()=>{fitMode=true;fitToWidth();});
+  if(typeof ResizeObserver!=="undefined"){
+    const resizeObserver=new ResizeObserver(()=>{if(fitMode&&session)fitToWidth();});
+    resizeObserver.observe(stage);
+  }
   window.addEventListener("doc2hwpx-open-viewer",async event=>{
     const detail=event.detail||{};
     if(detail.fileName&&detail.bytes){
