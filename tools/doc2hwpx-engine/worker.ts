@@ -15,7 +15,6 @@ import { xlsxToText } from "../../ieumoffice/packages/file-parse/src/xlsx.ts";
 import { epubToText } from "../../ieumoffice/packages/file-parse/src/epub.ts";
 import { xmindToText } from "../../ieumoffice/packages/file-parse/src/xmind.ts";
 import { convertPptToPptx } from "../../ieumoffice/packages/ppt2pptx/src/index.ts";
-import * as XLSX from "xlsx";
 
 type Block =
   | { kind: "p"; text: string }
@@ -234,17 +233,10 @@ function blocksFromFile(fileName: string, bytes: Uint8Array): Block[] {
   return [];
 }
 
-function sheetBlocks(bytes: Uint8Array): Block[] {
-  const workbook = XLSX.read(bytes, { type: "array", cellDates: true, cellNF: false, cellText: true });
-  const blocks: Block[] = [];
-  for (const sheetName of workbook.SheetNames) {
-    const sheet = workbook.Sheets[sheetName];
-    blocks.push({ kind: "h", level: 1, text: sheetName });
-    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: "" }) as unknown[][];
-    const normalized = rows.map(row => row.map(cell => String(cell ?? "")));
-    if (normalized.length) blocks.push({ kind: "table", rows: normalized });
-  }
-  return blocks;
+async function sheetBlocks(bytes: Uint8Array): Promise<Block[]> {
+  const text = await xlsxToText(bytes);
+  const blocks = parseMarkdown(text);
+  return blocks.length ? blocks : [{ kind: "p", text: "스프레드시트에서 읽을 수 있는 셀 텍스트를 찾지 못했습니다." }];
 }
 
 function normalizeWarnings(warnings: string[] = []): string[] {
@@ -286,7 +278,7 @@ async function toDocx(fileName: string, bytes: Uint8Array, warnings: string[]): 
     warnings.push(...(converted.report?.items?.map((x: { message?: string }) => x.message || "") ?? []));
     return { docx: converted.docxBytes, look: "word" };
   }
-  if (["pptx", "pptm", "ppsx", "xlsx", "xlsm", "xlsb", "ods", "ppt"].includes(ext)) {
+  if (["pptx", "pptm", "ppsx", "xlsx", "xlsm", "xlsb", "ppt"].includes(ext)) {
     let text: string;
     if (ext === "ppt") {
       const pptx = await convertPptToPptx(bytes);
@@ -294,8 +286,8 @@ async function toDocx(fileName: string, bytes: Uint8Array, warnings: string[]): 
       text = await pptxToText(pptx.bytes);
     } else if (["pptx", "pptm", "ppsx"].includes(ext)) {
       text = await pptxToText(bytes);
-    } else if (ext === "xlsx" || ext === "xlsm" || ext === "xlsb" || ext === "ods") {
-      const blocks = sheetBlocks(bytes);
+    } else if (ext === "xlsx" || ext === "xlsm" || ext === "xlsb") {
+      const blocks = await sheetBlocks(bytes);
       return { docx: buildDocx(blocks), look: "hangul" };
     } else {
       text = "";
