@@ -157,6 +157,7 @@ if(!demo && selectedFile){
   if(!window.doc2hwpxIeumOffice)throw Error('다중 형식 변환 엔진을 아직 불러오지 못했습니다. 잠시 후 다시 시도하세요.');
   const converted=await window.doc2hwpxIeumOffice.convertFile(selectedFile.name,await selectedFile.arrayBuffer());
   outputBytes=converted.bytes;outputName=title+'.hwpx';
+  if(/\.hwpx$/i.test(outputName))window.dispatchEvent(new CustomEvent('doc2hwpx-open-viewer',{detail:{fileName:outputName,bytes:outputBytes.slice().buffer}}));
   let sec=await zipRead(outputBytes,'Contents/section0.xml');
   let parsed=new DOMParser().parseFromString(sec,'application/xml');
   if(parsed.querySelector('parsererror'))throw Error('고급 엔진이 생성한 HWPX 본문 XML 재검증에 실패했습니다.');
