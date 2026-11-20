@@ -1,0 +1,5 @@
+Upstream: https://github.com/pblsketch/ieumoffice
+Revision: 18cfc7150a2028487a2ae669a324d02bae93570a
+Packages: @genoffice/docx2hwp, @genoffice/docx-engine, @rhwp/core
+Output: browser bundle + gzip-compressed rhwp WebAssembly
+License files: tools/doc2hwpx-assets/licenses/

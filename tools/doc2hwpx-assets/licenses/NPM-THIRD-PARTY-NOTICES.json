@@ -1,0 +1,7 @@
+{
+  "@genoffice/docx2hwp@0.1.0": {
+    "licenses": "UNLICENSED",
+    "private": true,
+    "path": "./packages/docx2hwp"
+  }
+}
