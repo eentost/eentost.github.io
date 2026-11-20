@@ -3,6 +3,7 @@ import * as THREE from "three";
 import {createCinematicCity} from "./scene-cinematic.js";
 import {createCombatTraining} from "./scene-combat.js";
 import {createFpsArena} from "./scene-fps.js?v=bot-guard-20261105-3";
+import {VRButton} from "three/addons/webxr/VRButton.js";
 import {createWorldRoomRuntime} from "./world-room-runtime.js";
 const root=document.querySelector(".world-wrap");
 if(!root)throw Error("CyberVerse world container not found");
@@ -20,13 +21,15 @@ incident:[["피싱 대응실","계정 탈취로 이어지는 피싱 사건을 �
 forensics:[["증거 보존","로그의 타임스탬프, 원본 무결성, 수집 경로를 기록해야 합니다.","forensics"],["사고 타임라인","접근, 실행, 권한 변경, 파일 접근의 순서를 재구성합니다.","forensics"],["VibeHacking · 악성코드와 포렌식","리버스 엔지니어링, 악성코드 분석, 디지털 포렌식, DFIR을 순서대로 학습합니다.","course:forensics"]],
 academy:[["보안 기초","의심 링크, MFA 승인 요청, 암호화, 백업과 보안 모니터링을 학습합니다.","academy"],["사고 대응 연습","사고 체험관의 단계별 훈련으로 배운 지식을 확인합니다.","incident"],["VibeHacking · 기초 학습 로드맵","리눅스, 네트워크, 시스템, 웹, 파이썬 등 기본기를 순서대로 쌓습니다.","course:foundation"]]};
 const ui=document.createElement("div");ui.className="cv3-ui";
-ui.innerHTML='<div class="cv3-top"><span id="cv3-presence" class="cv3-chip cv3-online">● 3D · 싱글 플레이어</span><button id="cv3-fullscreen" type="button">⛶ 몰입형 화면</button><button id="cv3-motion" type="button">◌ 움직임 줄이기</button></div><div class="cv3-center-label" id="cv3-center-label" aria-live="polite"></div><div class="cv3-bottom"><div class="cv3-help"><b id="cv3-room-label">CYBER CITY</b><span id="cv3-location">중앙 광장 · 외부</span><small>WASD 이동 · 드래그 카메라 · E 상호작용</small></div><button class="cv3-action" id="cv3-action" type="button" style="display:none">E · 입장</button><button class="cv3-exit" id="cv3-exit" type="button" style="display:none">↩ 도시로 돌아가기</button></div><div class="cv3-dpad" aria-label="모바일 아바타 이동"><button data-dir="forward" aria-label="앞으로">▲</button><div><button data-dir="left" aria-label="왼쪽">◀</button><button data-dir="back" aria-label="뒤로">▼</button><button data-dir="right" aria-label="오른쪽">▶</button></div></div><div id="cv3-popup" class="cv3-popup" role="dialog" aria-labelledby="cv3-popup-title" hidden><button id="cv3-close" class="cv3-close" type="button" aria-label="닫기">×</button><span class="cv3-kicker">INTERACTIVE STATION</span><h3 id="cv3-popup-title"></h3><p id="cv3-popup-text"></p><button id="cv3-popup-cta" class="cv3-cta" type="button">자세히 보기 →</button></div><div class="cv3-loading" id="cv3-loading"><div class="cv3-spin"></div><strong>CYBERVERSE 3D</strong><span>사이버 도시를 구성하고 있습니다.</span></div>';
+ui.innerHTML='<div class="cv3-top"><span id="cv3-presence" class="cv3-chip cv3-online">● 3D · 싱글 플레이어</span><button id="cv3-camera" type="button" aria-pressed="false">1인칭 보기</button><button id="cv3-fullscreen" type="button">⛶ 몰입형 화면</button><button id="cv3-motion" type="button">◌ 움직임 줄이기</button></div><div class="cv3-center-label" id="cv3-center-label" aria-live="polite"></div><div class="cv3-bottom"><div class="cv3-help"><b id="cv3-room-label">CYBER CITY</b><span id="cv3-location">중앙 광장 · 외부</span><small>WASD 이동 · 드래그 카메라 · E 상호작용</small></div><button class="cv3-action" id="cv3-action" type="button" style="display:none">E · 입장</button><button class="cv3-exit" id="cv3-exit" type="button" style="display:none">↩ 도시로 돌아가기</button></div><div class="cv3-dpad" aria-label="모바일 아바타 이동"><button data-dir="forward" aria-label="앞으로">▲</button><div><button data-dir="left" aria-label="왼쪽">◀</button><button data-dir="back" aria-label="뒤로">▼</button><button data-dir="right" aria-label="오른쪽">▶</button></div></div><div id="cv3-popup" class="cv3-popup" role="dialog" aria-labelledby="cv3-popup-title" hidden><button id="cv3-close" class="cv3-close" type="button" aria-label="닫기">×</button><span class="cv3-kicker">INTERACTIVE STATION</span><h3 id="cv3-popup-title"></h3><p id="cv3-popup-text"></p><button id="cv3-popup-cta" class="cv3-cta" type="button">자세히 보기 →</button></div><div id="cv3-inspector" class="cv3-inspector" role="dialog" aria-labelledby="cv3-inspector-title" hidden><button id="cv3-inspector-close" class="cv3-inspector-close" type="button" aria-label="조사 패널 닫기">×</button><span id="cv3-inspector-category" class="cv3-inspector-kicker">OBJECT INSPECTION</span><h3 id="cv3-inspector-title"></h3><p id="cv3-inspector-description"></p><dl><div><dt>공간</dt><dd id="cv3-inspector-room"></dd></div><div><dt>좌표</dt><dd id="cv3-inspector-position"></dd></div><div><dt>상태</dt><dd>브라우저 가상 객체</dd></div></dl></div><div class="cv3-loading" id="cv3-loading"><div class="cv3-spin"></div><strong>CYBERVERSE 3D</strong><span>사이버 도시를 구성하고 있습니다.</span></div>';
 root.append(ui);
-const state={area:"city",zone:"plaza",pos:{x:0,z:5,a:0},target:null,focus:null,keys:new Set(),pad:new Set(),mouse:{drag:false,x:0,y:0},camAngle:.62,camHeight:.78,camDist:14,reduced:matchMedia("(prefers-reduced-motion: reduce)").matches,phase:null,step:0,peers:new Map(),lastSend:0,currentStation:null};
+const state={area:"city",zone:"plaza",pos:{x:0,z:5,a:0},target:null,focus:null,keys:new Set(),pad:new Set(),mouse:{drag:false,x:0,y:0},camAngle:.62,camHeight:.78,camDist:14,cameraMode:"third",reduced:matchMedia("(prefers-reduced-motion: reduce)").matches,phase:null,step:0,peers:new Map(),lastSend:0,currentStation:null};
 const $=id=>document.getElementById(id),city=new THREE.Group(),interior=new THREE.Group(),scene=new THREE.Scene();
 scene.background=new THREE.Color(0x09192b);scene.fog=new THREE.FogExp2(0x0a243b,.012);scene.add(city,interior);interior.visible=false;
 const camera=new THREE.PerspectiveCamera(56,1,.1,220);
 const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:"high-performance"});
+renderer.xr.enabled=true;
+const vrButton=VRButton.createButton(renderer);vrButton.classList.add("cv3-vr-button");root.append(vrButton);
 renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.5;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));
 renderer.domElement.className="cv3-webgl";root.prepend(renderer.domElement);root.classList.add("cv3-ready");
 const sky=new THREE.HemisphereLight(0x9edfff,0x0b1526,2.3);scene.add(sky);
@@ -132,32 +135,39 @@ const exitSign=sign("↩ EXIT");exitSign.position.set(0,3.5,-11);interior.add(ex
 worldRooms.mount(id,interior);
 }
 function announce(s){const el=$("cv3-center-label");el.textContent=s;el.classList.add("cv3-show");clearTimeout(el._timeout);el._timeout=setTimeout(()=>el.classList.remove("cv3-show"),2300);}
+function setCameraMode(mode){state.cameraMode=mode==="first"?"first":"third";local.visible=state.cameraMode!=="first";$("cv3-camera").textContent=state.cameraMode==="first"?"3인칭 보기":"1인칭 보기";$("cv3-camera").setAttribute("aria-pressed",String(state.cameraMode==="first"));announce(state.cameraMode==="first"?"1인칭 시점":"3인칭 시점");}
 function syncPosition(force=false){const t=performance.now();if(!force&&t-state.lastSend<100)return;state.lastSend=t;window.dispatchEvent(new CustomEvent("cv3:move",{detail:{x:+state.pos.x.toFixed(2),z:+state.pos.z.toFixed(2),angle:+state.pos.a.toFixed(2),area:state.area,zone:state.zone}}));}
 function enter(id){if(id==="plaza"||!zones.some(z=>z.id===id))return;state.area="interior";state.zone=id;state.pos.x=0;state.pos.z=-7;state.target=null;city.visible=false;interior.visible=true;buildInterior(id);$("cv3-location").textContent=zones.find(z=>z.id===id).name+" · 실내";$("cv3-room-label").textContent="INTERIOR / "+id.toUpperCase();$("cv3-exit").style.display="block";announce("실내 입장 · E로 장비를 조사하세요");syncPosition(true);}
 function leave(){const z=zones.find(z=>z.id===state.zone)||zones[0];state.area="city";state.pos.x=z.x;state.pos.z=z.z-8;state.target=null;city.visible=true;interior.visible=false;worldRooms.clearRoom();$("cv3-location").textContent="사이버 도시 · 외부";$("cv3-room-label").textContent="CYBER CITY";$("cv3-exit").style.display="none";announce("사이버 도시로 돌아왔습니다");syncPosition(true);}
 function teleport(id){const z=zones.find(z=>z.id===id);if(!z)return;if(state.area!=="city")leave();state.zone=id;state.target={x:z.x,z:z.z-8};announce(z.name+"으로 이동합니다");}
 function nearby(){
-const p=state.pos,btn=$("cv3-action");let nearest=null,dist=4.6;
+const p=state.pos,btn=$("cv3-action");
+if(state.area==="interior"&&worldRooms.doorNearby(p)){state.focus=null;btn.style.display="block";btn.textContent="E · 출입문 "+(worldRooms.getStatus().doorOpen?"닫기":"열기");return;}
+let nearest=null,dist=4.6;
 for(const q of state.area==="city"?props:stationPoints){const d=Math.hypot(q.x-p.x,q.z-p.z);if(d<dist){dist=d;nearest=q;}}
 state.focus=nearest;btn.style.display=nearest?"block":"none";if(nearest)btn.textContent="E · "+(state.area==="city"?nearest.name+" 입장":nearest.title+" 조사");
 }
 function popup(st){state.currentStation=st;$("cv3-popup-title").textContent=st.title;$("cv3-popup-text").textContent=st.desc;$("cv3-popup-cta").textContent=["phishing","ransomware","ddos"].includes(st.action)?"사고 대응 시작 →":st.action==="wargame"||st.action.startsWith("course:")?"단계별 학습 시작 →":"관련 콘텐츠 열기 →";$("cv3-popup").hidden=false;}
-function interact(){if(!$("cv3-popup").hidden)return;const q=state.focus;if(!q)return;if(state.area==="city")enter(q.id);else popup(q);}
+function interact(){if(!$("cv3-popup").hidden)return;if(state.area==="interior"&&worldRooms.interact(state.pos)){nearby();return;}const q=state.focus;if(!q)return;if(state.area==="city")enter(q.id);else popup(q);}
 function peers(players){const live=new Set();for(const p of players){if(!p.id)continue;live.add(p.id);let m=state.peers.get(p.id);if(!m){m=humanoid([0xffb981,0x9a9fff,0xd7f4a7,0xe6a7df][state.peers.size%4],true);const s=sign((p.name||"동료").slice(0,16));s.scale.set(4,.7,1);s.position.y=3.1;m.add(s);scene.add(m);state.peers.set(p.id,m);}m.userData.net={x:Number(p.x)||0,z:Number(p.z)||0,a:Number(p.angle)||0,area:p.area||"city",zone:p.zone||"plaza"};}
 for(const [id,m]of state.peers)if(!live.has(id)){scene.remove(m);state.peers.delete(id);}
 $("cv3-presence").textContent="● "+(players.length+1)+"명 협력 중";
 }
 function peerMove(p){let m=state.peers.get(p.id);if(!m)return;m.userData.net={...m.userData.net,x:Number(p.x)||0,z:Number(p.z)||0,a:Number(p.angle)||0,area:p.area||"city",zone:p.zone||"plaza"};}
-const controls=new Set(["KeyW","KeyS","KeyA","KeyD","KeyE","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","ShiftLeft","ShiftRight","Escape"]);
-addEventListener("keydown",e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||""))return;if(fps.keyDown(e)){e.preventDefault();return;}if(combat.onKeyDown(e)){e.preventDefault();return;}if(controls.has(e.code)){state.keys.add(e.code);if(e.code.startsWith("Arrow"))e.preventDefault();}if(e.repeat)return;if(e.code==="KeyE")interact();if(e.code==="Escape"){if(!$("cv3-popup").hidden)$("cv3-popup").hidden=true;else if(state.area==="interior")leave();}});
+const controls=new Set(["KeyW","KeyS","KeyA","KeyD","KeyE","KeyV","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","ShiftLeft","ShiftRight","Escape"]);
+addEventListener("keydown",e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName||""))return;if(fps.keyDown(e)){e.preventDefault();return;}if(combat.onKeyDown(e)){e.preventDefault();return;}if(controls.has(e.code)){state.keys.add(e.code);if(e.code.startsWith("Arrow"))e.preventDefault();}if(e.repeat)return;if(e.code==="KeyE")interact();if(e.code==="KeyV")setCameraMode(state.cameraMode==="first"?"third":"first");if(e.code==="Escape"){if(!$("cv3-popup").hidden)$("cv3-popup").hidden=true;else if(state.area==="interior")leave();}});
 addEventListener("keyup",e=>{fps.keyUp(e);state.keys.delete(e.code);});
 for(const b of ui.querySelectorAll(".cv3-dpad button")){const d=b.dataset.dir;b.addEventListener("pointerdown",e=>{e.preventDefault();b.setPointerCapture?.(e.pointerId);state.pad.add(d);});for(const name of ["pointerup","pointercancel","lostpointercapture"])b.addEventListener(name,()=>state.pad.delete(d));}
 renderer.domElement.addEventListener("pointerdown",e=>{if(fps.pointerDown(e)||combat.onPointerDown(e))return;if(state.area==="interior"&&worldRooms.pointerDown(e)){e.preventDefault();renderer.domElement.setPointerCapture?.(e.pointerId);return;}state.mouse.drag=true;state.mouse.x=e.clientX;state.mouse.y=e.clientY;renderer.domElement.setPointerCapture?.(e.pointerId);});
 renderer.domElement.addEventListener("pointermove",e=>{if(fps.isActive()||combat.onPointerMove(e))return;if(worldRooms.pointerMove(e))return;if(!state.mouse.drag)return;state.camAngle-=(e.clientX-state.mouse.x)*.006;state.camHeight=Math.max(.25,Math.min(1.37,state.camHeight+(e.clientY-state.mouse.y)*.004));state.mouse.x=e.clientX;state.mouse.y=e.clientY;});
 renderer.domElement.addEventListener("pointerup",e=>{if(worldRooms.pointerUp(e)){e.preventDefault();return;}fps.pointerUp(e);combat.onPointerUp(e);state.mouse.drag=false;});
+renderer.domElement.addEventListener("pointercancel",e=>{worldRooms.pointerCancel(e);fps.pointerUp(e);combat.onPointerUp(e);state.mouse.drag=false;});
 renderer.domElement.addEventListener("wheel",e=>{state.camDist=Math.max(6,Math.min(24,state.camDist+Math.sign(e.deltaY)*1.5));e.preventDefault();},{passive:false});
 $("cv3-action").addEventListener("click",interact);$("cv3-exit").addEventListener("click",leave);$("cv3-close").addEventListener("click",()=>$("cv3-popup").hidden=true);
 $("cv3-popup-cta").addEventListener("click",()=>{const act=state.currentStation?.action;$("cv3-popup").hidden=true;if(["phishing","ransomware","ddos"].includes(act)){if(window.CVCOOP?.connected())window.CVCOOP.start(act);else document.querySelector('[data-scenario="'+act+'"]')?.click();document.querySelector(".panel")?.scrollIntoView({behavior:"smooth",block:"nearest"});}else if(act==="community")$("community")?.scrollIntoView({behavior:"smooth"});else if(act==="incident"){leave();teleport("incident");}else if(act==="wargame"){window.CVRange?.open();}else if(act.startsWith("course:")){window.CVRange?.openCourse(act.slice(7));}else announce("전시 장비를 관찰하며 위협 대응을 익혀보세요");});
+$("cv3-camera").addEventListener("click",()=>setCameraMode(state.cameraMode==="first"?"third":"first"));
+$("cv3-inspector-close").addEventListener("click",()=>$("cv3-inspector").hidden=true);
+window.addEventListener("cv3:prop-inspect",event=>{const d=event.detail||{};$("cv3-inspector-category").textContent=d.category||"OBJECT INSPECTION";$("cv3-inspector-title").textContent=d.label||"장비 조사";$("cv3-inspector-description").textContent=d.description||"가상 장비입니다.";$("cv3-inspector-room").textContent=zones.find(z=>z.id===d.room)?.name||d.room||"-";$("cv3-inspector-position").textContent=d.position?d.position.x+", "+d.position.y+", "+d.position.z:"-";$("cv3-inspector").hidden=false;});
 $("cv3-motion").addEventListener("click",()=>{state.reduced=!state.reduced;$("cv3-motion").textContent=state.reduced?"◉ 움직임 켜기":"◌ 움직임 줄이기";});
 $("cv3-fullscreen").addEventListener("click",()=>{root.classList.toggle("cv3-full");document.body.style.overflow=root.classList.contains("cv3-full")?"hidden":"";});
 document.querySelectorAll(".zone").forEach(b=>b.addEventListener("click",()=>teleport(b.dataset.zone)));
@@ -168,14 +178,15 @@ const combat=createCombatTraining({city,camera,renderer,root,state,local,zones,a
 const fps=createFpsArena({scene,camera,renderer,root,city,interior,local,state,combat,cinematic});
 const clk=new THREE.Clock();let last=0;
 function loop(){
-requestAnimationFrame(loop);const dt=Math.min(clk.getDelta(),.05),t=clk.elapsedTime;
+const dt=Math.min(clk.getDelta(),.05),t=clk.elapsedTime;
 let x=(state.keys.has("KeyD")||state.keys.has("ArrowRight")||state.pad.has("right")?1:0)-(state.keys.has("KeyA")||state.keys.has("ArrowLeft")||state.pad.has("left")?1:0);
 let z=(state.keys.has("KeyS")||state.keys.has("ArrowDown")||state.pad.has("back")?1:0)-(state.keys.has("KeyW")||state.keys.has("ArrowUp")||state.pad.has("forward")?1:0);
+if(renderer.xr.isPresenting){const session=renderer.xr.getSession(),source=Array.from(session?.inputSources||[]).find(v=>v.handedness==="left"&&v.gamepad);if(source){const axes=source.gamepad.axes||[];x+=Math.abs(axes[2]||0)>.12?axes[2]:(Math.abs(axes[0]||0)>.12?axes[0]:0);z+=Math.abs(axes[3]||0)>.12?axes[3]:(Math.abs(axes[1]||0)>.12?axes[1]:0);}}
 let auto=false;if(state.target&&!x&&!z){const dx=state.target.x-state.pos.x,dz=state.target.z-state.pos.z,d=Math.hypot(dx,dz);if(d<.55)state.target=null;else{x=dx/d;z=dz/d;auto=true;}}
 else if(x||z)state.target=null;
 const moving=x!==0||z!==0,fast=state.keys.has("ShiftLeft")||state.keys.has("ShiftRight");
 if(moving){const len=Math.hypot(x,z),speed=fast?7.8:4.3;let dx=x/len,dz=z/len;
-if(!auto){const a=state.camAngle,nx=dx*Math.cos(a)+dz*Math.sin(a),nz=-dx*Math.sin(a)+dz*Math.cos(a);dx=nx;dz=nz;}
+if(!auto){if(renderer.xr.isPresenting){const direction=renderer.xr.getCamera(camera).getWorldDirection(new THREE.Vector3());const fx=direction.x,fz=direction.z,lateral=dx,forward=-dz;dx=-fz*lateral+fx*forward;dz=fx*lateral-fz*forward;}else{const a=state.camAngle,nx=dx*Math.cos(a)+dz*Math.sin(a),nz=-dx*Math.sin(a)+dz*Math.cos(a);dx=nx;dz=nz;}}
 const min=state.area==="city"?-45:-10,max=state.area==="city"?45:10;
 const nx=Math.max(min,Math.min(max,state.pos.x+dx*speed*dt)),nz=Math.max(min,Math.min(max,state.pos.z+dz*speed*dt));
 let blocked=false;
@@ -198,13 +209,14 @@ worldRooms.update(dt);
 cinematic.update(dt,t);
 for(const [id,o]of state.peers){const p=o.userData.net;if(!p)continue;o.visible=p.area===state.area&&(p.area==="city"||p.zone===state.zone);if(o.visible){o.position.lerp(new THREE.Vector3(p.x,0,p.z),Math.min(1,dt*9));o.rotation.y=p.a;}}
 const target=new THREE.Vector3(state.pos.x,1.7,state.pos.z),e=state.camHeight,dist=state.camDist;
-const cameraGoal=new THREE.Vector3(target.x+Math.sin(state.camAngle)*dist*Math.cos(e),target.y+Math.sin(e)*dist,target.z+Math.cos(state.camAngle)*dist*Math.cos(e));
-if(!fps.isActive()){camera.position.lerp(cameraGoal,Math.min(1,dt*3.6));camera.lookAt(target);}
+const cameraGoal=state.cameraMode==="first"?new THREE.Vector3(state.pos.x,1.62,state.pos.z):new THREE.Vector3(target.x+Math.sin(state.camAngle)*dist*Math.cos(e),target.y+Math.sin(e)*dist,target.z+Math.cos(state.camAngle)*dist*Math.cos(e));
+const cameraLook=state.cameraMode==="first"?new THREE.Vector3(state.pos.x+Math.sin(state.pos.a)*8,1.58,state.pos.z-Math.cos(state.pos.a)*8):target;
+if(!fps.isActive()){camera.position.lerp(cameraGoal,Math.min(1,dt*(state.cameraMode==="first"?12:3.6)));camera.lookAt(cameraLook);}
 combat.update(dt,t);
 fps.update(dt,t);
 if(!document.hidden)renderer.render(scene,camera);
 if(t-last>.25){nearby();last=t;}
 }
 $("cv3-loading")?.remove();
-window.CV3D={teleport,enter,leave,setPeers:peers,peerMove,setDefense:defenseFeedback,setThreat:(id,step)=>{if(state.phase!==id){shield.visible=false;state.phase=id;announce(id?"침해사고 발생 · 팀과 대응하세요":"방어 준비 완료");}state.step=step;},getPosition:()=>({...state.pos,area:state.area,zone:state.zone})};
-document.dispatchEvent(new Event("cv3:ready"));requestAnimationFrame(loop);
+window.CV3D={teleport,enter,leave,setPeers:peers,peerMove,setDefense:defenseFeedback,setThreat:(id,step)=>{if(state.phase!==id){shield.visible=false;state.phase=id;announce(id?"침해사고 발생 · 팀과 대응하세요":"방어 준비 완료");}state.step=step;},getPosition:()=>({...state.pos,area:state.area,zone:state.zone}),setCameraMode};
+document.dispatchEvent(new Event("cv3:ready"));renderer.setAnimationLoop(loop);
