@@ -101,6 +101,30 @@ jobs:
           await writeFile('/tmp/doc2hwpx-qa/rhwp_bg.wasm', wasm);
           NODE
 
+      - name: Smoke test native HWP viewer page rendering
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { readFile } from 'node:fs/promises';
+          import initRhwp, { HwpDocument, HwpViewer } from './ieumoffice/vendor/rhwp-core/rhwp.js';
+          const wasm = new Uint8Array(await readFile('ieumoffice/vendor/rhwp-core/rhwp_bg.wasm'));
+          await initRhwp({ module_or_path: wasm });
+          const source = new Uint8Array(await readFile('ieumoffice/apps/hwp/tests/fixtures/memo.hwp'));
+          const doc = new HwpDocument(source);
+          const viewer = new HwpViewer(doc);
+          try {
+            const pages = viewer.pageCount();
+            assert.ok(pages > 0, 'viewer page count should be positive');
+            const svg = viewer.renderPageSvg(0);
+            assert.ok(typeof svg === 'string' && svg.includes('<svg'), 'first page should render to SVG');
+            assert.ok(svg.includes('viewBox') || svg.includes('width'), 'rendered SVG should include page geometry');
+            console.log(JSON.stringify({ fixture: 'memo.hwp', pages, firstPageSvgBytes: new TextEncoder().encode(svg).length, rendered: true }));
+          } finally {
+            viewer.free();
+            doc.free();
+          }
+          NODE
+
       - name: Preserve upstream license and attribution notices
         run: |
           mkdir -p tools/doc2hwpx-assets/licenses
