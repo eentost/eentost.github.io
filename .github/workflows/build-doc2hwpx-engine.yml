@@ -5,6 +5,7 @@ on:
     branches: [master]
     paths:
       - "tools/doc2hwpx.html"
+      - "tools/doc2hwpx-viewer.js"
       - "tools/doc2hwpx-engine/**"
       - ".github/workflows/build-doc2hwpx-engine.yml"
   workflow_dispatch:
@@ -162,6 +163,7 @@ jobs:
 
       - name: Validate generated assets
         run: |
+          node --check tools/doc2hwpx-viewer.js
           test -s tools/doc2hwpx-assets/doc2hwpx-engine.js
           test -s tools/doc2hwpx-assets/rhwp_bg.wasm.gz
           test -s tools/doc2hwpx-assets/licenses/IEUMOFFICE-LICENSE-APACHE-2.0.txt
