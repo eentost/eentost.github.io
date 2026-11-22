@@ -220,7 +220,7 @@
           const view=new window.google.picker.DocsView(window.google.picker.ViewId.DOCS)
             .setIncludeFolders(false)
             .setMimeTypes("application/vnd.hancom.hwp,application/vnd.hancom.hwpx,application/octet-stream");
-          const picker=new window.google.picker.PickerBuilder()
+          const pickerBuilder=new window.google.picker.PickerBuilder()
             .setDeveloperKey(config.apiKey)
             .setOAuthToken(token)
             .setTitle("미리 볼 HWP/HWPX 파일 선택")
@@ -237,7 +237,10 @@
                   driveState.textContent="Google Drive에서 문서를 열었습니다: "+doc.name;
                 }catch(error){driveState.textContent="Drive 파일 열기 실패: "+error.message;}
               }else if(data.action===window.google.picker.Action.CANCEL){driveState.textContent="파일 선택을 취소했습니다.";}
-            }).build();
+            });
+          if(config.appId)pickerBuilder.setAppId(config.appId);
+          if(window.google.picker.Feature?.SUPPORT_DRIVES)pickerBuilder.enableFeature(window.google.picker.Feature.SUPPORT_DRIVES);
+          const picker=pickerBuilder.build();
           picker.setVisible(true);
         }
       });
