@@ -84,7 +84,22 @@ body,.paper{font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR"
     <input id="nativeSourceUrl" type="url" placeholder="CORS가 허용된 공개 HWP/HWPX 직접 파일 URL" aria-label="문서 URL" style="flex:1;min-width:230px;padding:9px;border:1px solid #ccd7e4;border-radius:7px">
     <button class="native-source-btn" type="button" id="nativeSourceUrlOpen">URL 열기</button>
   </div>
-  <div id="nativeSourceFolderBox" hidden style="width:100%">
+  <div id="nativeDriveSetup" hidden style="width:100%;padding:14px;border:1px solid #d8e2ef;border-radius:10px;background:#f8fbff">
+  <strong style="font-size:12px">Google Drive 연결 설정</strong>
+  <p style="font-size:11px;color:#64748b;line-height:1.6;margin:6px 0 10px">Google Cloud에서 Google Picker API와 Google Drive API를 활성화하고 OAuth 웹 클라이언트 ID 및 API Key를 발급해 입력하세요. 이 값은 브라우저에서 사용되는 공개 식별자이며 API Key에는 HTTP referrer 제한을 설정해야 합니다.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
+    <input id="nativeDriveClientId" type="text" placeholder="OAuth Client ID" aria-label="Google OAuth Client ID" style="padding:9px;border:1px solid #ccd7e4;border-radius:7px">
+    <input id="nativeDriveApiKey" type="text" placeholder="Google API Key" aria-label="Google API Key" style="padding:9px;border:1px solid #ccd7e4;border-radius:7px">
+    <input id="nativeDriveAppId" type="text" placeholder="Google Cloud Project Number (선택)" aria-label="Google Cloud Project Number" style="padding:9px;border:1px solid #ccd7e4;border-radius:7px">
+  </div>
+  <div style="display:flex;gap:8px;margin-top:9px;flex-wrap:wrap">
+    <button class="native-source-btn" type="button" id="nativeDriveSave">설정 저장</button>
+    <button class="native-source-btn" type="button" id="nativeDriveConnect">Google Drive 연결</button>
+    <button class="native-source-btn" type="button" id="nativeDriveDisconnect">연결 해제</button>
+  </div>
+  <small id="nativeDriveState" style="display:block;margin-top:8px;color:#64748b">OAuth 연결 전 · 파일 읽기 권한만 요청합니다.</small>
+</div>
+<div id="nativeSourceFolderBox" hidden style="width:100%">
     <label for="nativeSourceFolderSelect" style="font-size:12px">선택한 폴더의 문서</label>
     <select id="nativeSourceFolderSelect" style="width:100%;max-width:450px;padding:8px;border:1px solid #ccd7e4;border-radius:7px"></select>
   </div>
