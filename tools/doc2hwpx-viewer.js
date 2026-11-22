@@ -123,5 +123,136 @@
     }
   });
   window.addEventListener("doc2hwpx-ieum-ready",()=>{if(!session)status.textContent="뷰어 엔진 준비 완료 · HWP/HWPX 파일을 열 수 있습니다.";});
+
+  // Source connectors: local files, local folders, drag-and-drop, CORS-enabled URLs and Google Drive Picker.
+  const localInput=$("nativeSourceLocal"), folderInput=$("nativeSourceFolder");
+  const folderBox=$("nativeSourceFolderBox"), folderSelect=$("nativeSourceFolderSelect");
+  const urlToggle=$("nativeSourceUrlToggle"), urlBox=$("nativeSourceUrlBox");
+  const urlInput=$("nativeSourceUrl"), urlOpen=$("nativeSourceUrlOpen");
+  const driveButton=$("nativeSourceDrive"), driveSetup=$("nativeDriveSetup");
+  const driveClientId=$("nativeDriveClientId"), driveApiKey=$("nativeDriveApiKey"), driveAppId=$("nativeDriveAppId");
+  const driveState=$("nativeDriveState");
+  let folderFiles=[];
+  const DRIVE_CONFIG_KEY="doc2hwpx.google-drive.config.v1";
+  function readDriveConfig(){
+    try{return JSON.parse(localStorage.getItem(DRIVE_CONFIG_KEY)||"{}");}catch{return {};}
+  }
+  function saveDriveConfig(){
+    const config={clientId:driveClientId.value.trim(),apiKey:driveApiKey.value.trim(),appId:driveAppId.value.trim()};
+    if(!config.clientId||!config.apiKey)throw new Error("OAuth Client ID와 Google API Key를 입력하세요.");
+    localStorage.setItem(DRIVE_CONFIG_KEY,JSON.stringify(config));
+    driveState.textContent="설정 저장됨 · 연결 버튼을 눌러 Google 계정 권한을 승인하세요.";
+    return config;
+  }
+  const savedDrive=readDriveConfig();
+  driveClientId.value=savedDrive.clientId||"";
+  driveApiKey.value=savedDrive.apiKey||"";
+  driveAppId.value=savedDrive.appId||"";
+  function loadScript(src,id){
+    return new Promise((resolve,reject)=>{
+      if(document.getElementById(id)){resolve();return;}
+      const script=document.createElement("script");script.id=id;script.src=src;script.async=true;
+      script.onload=resolve;script.onerror=()=>reject(new Error("Google 연결 라이브러리를 불러오지 못했습니다."));
+      document.head.appendChild(script);
+    });
+  }
+  async function openLocal(file){
+    if(!file)return;
+    try{status.textContent="로컬 문서를 여는 중…";await openFile(file.name,await file.arrayBuffer());}
+    catch(error){status.textContent="문서 열기 실패: "+error.message;}
+  }
+  if(localInput)localInput.addEventListener("change",()=>openLocal(localInput.files?.[0]));
+  if(folderInput)folderInput.addEventListener("change",()=>{
+    folderFiles=Array.from(folderInput.files||[]).filter(f=>/\.(hwp|hwpx)$/i.test(f.name));
+    folderSelect.replaceChildren();
+    folderFiles.forEach((file,index)=>{
+      const option=document.createElement("option");option.value=String(index);
+      option.textContent=(file.webkitRelativePath||file.name)+" · "+(file.size/1048576).toFixed(2)+" MiB";
+      folderSelect.appendChild(option);
+    });
+    folderBox.hidden=folderFiles.length===0;
+    if(folderFiles.length){status.textContent="폴더에서 HWP/HWPX "+folderFiles.length+"개를 찾았습니다. 목록에서 열 문서를 선택하세요.";}
+    else status.textContent="선택한 폴더에서 HWP/HWPX 파일을 찾지 못했습니다.";
+  });
+  if(folderSelect)folderSelect.addEventListener("change",()=>openLocal(folderFiles[Number(folderSelect.value)]));
+  if(urlToggle)urlToggle.addEventListener("click",()=>{urlBox.hidden=!urlBox.hidden;});
+  if(urlOpen)urlOpen.addEventListener("click",async()=>{
+    const url=urlInput.value.trim();
+    try{
+      const parsed=new URL(url);
+      if(parsed.protocol!=="https:")throw new Error("문서 URL은 HTTPS 주소만 허용합니다.");
+      if(!/\.(hwp|hwpx)(?:$|[?#])/i.test(parsed.pathname+parsed.search))throw new Error("URL 경로가 .hwp 또는 .hwpx 파일인지 확인하세요.");
+      status.textContent="URL에서 문서를 가져오는 중…";
+      const response=await fetch(parsed.href,{mode:"cors",credentials:"omit"});
+      if(!response.ok)throw new Error("문서 서버 응답: HTTP "+response.status);
+      const blob=await response.blob();
+      const name=decodeURIComponent(parsed.pathname.split("/").pop()||"remote.hwpx");
+      await openFile(name,await blob.arrayBuffer());
+    }catch(error){
+      status.textContent="URL 열기 실패: "+error.message+" · 원격 서버가 CORS를 허용해야 합니다.";
+    }
+  });
+  if(driveButton)driveButton.addEventListener("click",()=>{driveSetup.hidden=!driveSetup.hidden;});
+  const saveDrive=$("nativeDriveSave"),connectDrive=$("nativeDriveConnect"),disconnectDrive=$("nativeDriveDisconnect");
+  if(saveDrive)saveDrive.addEventListener("click",()=>{
+    try{saveDriveConfig();}catch(error){driveState.textContent=error.message;}
+  });
+  if(disconnectDrive)disconnectDrive.addEventListener("click",()=>{
+    if(window.googleDriveTokenClient)window.googleDriveTokenClient=null;
+    driveState.textContent="이 페이지의 Google 연결 상태를 초기화했습니다. 이미 발급된 토큰은 만료되거나 Google 계정 권한 페이지에서 취소할 수 있습니다.";
+  });
+  async function openDrivePicker(){
+    let config;
+    try{config=saveDriveConfig();}catch(error){driveState.textContent=error.message;return;}
+    try{
+      driveState.textContent="Google 연결 라이브러리를 준비 중…";
+      await loadScript("https://accounts.google.com/gsi/client","google-identity-services");
+      await loadScript("https://apis.google.com/js/api.js","google-api-client");
+      await new Promise((resolve,reject)=>window.gapi.load("picker",{callback:resolve,onerror:()=>reject(new Error("Google Picker API를 불러오지 못했습니다."))}));
+      if(!window.google?.accounts?.oauth2||!window.google?.picker)throw new Error("Google OAuth 또는 Picker API를 사용할 수 없습니다.");
+      const tokenClient=window.google.accounts.oauth2.initTokenClient({
+        client_id:config.clientId,
+        scope:"https://www.googleapis.com/auth/drive.readonly",
+        callback:async tokenResponse=>{
+          if(tokenResponse.error){driveState.textContent="Google 승인 실패: "+tokenResponse.error;return;}
+          const token=tokenResponse.access_token;
+          driveState.textContent="Google Drive 파일 선택 창을 여는 중…";
+          const view=new window.google.picker.DocsView(window.google.picker.ViewId.DOCS)
+            .setIncludeFolders(false)
+            .setMimeTypes("application/vnd.hancom.hwp,application/vnd.hancom.hwpx,application/octet-stream");
+          const picker=new window.google.picker.PickerBuilder()
+            .setDeveloperKey(config.apiKey)
+            .setOAuthToken(token)
+            .setTitle("미리 볼 HWP/HWPX 파일 선택")
+            .addView(view)
+            .setCallback(async data=>{
+              if(data.action===window.google.picker.Action.PICKED){
+                const doc=data.docs?.[0];if(!doc)return;
+                try{
+                  driveState.textContent=doc.name+" 다운로드 중…";
+                  const response=await fetch("https://www.googleapis.com/drive/v3/files/"+encodeURIComponent(doc.id)+"?alt=media",{headers:{Authorization:"Bearer "+token}});
+                  if(!response.ok)throw new Error("Google Drive 다운로드 실패: HTTP "+response.status);
+                  const bytes=await response.arrayBuffer();
+                  await openFile(doc.name,bytes);
+                  driveState.textContent="Google Drive에서 문서를 열었습니다: "+doc.name;
+                }catch(error){driveState.textContent="Drive 파일 열기 실패: "+error.message;}
+              }else if(data.action===window.google.picker.Action.CANCEL){driveState.textContent="파일 선택을 취소했습니다.";}
+            }).build();
+          picker.setVisible(true);
+        }
+      });
+      window.googleDriveTokenClient=tokenClient;
+      tokenClient.requestAccessToken({prompt:"consent"});
+    }catch(error){driveState.textContent="Google Drive 연결 실패: "+error.message;}
+  }
+  if(connectDrive)connectDrive.addEventListener("click",openDrivePicker);
+  stage.addEventListener("dragover",event=>{event.preventDefault();stage.classList.add("drag-over");});
+  stage.addEventListener("dragleave",()=>stage.classList.remove("drag-over"));
+  stage.addEventListener("drop",event=>{
+    event.preventDefault();stage.classList.remove("drag-over");
+    const file=Array.from(event.dataTransfer?.files||[]).find(f=>/\.(hwp|hwpx)$/i.test(f.name));
+    if(file)openLocal(file);else status.textContent="HWP 또는 HWPX 파일을 끌어 놓으세요.";
+  });
+
   updateControls();
 })();
