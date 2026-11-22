@@ -46,7 +46,13 @@ body,.paper{font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR"
 <meta name="twitter:description" content="브라우저에서 DOCX, Markdown, HTML, TXT, CSV를 HWPX로 변환하고 원본과 결과를 비교합니다. DOC와 PDF 포함 5개 문서 형식 변환 샘플 제공.">
 <meta name="twitter:image" content="https://eentost.github.io/assets/og-site.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"무료 HWPX 문서 변환 체험 | doc2hwpx | eentost","url":"https://eentost.github.io/tools/doc2hwpx.html","inLanguage":"ko","description":"브라우저에서 DOCX, Markdown, HTML, TXT, CSV를 HWPX로 변환하고 원본과 결과를 비교합니다. DOC와 PDF 포함 5개 문서 형식 변환 샘플 제공.","isPartOf":{"@type":"WebSite","name":"eentost","url":"https://eentost.github.io/"},"applicationCategory":"UtilitiesApplication","operatingSystem":"Web","isAccessibleForFree":true}</script>
-</head><body>
+<style>
+.native-viewer-sources{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 18px;background:#fff;border-bottom:1px solid #dce4ef}
+.native-source-btn{display:inline-flex;align-items:center;justify-content:center;padding:9px 12px;border:1px solid #d2def0;border-radius:8px;background:#f7faff;color:#214b7e;font-size:12px;cursor:pointer;font-weight:600}
+.native-source-btn:hover{background:#e8f2ff}
+.native-source-note{font-size:11px;color:#64748b}
+.native-viewer-stage.drag-over{outline:3px dashed #4c89db;outline-offset:-8px;background:#dceafb}
+</style></head><body>
 <header class="top"><div class="top-inner"><div class="logo"><span>한</span>doc2hwpx <small style="font-size:10px;color:#8091a8;font-weight:500">OFFLINE</small></div><div class="top-note"><a href="/" style="color:#315484;text-decoration:none;margin-right:14px">홈으로</a><a href="/tools/" style="color:#315484;text-decoration:none">전체 도구</a></div></div></header>
 <main class="main"><div class="headline"><div><div class="eyebrow">DOCUMENT CONVERSION STUDIO</div><h1>변환하고, 바로 비교하세요.</h1><p>설치 없이 DOC·DOCX·PDF·XLSX·PPTX·ODT·HWP·HWPX·EPUB·XMind·MD·HTML·TXT·CSV를 HWPX로 변환하고 손실 내역을 확인합니다.</p></div><div class="state" id="state">실행 준비됨</div></div>
 <section class="workspace"><aside class="panel control"><h2 class="title">01. 문서 선택</h2><p class="hint">파일 하나를 선택하거나 데모 변환을 실행하세요.</p>
@@ -68,7 +74,22 @@ body,.paper{font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans CJK KR"
     <div><strong>04. HWP / HWPX 웹 뷰어</strong><br><small>PDF로 변환하지 않고 rhwp WebAssembly 엔진으로 원본 페이지를 직접 렌더링합니다.</small></div>
     <label class="btn secondary" style="width:auto;margin:0;padding:9px 13px">문서 열기<input id="nativeViewerFile" type="file" accept=".hwp,.hwpx" hidden></label>
   </div>
-  <div class="native-viewer-tools">
+  <div class="native-viewer-sources" aria-label="문서 가져오기">
+  <label class="native-source-btn">로컬 파일<input id="nativeSourceLocal" type="file" accept=".hwp,.hwpx" hidden></label>
+  <label class="native-source-btn">로컬 폴더<input id="nativeSourceFolder" type="file" accept=".hwp,.hwpx" webkitdirectory multiple hidden></label>
+  <button class="native-source-btn" type="button" id="nativeSourceDrive">Google Drive</button>
+  <button class="native-source-btn" type="button" id="nativeSourceUrlToggle">문서 URL</button>
+  <span class="native-source-note">선택한 파일만 브라우저에서 처리 · 클라우드 접근은 별도 승인</span>
+  <div id="nativeSourceUrlBox" hidden style="width:100%;display:flex;gap:8px;flex-wrap:wrap">
+    <input id="nativeSourceUrl" type="url" placeholder="CORS가 허용된 공개 HWP/HWPX 직접 파일 URL" aria-label="문서 URL" style="flex:1;min-width:230px;padding:9px;border:1px solid #ccd7e4;border-radius:7px">
+    <button class="native-source-btn" type="button" id="nativeSourceUrlOpen">URL 열기</button>
+  </div>
+  <div id="nativeSourceFolderBox" hidden style="width:100%">
+    <label for="nativeSourceFolderSelect" style="font-size:12px">선택한 폴더의 문서</label>
+    <select id="nativeSourceFolderSelect" style="width:100%;max-width:450px;padding:8px;border:1px solid #ccd7e4;border-radius:7px"></select>
+  </div>
+</div>
+<div class="native-viewer-tools">
     <button id="nativeViewerPrev" disabled>이전 페이지</button>
     <label style="font-size:12px;color:#526782">페이지 <input id="nativeViewerPage" type="number" min="1" value="1" disabled> / <span id="nativeViewerPages">—</span></label>
     <button id="nativeViewerNext" disabled>다음 페이지</button>
