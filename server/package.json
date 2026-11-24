@@ -1,1 +1,0 @@
-{"name":"claudeball-relay","private":true,"type":"module","scripts":{"start":"node index.mjs"},"dependencies":{"ws":"^8.18.3"}}
