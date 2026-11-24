@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="https://eentost.github.io/guides/plant-log-print.html">
+<title>인쇄용 식물 관리 기록표 | 초록한칸</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+.record-sheet{background:#fff;border:1px solid #cbd8cd;border-radius:16px;padding:24px}
+.record-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem 1rem;margin:1.25rem 0}
+.record-field{border-bottom:1px solid #68786d;min-height:2.5rem;margin:0}
+.record-scroll{overflow-x:auto}
+.record-table{width:100%;min-width:560px;border-collapse:collapse}
+.record-table th,.record-table td{border:1px solid #68786d;padding:.42rem;vertical-align:top}
+.record-table th{background:#edf5ed;text-align:left}
+.record-table td{height:2.7rem}
+.record-note{min-height:3rem;border:1px solid #68786d;padding:.55rem}
+@media(max-width:560px){.record-sheet{padding:12px}.record-fields{grid-template-columns:1fr}}
+@page{size:A4;margin:12mm}
+@media print {
+ html,body{background:#fff;color:#000;margin:0;font:10.5pt/1.36 sans-serif}
+ .screen-only{display:none!important}
+ .wrap.record-sheet{padding:0;margin:0;max-width:none;width:auto;border:0}
+ .record-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:2mm 5mm;margin:3mm 0}
+ .record-field{min-height:11mm}
+ .record-scroll{overflow:visible}
+ .record-table{table-layout:fixed;min-width:0}
+ .record-table th,.record-table td{font-size:9pt;padding:1.25mm}
+ .record-table td{height:11mm}
+ .record-table tr{break-inside:avoid}
+ .record-note{min-height:16mm}
+}
+</style>
+</head>
+<body>
+<main id="main" class="wrap record-sheet">
+<p class="screen-only"><a href="plant-log.html">← 기록 방법으로 돌아가기</a></p>
+<h1>식물 관리 기록표</h1>
+<p>화분 하나마다 한 장씩 기록합니다. 물을 주지 않은 날도 흙과 식물 상태를 적어두세요.</p>
+<p class="screen-only">브라우저 메뉴에서 <strong>인쇄</strong>를 선택하세요. Windows는 Ctrl+P, Mac은 Command+P입니다. 대상에서 PDF로 저장할 수도 있습니다.</p>
+<div class="record-fields" aria-label="화분 기본 정보">
+<p class="record-field"><strong>식물 이름</strong>:</p>
+<p class="record-field"><strong>관찰 기간</strong>:</p>
+<p class="record-field"><strong>창 방향·창과의 거리</strong>:</p>
+<p class="record-field"><strong>직사광선 시간대</strong>:</p>
+<p class="record-field"><strong>화분 크기·배양토</strong>:</p>
+<p class="record-field"><strong>배수구·받침 유무</strong>:</p>
+</div>
+<div class="record-scroll" tabindex="0" role="region" aria-label="관찰 기록 표, 표가 넓으면 좌우로 이동하세요">
+<table class="record-table" aria-label="관찰 기록표">
+<thead><tr><th scope="col">관찰 날짜</th><th scope="col">흙 상태·화분 무게</th><th scope="col">물 주기·배수</th><th scope="col">잎·줄기 변화</th><th scope="col">작업·해충</th><th scope="col">다음 관찰</th></tr></thead>
+<tbody>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+</div>
+<p class="record-note"><strong>다음에 바꿔 볼 조건 하나:</strong></p>
+<p>초록한칸 · eentost.github.io</p>
+</main>
+</body>
+</html>
